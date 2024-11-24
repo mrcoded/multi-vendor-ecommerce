@@ -1,4 +1,4 @@
-import React from "react";
+import React, { SetStateAction } from "react";
 import Image from "next/image";
 import {
   AlignJustify,
@@ -19,13 +19,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
-function Navbar() {
+interface NavbarProps {
+  showSidebar: boolean;
+  setShowSidebar: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
   return (
-    <div className="flex items-center justify-between bg-white text-slate-50 dark:bg-slate-800 h-20 p-8 fixed top-0 w-full z-50 pr-[20rem]">
-      <button className="text-lime-700 dark:text-lime-500">
+    <div className="flex items-center justify-between bg-white text-slate-50 dark:bg-slate-800 h-20 p-8 fixed top-0 w-full z-50 sm:pr-[20rem]">
+      <button
+        onClick={() => setShowSidebar(!showSidebar)}
+        className="text-lime-700 dark:text-lime-500"
+      >
         <AlignJustify />
       </button>
+      <Link href="/dashboard" className="sm:hidden">
+        Logo
+      </Link>
       <div className="flex space-x-3 ">
         <ThemeSwitcherButton />
 
