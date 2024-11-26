@@ -4,6 +4,9 @@ import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 import { Toaster } from "react-hot-toast";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "@/app/api/uploadthing/core";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 
 export function ThemeProvider({
   children,
@@ -11,7 +14,9 @@ export function ThemeProvider({
 }: React.ComponentProps<typeof NextThemesProvider>) {
   return (
     <NextThemesProvider {...props}>
-      <Toaster position="top-center" reverseOrder={false} /> {children}
+      <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+      <Toaster position="top-center" reverseOrder={false} />
+      {children}
     </NextThemesProvider>
   );
 }
