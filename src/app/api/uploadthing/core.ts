@@ -29,6 +29,58 @@ export const ourFileRouter = {
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };
     }),
+  storeLogoUploader: f({ image: { maxFileSize: "4MB" } })
+    .middleware(async ({ req }) => {
+      const user = await auth(req);
+
+      if (!user) throw new UploadThingError("Unauthorized");
+
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("file url", file.url, metadata);
+
+      return { uploadedBy: metadata.userId };
+    }),
+  bannerImageUploader: f({ image: { maxFileSize: "2MB" } })
+    .middleware(async ({ req }) => {
+      const user = await auth(req);
+
+      if (!user) throw new UploadThingError("Unauthorized");
+
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("file url", file.url, metadata);
+
+      return { uploadedBy: metadata.userId };
+    }),
+  productImageUploader: f({ image: { maxFileSize: "2MB" } })
+    .middleware(async ({ req }) => {
+      const user = await auth(req);
+
+      if (!user) throw new UploadThingError("Unauthorized");
+
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("file url", file.url, metadata);
+
+      return { uploadedBy: metadata.userId };
+    }),
+  trainingImageUploader: f({ image: { maxFileSize: "2MB" } })
+    .middleware(async ({ req }) => {
+      const user = await auth(req);
+
+      if (!user) throw new UploadThingError("Unauthorized");
+
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("file url", file.url, metadata);
+
+      return { uploadedBy: metadata.userId };
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
