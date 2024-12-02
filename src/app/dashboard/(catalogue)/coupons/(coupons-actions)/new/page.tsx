@@ -7,8 +7,9 @@ import { makePostRequest } from "@/lib/apiRequest";
 import { generateCouponCode } from "@/lib/generateCouponCode";
 
 import TextInput from "@/components/inputs/TextInput";
+import FormHeader from "../../../../_components/FormHeader";
+import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
-import FormHeader from "../../../_components/FormHeader";
 
 const NewCoupon = () => {
   const [loading, setLoading] = useState(false);
@@ -16,9 +17,12 @@ const NewCoupon = () => {
   const {
     register,
     reset,
+    watch,
     handleSubmit,
     formState: { errors },
   } = useForm();
+
+  const isActive = watch("isActive");
 
   const onSubmit = async (data: FieldValues) => {
     const couponCode = generateCouponCode({
@@ -41,7 +45,7 @@ const NewCoupon = () => {
     <div>
       <FormHeader title="New Coupon" />
       <form
-        onClick={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
       >
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
@@ -60,6 +64,14 @@ const NewCoupon = () => {
             register={register}
             errors={errors}
             className="w-full"
+          />
+
+          <ToggleInput
+            label="Publish your Coupon"
+            name="isActive"
+            truthyValue="Active"
+            falsyValue="Draft"
+            register={register}
           />
         </div>
 
