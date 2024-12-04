@@ -14,23 +14,23 @@ datasource db {
 }
 
 model Coupon {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
   title      String
   couponCode String
   expiryDate DateTime
   isActive   Boolean
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @updatedAt
 }
 
 model Banner {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   link      String
   imageUrl  String
   isActive  Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 model Category {
@@ -45,8 +45,8 @@ model Category {
   storeIds String[] @db.ObjectId
   stores   Store[]  @relation(fields: [storeIds], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 model Store {
@@ -60,21 +60,29 @@ model Store {
   categoryIds String[]   @db.ObjectId
   categories  Category[] @relation(fields: [categoryIds], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 model Product {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  title    String  @unique
-  isActive Boolean
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  slug         String   @unique
+  imageUrl     String?
+  description  String?
+  isActive     Boolean
+  sku          String?
+  barcode      String?
+  productPrice Float
+  salePrice    Float
+  tags         String[]
 
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId String   @db.ObjectId
 
-  farmer   Farmer @relation(fields: [categoryId], references: [id])
-  farmerId String @db.ObjectId
+  vendor   Vendor @relation(fields: [vendorId], references: [id])
+  vendorId String @db.ObjectId
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
 }
