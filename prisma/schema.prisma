@@ -41,9 +41,19 @@ model Category {
 
   products  Product[]
   marketIds String[]  @db.ObjectId
-  markets Market[] @relation((fields: [marketIds],references: [id]))
+  markets   Market[]  @relation(fields: [marketIds], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Market {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+
+  categoryIds String[]   @db.ObjectId
+  categories  Category[] @relation(fields: [categoryIds], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
