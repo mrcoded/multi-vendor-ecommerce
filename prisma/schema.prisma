@@ -39,20 +39,31 @@ model Category {
   imageUrl    String
   description String
 
-  products  Product[]
-  marketIds String[]  @db.ObjectId
-  markets   Market[]  @relation(fields: [marketIds], references: [id])
+  products Product[]
+  storeIds String[]  @db.ObjectId
+  stores   Store[]   @relation(fields: [storeIds], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Market {
+model Store {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
   name String @unique
 
   categoryIds String[]   @db.ObjectId
   categories  Category[] @relation(fields: [categoryIds], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  title String @unique
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String   @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
