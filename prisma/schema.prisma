@@ -18,6 +18,7 @@ model Coupon {
   title      String
   couponCode String
   expiryDate DateTime
+  isActive   Boolean
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -33,23 +34,28 @@ model Banner {
 }
 
 model Category {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   title       String
-  slug        String
-  imageUrl    String
-  description String
+  slug        String    @unique
+  imageUrl    String?
+  description String?
+  isActive    Boolean
+  products    Product[]
 
-  products Product[]
-  storeIds String[]  @db.ObjectId
-  stores   Store[]   @relation(fields: [storeIds], references: [id])
+  storeIds String[] @db.ObjectId
+  stores   Store[]  @relation(fields: [storeIds], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Store {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String @unique
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String  @unique
+  logoUrl     String?
+  description String?
+  isActive    Boolean
 
   categoryIds String[]   @db.ObjectId
   categories  Category[] @relation(fields: [categoryIds], references: [id])
@@ -59,11 +65,15 @@ model Store {
 }
 
 model Product {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
-  title String @unique
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  title    String  @unique
+  isActive Boolean
 
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId String   @db.ObjectId
+
+  farmer   Farmer @relation(fields: [categoryId], references: [id])
+  farmerId String @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
