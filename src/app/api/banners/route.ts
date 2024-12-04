@@ -30,3 +30,27 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function GET(request: Request) {
+  try {
+    const banners = await db.banner.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return NextResponse.json(banners);
+  } catch (error) {
+    console.log(error);
+
+    return NextResponse.json(
+      {
+        message: "Unable to fetch Banners",
+        error,
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
