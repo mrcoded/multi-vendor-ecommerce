@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { FieldValues, useForm } from "react-hook-form";
 
 import { generateSlug } from "@/lib/generateSlug";
@@ -8,25 +10,27 @@ import { makePostRequest } from "@/lib/apiRequest";
 
 import TextInput from "@/components/inputs/TextInput";
 import ImageInput from "@/components/inputs/ImageInput";
-import FormHeader from "../../../../_components/FormHeader";
-import SelectInput from "@/components/inputs/SelectInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
+import FormHeader from "@/app/dashboard/_components/FormHeader";
 
 const NewCategory = () => {
+  const router = useRouter();
+
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     reset,
-    watch,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const isActive = watch("isActive");
+  const redirectUrl = () => {
+    router.push("/dashboard/coupons");
+  };
 
   const onSubmit = async (data: FieldValues) => {
     const slug = generateSlug(data.title);
@@ -39,6 +43,7 @@ const NewCategory = () => {
       data,
       resourceName: "Category",
       reset,
+      redirectUrl,
     });
 
     setImageUrl("");
@@ -56,24 +61,16 @@ const NewCategory = () => {
             label="Category Title"
             name="title"
             register={register}
-            className="w-full"
             errors={errors}
           />
-          <SelectInput
-            label="Select Store"
-            name="storeIds"
-            register={register}
-            errors={errors}
-            className="w-full"
-            options={stores}
-            hasMultipleSelect={false}
-          />
+
           <TextAreaInput
             label="Category Description"
             name="description"
             register={register}
             errors={errors}
           />
+
           <ImageInput
             imageUrl={imageUrl}
             setImageUrl={setImageUrl}
@@ -101,22 +98,3 @@ const NewCategory = () => {
 };
 
 export default NewCategory;
-
-const stores = [
-  {
-    id: 1,
-    title: "Sproutes Farmers Market",
-  },
-  {
-    id: 2,
-    title: "Cabbage Farmers Market",
-  },
-  {
-    id: 3,
-    title: "Carrot Farmers Market",
-  },
-  {
-    id: 4,
-    title: "Brocolli Farmers Market",
-  },
-];
