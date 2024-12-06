@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 export async function POST(request: Request) {
   try {
-    const { name, password, email } = await request.json();
+    const { name, password, email, role } = await request.json();
 
     //check if user already exists in the db
     const existingUser = await db.user.findUnique({
@@ -29,6 +29,7 @@ export async function POST(request: Request) {
         name,
         password: hashedPassword,
         email,
+        role,
       },
     });
 
@@ -44,6 +45,30 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message: "Unable to create new User",
+        error,
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
+export async function GET(request: Request) {
+  try {
+    const users = await db.category.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return NextResponse.json(users);
+  } catch (error) {
+    console.log(error);
+
+    return NextResponse.json(
+      {
+        message: "Unable to fetch Users",
         error,
       },
       {
