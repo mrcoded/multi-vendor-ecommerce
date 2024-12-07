@@ -1,34 +1,44 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { FieldValues, useForm } from "react-hook-form";
 
 import { makePostRequest } from "@/lib/apiRequest";
 import { generateCouponCode } from "@/lib/generateCouponCode";
 
 import TextInput from "@/components/inputs/TextInput";
-import FormHeader from "../../../../_components/FormHeader";
 import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
+import FormHeader from "@/app/dashboard/_components/FormHeader";
+import generateISOFormatDate from "@/lib/generateISOFormatDate";
 
 const NewCoupon = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     reset,
-    watch,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const isActive = watch("isActive");
+  const redirectUrl = () => {
+    router.push("/dashboard/coupons");
+  };
 
   const onSubmit = async (data: FieldValues) => {
+    if (!data.title || !data.expiryDate) return;
+
     const couponCode = generateCouponCode({
       title: data.title,
       expiryDate: data.expiryDate,
     });
+
+    const formattedDate = generateISOFormatDate(data.expiryDate);
+    data.expiryDate = formattedDate;
 
     data.couponCode = couponCode;
 
@@ -38,6 +48,7 @@ const NewCoupon = () => {
       data,
       resourceName: "Coupon",
       reset,
+      redirectUrl,
     });
   };
 
