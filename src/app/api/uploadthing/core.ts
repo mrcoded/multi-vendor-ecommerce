@@ -68,7 +68,20 @@ export const ourFileRouter = {
 
       return { uploadedBy: metadata.userId };
     }),
-  trainingImageUploader: f({ image: { maxFileSize: "2MB" } })
+  communityImageUploader: f({ image: { maxFileSize: "2MB" } })
+    .middleware(async ({ req }) => {
+      const user = await auth(req);
+
+      if (!user) throw new UploadThingError("Unauthorized");
+
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("file url", file.url, metadata);
+
+      return { uploadedBy: metadata.userId };
+    }),
+  vendorProfileImageUploader: f({ image: { maxFileSize: "2MB" } })
     .middleware(async ({ req }) => {
       const user = await auth(req);
 
