@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    const users = await db.category.findMany({
+    const users = await db.user.findMany({
       orderBy: {
         createdAt: "desc",
       },
