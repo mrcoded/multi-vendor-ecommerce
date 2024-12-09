@@ -5,16 +5,17 @@ import { useRouter } from "next/navigation";
 import { FieldValues, useForm } from "react-hook-form";
 
 import { makePostRequest } from "@/lib/apiRequest";
+import generateUserCode from "@/lib/generateUserCode";
 
 import TextInput from "@/components/inputs/TextInput";
 import ImageInput from "@/components/inputs/ImageInput";
+import ArrayItemsInput from "../inputs/ArrayItemsInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
-import ArrayItemsInput from "../inputs/ArrayItemsInput";
 
 type NewVendorProps = {
-  user: {
+  user?: {
     id: string;
     name: string;
     phone: string;
@@ -40,16 +41,15 @@ function NewVendorForm({ user }: NewVendorProps) {
   } = useForm();
 
   const redirectUrl = () => {
-    // router.push("/dashboard/coupons");
+    router.push("/dashboard/vendors");
   };
 
   const onSubmit = async (data: FieldValues) => {
-    const code = data.name;
-    // const code = generateUserCode("LFF", data.name);
+    const code = generateUserCode("MVE", data.name);
     data.code = code;
     data.products = products;
     data.imageUrl = imageUrl;
-    data.userId = user.id;
+    data.userId = user?.id;
 
     makePostRequest({
       setLoading,
@@ -73,7 +73,7 @@ function NewVendorForm({ user }: NewVendorProps) {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user.name}
+          defaultValue={user?.name}
         />
 
         <TextInput
