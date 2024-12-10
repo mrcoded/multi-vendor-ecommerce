@@ -21,6 +21,7 @@ export async function POST(request: Request) {
         { status: 409 }
       );
     }
+
     const newCategory = await db.category.create({
       data: { title, slug, imageUrl, description, isActive },
     });

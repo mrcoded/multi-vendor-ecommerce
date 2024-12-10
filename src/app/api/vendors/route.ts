@@ -12,7 +12,7 @@ export async function POST(request: Request) {
         contactPersonPhone: data.contactPersonPhone,
         email: data.email,
         name: data.name,
-        notes: data.name,
+        notes: data.notes,
         phone: data.phone,
         physicalAddress: data.physicalAddress,
         terms: data.terms,
