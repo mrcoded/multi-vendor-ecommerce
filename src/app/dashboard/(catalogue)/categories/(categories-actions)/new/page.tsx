@@ -58,8 +58,8 @@ const NewCategory = () => {
       >
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
           <TextInput
-            label="Category Title"
-            name="title"
+            label="Category Name"
+            name="name"
             register={register}
             errors={errors}
           />

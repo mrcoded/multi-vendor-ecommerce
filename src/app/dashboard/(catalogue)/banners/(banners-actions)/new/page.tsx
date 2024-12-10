@@ -27,7 +27,7 @@ const NewBanner = () => {
   } = useForm();
 
   const redirectUrl = () => {
-    router.push("/dashboard/coupons");
+    router.push("/dashboard/banners");
   };
 
   const onSubmit = async (data: FieldValues) => {

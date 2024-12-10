@@ -1,10 +1,10 @@
 import React from "react";
-import getUserData from "@/lib/getUserData";
+import getData from "@/lib/getData";
 import NewVendorForm from "@/components/forms/NewVendorForm";
 
 const page = async ({ params: { id } }: { params: { id: string } }) => {
   //GET user by ID
-  const user = await getUserData(`users/${id}`);
+  const user = await getData(`users/${id}`);
 
   return (
     <div className="flex flex-col gap-6 p-16">
