@@ -1,4 +1,4 @@
-import React, { SetStateAction } from "react";
+import React from "react";
 import Image from "next/image";
 import {
   AlignJustify,
@@ -43,7 +43,7 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
 
         {/* Notifications */}
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
             <button
               type="button"
               className="relative inline-flex items-center p-3 text-sm font-medium text-center text-white bg-transparent rounded-lg"
@@ -59,10 +59,10 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
           <DropdownMenuContent className="px-4 py-2 pr-8">
             <DropdownMenuLabel>Notifications</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <div className="flex items-center space-x-2">
                 <Image
-                  src="/assets/user-profile.png"
+                  src="/"
                   alt="User Profile"
                   width={200}
                   height={200}
@@ -82,10 +82,10 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
                 </button>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <div className="flex items-center space-x-2">
                 <Image
-                  src="/assets/user-profile.png"
+                  src="/"
                   alt="User Profile"
                   width={200}
                   height={200}
@@ -105,10 +105,10 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
                 </button>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <div className="flex items-center space-x-2">
                 <Image
-                  src="/assets/user-profile.png"
+                  src="/"
                   alt="User Profile"
                   width={200}
                   height={200}
@@ -133,10 +133,10 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
 
         {/* My Account */}
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
             <button>
               <Image
-                src="/userprofile.png"
+                src="/"
                 alt="User Profile"
                 width={200}
                 height={200}
@@ -147,19 +147,19 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
           <DropdownMenuContent className="px-4 py-2 pr-8">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <button className="flex items-center space-x-2">
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 <span>Dashboard</span>
               </button>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <button className="flex items-center space-x-2">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Edit Profile</span>
               </button>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <button className="flex items-center space-x-2">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Logout</span>

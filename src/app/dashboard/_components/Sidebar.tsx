@@ -57,13 +57,7 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
         href="/dashboard"
         onClick={() => setShowSidebar(true)}
       >
-        <Image
-          src="/userprofile.png"
-          alt="logo"
-          width={100}
-          height={18}
-          className="w-36"
-        />
+        <Image src="/" alt="logo" width={100} height={18} className="w-36" />
       </Link>
       <div className="space-y-3 flex flex-col mt-14">
         <Link
@@ -80,8 +74,8 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
         </Link>
 
         <Collapsible className="px-6 py-2">
-          <CollapsibleTrigger onClick={() => setOpenMenu(!openMenu)}>
-            <button className={cn("flex items-center space-x-6 py-2")}>
+          <CollapsibleTrigger onClick={() => setOpenMenu(!openMenu)} asChild>
+            <button className="flex items-center space-x-6 py-2">
               <div className="flex items-center space-x-3">
                 <Slack />
                 <span>Catalogue</span>
@@ -90,7 +84,7 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
               {openMenu ? <ChevronDown /> : <ChevronRight />}
             </button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="rounded-lg py-3 px-3 pl-6 bg-slate-800">
+          <CollapsibleContent className="rounded-lg py-3 px-3 pl-6 dark:bg-slate-800 dark:text-slate-300 ">
             {catalogueLinks.map((link, i) => (
               <Link
                 key={i}
@@ -197,18 +191,13 @@ const catalogueLinks = [
     href: "/dashboard/categories",
   },
   {
-    title: "Attributes",
-    icon: SendToBack,
-    href: "/dashboard/attributes",
-  },
-  {
     title: "Coupons",
     icon: ScanSearch,
     href: "/dashboard/coupons",
   },
   {
-    title: "Store Sliders",
+    title: "Store Banners",
     icon: MonitorPlay,
-    href: "/dashboard/sliders",
+    href: "/dashboard/banners",
   },
 ];
