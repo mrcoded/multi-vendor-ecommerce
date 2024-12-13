@@ -53,7 +53,7 @@ export const makePostRequest = async ({
       toast.success(`New ${resourceName} created successfully!`);
       reset();
 
-      redirectUrl(responseData.data.id);
+      redirectUrl(responseData.data?.id);
     }
 
     if (response.status === 409) {

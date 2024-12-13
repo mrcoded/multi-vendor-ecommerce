@@ -131,7 +131,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
 
           <ToggleInput
             label="Supports Wholesales"
-            name="isWholeSale"
+            name="isWholesale"
             truthyValue="Supported"
             falsyValue="Not Supported"
             register={register}
