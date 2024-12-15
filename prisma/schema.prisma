@@ -67,17 +67,21 @@ model Store {
 }
 
 model Product {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  title        String
-  slug         String   @unique
-  imageUrl     String?
-  description  String?
-  isActive     Boolean
-  sku          String?
-  barcode      String?
-  productPrice Float
-  salePrice    Float
-  tags         String[]
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  slug              String   @unique
+  imageUrl          String?
+  description       String?
+  isActive          Boolean
+  isWholesale       Boolean
+  sku               String?
+  barcode           String?
+  productPrice      Float
+  productCode       String?
+  salePrice         Float
+  tags              String[]
+  wholesaleQuantity Int
+  wholesalePrice    Float
 
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId String   @db.ObjectId
@@ -122,6 +126,9 @@ model CommunityPost {
 
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId String   @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum UserRole {
