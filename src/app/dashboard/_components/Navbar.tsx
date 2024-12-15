@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import Image from "next/image";
 import {
   AlignJustify,
@@ -19,7 +20,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Link from "next/link";
 
 interface NavbarProps {
   showSidebar: boolean;
@@ -62,7 +62,7 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
             <DropdownMenuItem asChild>
               <div className="flex items-center space-x-2">
                 <Image
-                  src="/"
+                  src="/assets/userprofile.png"
                   alt="User Profile"
                   width={200}
                   height={200}
@@ -85,7 +85,7 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
             <DropdownMenuItem asChild>
               <div className="flex items-center space-x-2">
                 <Image
-                  src="/"
+                  src="/assets/userprofile.png"
                   alt="User Profile"
                   width={200}
                   height={200}
@@ -108,7 +108,7 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
             <DropdownMenuItem asChild>
               <div className="flex items-center space-x-2">
                 <Image
-                  src="/"
+                  src="/assets/userprofile.png"
                   alt="User Profile"
                   width={200}
                   height={200}
@@ -136,7 +136,7 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
           <DropdownMenuTrigger asChild>
             <button>
               <Image
-                src="/"
+                src="/assets/userprofile.png"
                 alt="User Profile"
                 width={200}
                 height={200}
