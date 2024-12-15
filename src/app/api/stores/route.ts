@@ -3,19 +3,35 @@ import { db } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
-    const { title, slug, logoUrl, description, isActive } =
-      await request.json();
+    const storeData = await request.json();
+
+    //Check if store already exists
+    const existingStore = await db.store.findUnique({
+      where: {
+        slug: storeData.slug,
+      },
+    });
+
+    if (existingStore) {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Store already exists",
+        },
+        { status: 409 }
+      );
+    }
 
     const newStore = await db.store.create({
       data: {
-        title,
-        slug,
-        logoUrl,
-        description,
-        isActive,
+        title: storeData.title,
+        slug: storeData.slug,
+        logoUrl: storeData.logoUrl,
+        description: storeData.description,
+        isActive: storeData.isActive,
+        categoryIds: storeData.categoryIds,
       },
     });
-    console.log(newStore);
 
     return NextResponse.json(newStore);
   } catch (error) {
