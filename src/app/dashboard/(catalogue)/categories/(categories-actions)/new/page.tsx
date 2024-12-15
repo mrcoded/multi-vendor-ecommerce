@@ -29,7 +29,7 @@ const NewCategory = () => {
   } = useForm();
 
   const redirectUrl = () => {
-    router.push("/dashboard/coupons");
+    router.push("/dashboard/categories");
   };
 
   const onSubmit = async (data: FieldValues) => {
@@ -58,8 +58,8 @@ const NewCategory = () => {
       >
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
           <TextInput
-            label="Category Name"
-            name="name"
+            label="Category Title"
+            name="title"
             register={register}
             errors={errors}
           />
