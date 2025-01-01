@@ -8,6 +8,7 @@ interface ToggleInputProps {
   falsyValue: string;
   className?: string;
   register: UseFormRegister<FieldValues>;
+  defaultChecked?: string;
 }
 
 function ToggleInput({
@@ -16,6 +17,7 @@ function ToggleInput({
   truthyValue,
   falsyValue,
   register,
+  defaultChecked,
   className = "sm:col-span-2 flex flex-wrap",
 }: ToggleInputProps) {
   const [value, setValue] = useState(true);
@@ -33,6 +35,7 @@ function ToggleInput({
             {...register(name)}
             type="checkbox"
             checked={value}
+            defaultChecked
             className="sr-only peer"
             onChange={(e) => setValue(e.target.checked)}
           />
