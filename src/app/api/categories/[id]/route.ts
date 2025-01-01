@@ -41,11 +41,18 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET(request: Request, params: { id: string }) {
+export async function GET(
+  request: Request,
+  {
+    params: { id },
+  }: {
+    params: { id: string };
+  }
+) {
   try {
     const category = await db.category.findUnique({
       where: {
-        id: params.id,
+        id,
       },
       include: {
         products: true,
@@ -68,11 +75,18 @@ export async function GET(request: Request, params: { id: string }) {
   }
 }
 
-export async function DELETE(request: Request, params: { id: string }) {
+export async function DELETE(
+  request: Request,
+  {
+    params: { id },
+  }: {
+    params: { id: string };
+  }
+) {
   try {
     const existingCategory = await db.category.findUnique({
       where: {
-        id: params.id,
+        id,
       },
     });
 
@@ -90,7 +104,7 @@ export async function DELETE(request: Request, params: { id: string }) {
 
     const deletedCategory = await db.category.delete({
       where: {
-        id: params.id,
+        id,
       },
     });
 
