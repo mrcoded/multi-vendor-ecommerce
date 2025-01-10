@@ -35,7 +35,6 @@ function ToggleInput({
             {...register(name)}
             type="checkbox"
             checked={value}
-            defaultChecked
             className="sr-only peer"
             onChange={(e) => setValue(e.target.checked)}
           />
