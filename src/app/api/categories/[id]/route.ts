@@ -123,3 +123,54 @@ export async function DELETE(
     );
   }
 }
+
+export async function PUT(
+  request: Request,
+  {
+    params: { id },
+  }: {
+    params: { id: string };
+  }
+) {
+  try {
+    const { title, slug, imageUrl, description, isActive } =
+      await request.json();
+
+    const existingCategory = await db.category.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingCategory) {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Category not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    const updatedCategory = await db.category.update({
+      where: {
+        id,
+      },
+      data: { title, slug, imageUrl, description, isActive },
+    });
+
+    return NextResponse.json(updatedCategory);
+  } catch (error) {
+    console.log(error);
+
+    return NextResponse.json(
+      {
+        message: "Unable to update Category",
+        error,
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
