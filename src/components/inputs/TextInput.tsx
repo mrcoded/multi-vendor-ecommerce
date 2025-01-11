@@ -9,7 +9,7 @@ interface TextInputProps {
   isRequired?: boolean;
   type?: string;
   className?: string;
-  defaultValue?: string;
+  defaultValue?: string | number;
 }
 
 function TextInput({
