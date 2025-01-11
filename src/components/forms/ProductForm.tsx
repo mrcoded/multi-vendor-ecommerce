@@ -37,7 +37,7 @@ interface ProductFormData {
   tags: string[];
   wholesaleQuantity: number;
   wholesalePrice: number;
-  vendorId?: string;
+  userId: string;
 }
 
 const ProductForm = ({
@@ -78,17 +78,30 @@ const ProductForm = ({
     data.tags = tags;
     data.productCode = productCode;
 
-    makePostRequest({
-      setLoading,
-      endpoint: "api/products",
-      data,
-      resourceName: "Product",
-      reset,
-      redirectUrl,
-    });
+    if (id) {
+      //PUT request (update)
+      makePostRequest({
+        setLoading,
+        endpoint: `api/products/${id}`,
+        data,
+        resourceName: "Product",
+        reset,
+        redirectUrl,
+      });
+    } else {
+      //POST request (create)
+      makePostRequest({
+        setLoading,
+        endpoint: "api/products",
+        data,
+        resourceName: "Product",
+        reset,
+        redirectUrl,
+      });
 
-    setTags([]);
-    setImageUrl("");
+      setTags([]);
+      setImageUrl("");
+    }
   };
 
   return (
@@ -163,7 +176,7 @@ const ProductForm = ({
             className="w-full"
             options={vendors}
             hasMultipleSelect={false}
-            defaultValue={updateData?.vendorId}
+            defaultValue={updateData?.userId}
           />
 
           <ToggleInput
@@ -201,7 +214,7 @@ const ProductForm = ({
             endpoint="productImageUploader"
             label="Product Image"
             initialImage={initialImage}
-            setInitialImage={() => setInitialImage}
+            setInitialImage={setInitialImage}
           />
 
           {/* Tags */}
@@ -209,7 +222,7 @@ const ProductForm = ({
             setItems={setTags}
             items={tags}
             itemTitle="Tag"
-            defaultValue={updateData?.tags}
+            defaultValue={updateData?.tags ?? []}
           />
 
           <TextAreaInput
