@@ -12,22 +12,32 @@ function ArrayItemsInput({
   setItems: React.Dispatch<React.SetStateAction<string[]>>;
   items: string[];
   itemTitle: string;
-  defaultValue?: string[];
+  defaultValue: string[];
 }) {
   const [item, setItem] = useState("");
   const [showTagForm, setShowTagForm] = useState(false);
 
+  // Combine defaultValue and items for rendering
+  const combinedItems = [...defaultValue, ...items];
+
   const addItems = () => {
     if (!item) return;
 
-    setItems([...items, item]);
+    setItems([...combinedItems, item]);
     setItem("");
   };
 
   const removeItems = (index: number) => {
-    const newitems = [...items];
-    newitems.splice(index, 1);
-    setItems(newitems);
+    if (index < defaultValue.length) {
+      // Remove from defaultValue directly if it's within that range
+      defaultValue.splice(index, 1);
+    } else {
+      // Remove from `items` if it's a newly added item
+      const adjustedIndex = index - defaultValue.length;
+      const newItems = [...items];
+      newItems.splice(adjustedIndex, 1);
+      setItems(newItems);
+    }
   };
 
   return (
@@ -59,7 +69,7 @@ function ArrayItemsInput({
               onChange={(e) => setItem(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-lime-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder={`Create a ${itemTitle}...`}
-              required
+              // required
             />
           </div>
 
@@ -91,7 +101,7 @@ function ArrayItemsInput({
       )}
 
       <div className="flex flex-wrap gap-4 mt-4">
-        {(defaultValue || items)?.map((tag, index) => {
+        {combinedItems?.map((tag, index) => {
           return (
             <div
               key={index}
@@ -99,7 +109,7 @@ function ArrayItemsInput({
               className="bg-slate-200 flex space-x-2 items-center dark:bg-slate-600 px-4 py-2 rounded-lg cursor-pointer dark:text-slate-300 text-slate-800"
             >
               <p>{tag}</p>
-              <button>
+              <button type="button">
                 <X className="w-4 h-4" />
               </button>
             </div>
