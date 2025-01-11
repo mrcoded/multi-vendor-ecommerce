@@ -1,9 +1,15 @@
 import React from "react";
+import getData from "@/lib/getData";
+
+import { columns } from "./columns";
+import { DataTable } from "@/components/tables/DataTable/page";
 
 import PageHeader from "../../_components/PageHeader";
 import TableActions from "../../_components/TableActions";
 
-const page = () => {
+const page = async () => {
+  const categories = await getData("categories");
+
   return (
     <div>
       {/* Header */}
@@ -17,7 +23,7 @@ const page = () => {
       <TableActions />
 
       <div className="py-8">
-        <h2>Table</h2>
+        <DataTable data={categories} columns={columns} />
       </div>
     </div>
   );
