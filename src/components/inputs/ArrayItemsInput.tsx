@@ -7,10 +7,12 @@ function ArrayItemsInput({
   setItems,
   items,
   itemTitle,
+  defaultValue,
 }: {
   setItems: React.Dispatch<React.SetStateAction<string[]>>;
   items: string[];
   itemTitle: string;
+  defaultValue?: string[];
 }) {
   const [item, setItem] = useState("");
   const [showTagForm, setShowTagForm] = useState(false);
@@ -89,7 +91,7 @@ function ArrayItemsInput({
       )}
 
       <div className="flex flex-wrap gap-4 mt-4">
-        {items.map((tag, index) => {
+        {(defaultValue || items)?.map((tag, index) => {
           return (
             <div
               key={index}
