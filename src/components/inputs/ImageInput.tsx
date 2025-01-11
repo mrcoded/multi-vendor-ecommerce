@@ -14,7 +14,7 @@ interface ImageInputProps {
   setImageUrl: React.Dispatch<React.SetStateAction<string>>;
   endpoint: any;
   initialImage?: string;
-  setInitialImage: React.Dispatch<React.SetStateAction<string>>;
+  setInitialImage: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 function ImageInput({
