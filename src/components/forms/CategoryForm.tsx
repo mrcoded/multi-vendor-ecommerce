@@ -15,23 +15,16 @@ import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
 
-const CategoryForm = ({
-  updateData = {
-    id: "",
-    title: "",
-    description: "",
-    slug: "",
-    imageUrl: "",
-  },
-}: {
-  updateData?: {
-    id: string;
-    title: string;
-    description: string;
-    slug: string;
-    imageUrl: string;
-  };
-}) => {
+interface CategoryFormProps {
+  id: string;
+  title: string;
+  description: string;
+  slug: string;
+  imageUrl: string;
+  isActive: boolean;
+}
+
+const CategoryForm = ({ updateData }: { updateData?: CategoryFormProps }) => {
   const router = useRouter();
   const id = updateData?.id ?? "";
 

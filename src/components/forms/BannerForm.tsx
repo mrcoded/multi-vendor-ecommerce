@@ -13,21 +13,15 @@ import ImageInput from "@/components/inputs/ImageInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 
-const BannerForm = ({
-  updateData = {
-    id: "",
-    title: "",
-    link: "",
-    imageUrl: "",
-  },
-}: {
-  updateData?: {
-    id: string;
-    title: string;
-    link: string;
-    imageUrl: string;
-  };
-}) => {
+interface BannerFormProps {
+  id: string;
+  title: string;
+  link: string;
+  imageUrl: string;
+  isActive: boolean;
+}
+
+const BannerForm = ({ updateData }: { updateData?: BannerFormProps }) => {
   const router = useRouter();
   const id = updateData?.id ?? "";
 
