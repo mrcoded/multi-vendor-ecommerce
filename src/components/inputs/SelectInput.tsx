@@ -7,6 +7,7 @@ interface SelectInputProps {
   errors: FieldErrors<FieldValues>;
   className: string;
   hasMultipleSelect?: boolean;
+  defaultValue?: string;
   options: {
     id: string;
     title?: string;
@@ -20,6 +21,7 @@ function SelectInput({
   register,
   errors,
   className = "sm:col-span-2",
+  defaultValue,
   hasMultipleSelect = false,
   options = [],
 }: SelectInputProps) {
@@ -36,6 +38,7 @@ function SelectInput({
           {...register(`${name}`)}
           id={name}
           name={name}
+          defaultValue={defaultValue}
           multiple={hasMultipleSelect}
           className="block w-full rounded-md border-0 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-lime-700  sm:text-sm sm:leading-6"
         >
