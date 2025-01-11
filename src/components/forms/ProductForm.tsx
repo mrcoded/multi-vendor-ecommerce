@@ -16,16 +16,46 @@ import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
 import ArrayItemsInput from "@/components/inputs/ArrayItemsInput";
 
-interface NewProductFormProps {
+interface ProductFormProps {
   categories: { id: string; title: string }[];
   vendors: { id: string; name: string }[];
 }
 
-const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
+interface ProductFormData {
+  id: string;
+  title: string;
+  slug: string;
+  imageUrl: string;
+  categoryId: string;
+  description: string;
+  isWholesale: boolean;
+  sku: string;
+  barcode: string;
+  productPrice: number;
+  productCode: string;
+  salePrice: number;
+  tags: string[];
+  wholesaleQuantity: number;
+  wholesalePrice: number;
+  vendorId?: string;
+}
+
+const ProductForm = ({
+  categories,
+  vendors,
+  updateData,
+}: {
+  updateData?: ProductFormData;
+  categories: ProductFormProps["categories"];
+  vendors: ProductFormProps["vendors"];
+}) => {
   const router = useRouter();
+  const id = updateData?.id ?? "";
 
   const [loading, setLoading] = useState(false);
+
   const [imageUrl, setImageUrl] = useState("");
+  const [initialImage, setInitialImage] = useState(updateData?.imageUrl);
 
   const [tags, setTags] = useState<string[]>([]);
 
@@ -73,6 +103,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             name="title"
             register={register}
             errors={errors}
+            defaultValue={updateData?.title}
           />
 
           <TextInput
@@ -81,6 +112,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             register={register}
             errors={errors}
             className="w-full"
+            defaultValue={updateData?.sku}
           />
 
           <TextInput
@@ -89,6 +121,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             register={register}
             errors={errors}
             className="w-full"
+            defaultValue={updateData?.barcode}
           />
 
           <TextInput
@@ -98,6 +131,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             register={register}
             errors={errors}
             className="w-full"
+            defaultValue={updateData?.productPrice}
           />
 
           <TextInput
@@ -107,6 +141,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             register={register}
             errors={errors}
             className="w-full"
+            defaultValue={updateData?.salePrice}
           />
 
           <SelectInput
@@ -117,6 +152,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             className="w-full"
             options={categories}
             hasMultipleSelect={false}
+            defaultValue={updateData?.categoryId}
           />
 
           <SelectInput
@@ -127,6 +163,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             className="w-full"
             options={vendors}
             hasMultipleSelect={false}
+            defaultValue={updateData?.vendorId}
           />
 
           <ToggleInput
@@ -135,6 +172,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             truthyValue="Supported"
             falsyValue="Not Supported"
             register={register}
+            // defaultValue={updateData?.vendorId}
           />
 
           <TextInput
@@ -144,6 +182,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             register={register}
             errors={errors}
             className="w-full"
+            defaultValue={updateData?.wholesalePrice}
           />
 
           <TextInput
@@ -153,6 +192,7 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             register={register}
             errors={errors}
             className="w-full"
+            defaultValue={updateData?.wholesaleQuantity}
           />
 
           <ImageInput
@@ -160,16 +200,24 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
             setImageUrl={setImageUrl}
             endpoint="productImageUploader"
             label="Product Image"
+            initialImage={initialImage}
+            setInitialImage={() => setInitialImage}
           />
 
           {/* Tags */}
-          <ArrayItemsInput setItems={setTags} items={tags} itemTitle="Tag" />
+          <ArrayItemsInput
+            setItems={setTags}
+            items={tags}
+            itemTitle="Tag"
+            defaultValue={updateData?.tags}
+          />
 
           <TextAreaInput
             label="Product Description"
             name="description"
             register={register}
             errors={errors}
+            defaultValue={updateData?.description}
           />
 
           <ToggleInput
@@ -183,12 +231,14 @@ const NewProductForm = ({ categories, vendors }: NewProductFormProps) => {
 
         <SubmitButton
           isLoading={loading}
-          buttonTitle="Create Product"
-          loadingButtonTitle="Creating Product please wait..."
+          buttonTitle={id ? "Update Product" : "Create Product"}
+          loadingButtonTitle={`${
+            id ? "Updating" : "Creating"
+          } Product please wait...`}
         />
       </form>
     </div>
   );
 };
 
-export default NewProductForm;
+export default ProductForm;
