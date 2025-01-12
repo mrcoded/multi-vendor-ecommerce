@@ -14,24 +14,30 @@ import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
 
-type NewVendorProps = {
-  user?: {
-    id: string;
-    name: string;
-    phone: string;
-    email: string;
-    physicalAddress: string;
-    contactPerson: string;
-    contactPersonPhone: string;
-  };
+type VendorProps = {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  imageUrl?: string;
+  physicalAddress: string;
+  contactPerson: string;
+  contactPersonPhone: string;
+  terms: string;
+  notes: string;
+  products: string[];
 };
 
-function NewVendorForm({ user }: NewVendorProps) {
+function VendorForm({ updateData }: { updateData?: VendorProps }) {
   const router = useRouter();
+  const id = updateData?.id ?? "";
+  const initialImageUrl = updateData?.imageUrl ?? "";
+  const initialProducts = updateData?.products ?? [];
 
-  const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [products, setProducts] = useState<string[]>([]);
+  const [products, setProducts] = useState<string[]>(initialProducts);
+
+  const [imageUrl, setImageUrl] = useState(initialImageUrl);
 
   const {
     register,
@@ -49,16 +55,29 @@ function NewVendorForm({ user }: NewVendorProps) {
     data.code = code;
     data.products = products;
     data.imageUrl = imageUrl;
-    data.userId = user?.id;
+    data.userId = updateData?.id;
 
-    makePostRequest({
-      setLoading,
-      endpoint: "api/vendors",
-      data,
-      resourceName: "Vendor",
-      reset,
-      redirectUrl,
-    });
+    if (id) {
+      //PUT request (update)
+      makePostRequest({
+        setLoading,
+        endpoint: `api/vendors/${id}`,
+        data,
+        resourceName: "Vendor",
+        reset,
+        redirectUrl,
+      });
+    } else {
+      //POST request (create)
+      makePostRequest({
+        setLoading,
+        endpoint: "api/vendors",
+        data,
+        resourceName: "Vendor",
+        reset,
+        redirectUrl,
+      });
+    }
   };
 
   return (
@@ -73,7 +92,7 @@ function NewVendorForm({ user }: NewVendorProps) {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.name}
+          defaultValue={updateData?.name}
         />
 
         <TextInput
@@ -83,7 +102,7 @@ function NewVendorForm({ user }: NewVendorProps) {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.phone}
+          defaultValue={updateData?.phone}
         />
 
         <TextInput
@@ -93,7 +112,7 @@ function NewVendorForm({ user }: NewVendorProps) {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.email}
+          defaultValue={updateData?.email}
         />
 
         <TextInput
@@ -102,7 +121,7 @@ function NewVendorForm({ user }: NewVendorProps) {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.physicalAddress}
+          defaultValue={updateData?.physicalAddress}
         />
 
         <TextInput
@@ -111,7 +130,7 @@ function NewVendorForm({ user }: NewVendorProps) {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.contactPerson}
+          defaultValue={updateData?.contactPerson}
         />
 
         <TextInput
@@ -121,7 +140,7 @@ function NewVendorForm({ user }: NewVendorProps) {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.contactPersonPhone}
+          defaultValue={updateData?.contactPersonPhone}
         />
 
         {/* Product Tags */}
@@ -144,6 +163,7 @@ function NewVendorForm({ user }: NewVendorProps) {
           register={register}
           errors={errors}
           isRequired={false}
+          defaultValue={updateData?.terms}
         />
 
         <TextAreaInput
@@ -152,6 +172,7 @@ function NewVendorForm({ user }: NewVendorProps) {
           register={register}
           errors={errors}
           isRequired={false}
+          defaultValue={updateData?.notes}
         />
 
         <ToggleInput
@@ -165,11 +186,13 @@ function NewVendorForm({ user }: NewVendorProps) {
 
       <SubmitButton
         isLoading={loading}
-        buttonTitle="Create Vendor"
-        loadingButtonTitle="Creating Vendor please wait..."
+        buttonTitle={id ? "Update Vendor" : "Create Vendor"}
+        loadingButtonTitle={`${
+          id ? "Updating" : "Creating"
+        } Vendor please wait...`}
       />
     </form>
   );
 }
 
-export default NewVendorForm;
+export default VendorForm;

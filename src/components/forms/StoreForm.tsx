@@ -14,15 +14,28 @@ import SelectInput from "@/components/inputs/SelectInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
 
-const NewStoreForm = ({
+interface StoreFormProps {
+  id: string;
+  title: string;
+  categoryIds: string[];
+  imageUrl: string;
+  description: string;
+  isActive: boolean;
+}
+
+const StoreForm = ({
+  updateData,
   categories,
 }: {
+  updateData?: StoreFormProps;
   categories: { id: string; title: string }[];
 }) => {
   const router = useRouter();
+  const id = updateData?.id ?? "";
+  const initialImageUrl = updateData?.imageUrl ?? "";
 
-  const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState(initialImageUrl);
 
   const {
     register,
@@ -40,14 +53,27 @@ const NewStoreForm = ({
     data.slug = slug;
     data.logoUrl = imageUrl;
 
-    makePostRequest({
-      setLoading,
-      endpoint: "api/stores",
-      data,
-      resourceName: "Store",
-      reset,
-      redirectUrl,
-    });
+    if (id) {
+      //PUT request (update)
+      makePostRequest({
+        setLoading,
+        endpoint: `api/stores/${id}`,
+        data,
+        resourceName: "Store",
+        reset,
+        redirectUrl,
+      });
+    } else {
+      //POST request (create)
+      makePostRequest({
+        setLoading,
+        endpoint: "api/stores",
+        data,
+        resourceName: "Store",
+        reset,
+        redirectUrl,
+      });
+    }
 
     setImageUrl("");
   };
@@ -65,6 +91,7 @@ const NewStoreForm = ({
             register={register}
             errors={errors}
             className="w-full"
+            defaultValue={updateData?.title}
           />
 
           <SelectInput
@@ -74,7 +101,8 @@ const NewStoreForm = ({
             errors={errors}
             className="w-full"
             options={categories}
-            hasMultipleSelect={false}
+            hasMultipleSelect={true}
+            defaultValue={updateData?.categoryIds ?? []}
           />
 
           <ImageInput
@@ -89,6 +117,7 @@ const NewStoreForm = ({
             name="description"
             register={register}
             errors={errors}
+            defaultValue={updateData?.description}
           />
 
           <ToggleInput
@@ -102,12 +131,14 @@ const NewStoreForm = ({
 
         <SubmitButton
           isLoading={loading}
-          buttonTitle="Create Store"
-          loadingButtonTitle="Creating Store please wait..."
+          buttonTitle={id ? "Update Store" : "Create Store"}
+          loadingButtonTitle={`${
+            id ? "Updating" : "Creating"
+          } Store please wait...`}
         />
       </form>
     </div>
   );
 };
 
-export default NewStoreForm;
+export default StoreForm;
