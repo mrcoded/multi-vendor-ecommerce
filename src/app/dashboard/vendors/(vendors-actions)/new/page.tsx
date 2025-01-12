@@ -2,14 +2,14 @@
 
 import React from "react";
 
-import NewVendorForm from "@/components/forms/NewVendorForm";
+import VendorForm from "@/components/forms/VendorForm";
 import FormHeader from "@/app/dashboard/_components/FormHeader";
 
 const NewVendor = () => {
   return (
     <div>
       <FormHeader title="New Vendor" />
-      <NewVendorForm />
+      <VendorForm />
     </div>
   );
 };
