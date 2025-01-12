@@ -27,11 +27,11 @@ interface CategoryFormProps {
 const CategoryForm = ({ updateData }: { updateData?: CategoryFormProps }) => {
   const router = useRouter();
   const id = updateData?.id ?? "";
+  const initialImageUrl = updateData?.imageUrl ?? "";
 
   const [loading, setLoading] = useState(false);
 
-  const [imageUrl, setImageUrl] = useState("");
-  const [initialImage, setInitialImage] = useState(updateData?.imageUrl);
+  const [imageUrl, setImageUrl] = useState(initialImageUrl);
 
   const {
     register,
@@ -102,8 +102,6 @@ const CategoryForm = ({ updateData }: { updateData?: CategoryFormProps }) => {
             setImageUrl={setImageUrl}
             endpoint="categoryImageUpload"
             label="Category Image"
-            initialImage={initialImage}
-            setInitialImage={setInitialImage}
           />
 
           <ToggleInput

@@ -13,8 +13,6 @@ interface ImageInputProps {
   className?: string;
   setImageUrl: React.Dispatch<React.SetStateAction<string>>;
   endpoint: any;
-  initialImage?: string;
-  setInitialImage: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 function ImageInput({
@@ -23,10 +21,7 @@ function ImageInput({
   setImageUrl,
   className = "col-span-full",
   endpoint = "imageUploader",
-  initialImage,
-  setInitialImage,
 }: ImageInputProps) {
-  const actualImageUrl = initialImage || imageUrl;
 
   return (
     <div className={className}>
@@ -38,11 +33,10 @@ function ImageInput({
           {label}
         </label>
 
-        {actualImageUrl && (
+        {imageUrl && (
           <button
             onClick={() => {
               setImageUrl("");
-              setInitialImage("");
             }}
             type="button"
             className="flex space-x-2 bg-slate-900 rounded-md shadow text-slate-50 py-2 px-4"
@@ -52,9 +46,9 @@ function ImageInput({
           </button>
         )}
       </div>
-      {actualImageUrl ? (
+      {imageUrl ? (
         <Image
-          src={actualImageUrl as string}
+          src={imageUrl as string}
           alt="Item image"
           width={1000}
           height={667}

@@ -24,11 +24,10 @@ interface BannerFormProps {
 const BannerForm = ({ updateData }: { updateData?: BannerFormProps }) => {
   const router = useRouter();
   const id = updateData?.id ?? "";
+  const initialImageUrl = updateData?.imageUrl ?? "";
 
   const [loading, setLoading] = useState(false);
-
-  const [imageUrl, setImageUrl] = useState("");
-  const [initialImage, setInitialImage] = useState(updateData?.imageUrl);
+  const [imageUrl, setImageUrl] = useState(initialImageUrl);
 
   const {
     register,
@@ -101,8 +100,6 @@ const BannerForm = ({ updateData }: { updateData?: BannerFormProps }) => {
           setImageUrl={setImageUrl}
           endpoint="bannerImageUploader"
           label="Banner Image"
-          initialImage={initialImage}
-          setInitialImage={setInitialImage}
         />
 
         <ToggleInput

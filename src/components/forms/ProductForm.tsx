@@ -51,13 +51,13 @@ const ProductForm = ({
 }) => {
   const router = useRouter();
   const id = updateData?.id ?? "";
+  const initialTags = updateData?.tags ?? [];
+  const initialImageUrl = updateData?.imageUrl ?? "";
 
   const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState(initialImageUrl);
 
-  const [imageUrl, setImageUrl] = useState("");
-  const [initialImage, setInitialImage] = useState(updateData?.imageUrl);
-
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string[]>(initialTags);
 
   const {
     register,
@@ -213,17 +213,10 @@ const ProductForm = ({
             setImageUrl={setImageUrl}
             endpoint="productImageUploader"
             label="Product Image"
-            initialImage={initialImage}
-            setInitialImage={setInitialImage}
           />
 
           {/* Tags */}
-          <ArrayItemsInput
-            setItems={setTags}
-            items={tags}
-            itemTitle="Tag"
-            defaultValue={updateData?.tags ?? []}
-          />
+          <ArrayItemsInput setItems={setTags} items={tags} itemTitle="Tag" />
 
           <TextAreaInput
             label="Product Description"

@@ -7,37 +7,26 @@ function ArrayItemsInput({
   setItems,
   items,
   itemTitle,
-  defaultValue,
 }: {
   setItems: React.Dispatch<React.SetStateAction<string[]>>;
   items: string[];
   itemTitle: string;
-  defaultValue: string[];
 }) {
   const [item, setItem] = useState("");
   const [showTagForm, setShowTagForm] = useState(false);
 
-  // Combine defaultValue and items for rendering
-  const combinedItems = [...defaultValue, ...items];
-
   const addItems = () => {
     if (!item) return;
 
-    setItems([...combinedItems, item]);
+    setItems([...items, item]);
     setItem("");
   };
 
   const removeItems = (index: number) => {
-    if (index < defaultValue.length) {
-      // Remove from defaultValue directly if it's within that range
-      defaultValue.splice(index, 1);
-    } else {
-      // Remove from `items` if it's a newly added item
-      const adjustedIndex = index - defaultValue.length;
-      const newItems = [...items];
-      newItems.splice(adjustedIndex, 1);
-      setItems(newItems);
-    }
+    // Remove from `items` if it's a newly added item
+    const newItems = [...items];
+    newItems.splice(index, 1);
+    setItems(newItems);
   };
 
   return (
@@ -101,7 +90,7 @@ function ArrayItemsInput({
       )}
 
       <div className="flex flex-wrap gap-4 mt-4">
-        {combinedItems?.map((tag, index) => {
+        {items?.map((tag, index) => {
           return (
             <div
               key={index}
