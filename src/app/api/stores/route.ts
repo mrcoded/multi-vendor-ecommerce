@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       data: {
         title: storeData.title,
         slug: storeData.slug,
-        logoUrl: storeData.logoUrl,
+        imageUrl: storeData.imageUrl,
         description: storeData.description,
         isActive: storeData.isActive,
         categoryIds: storeData.categoryIds,
