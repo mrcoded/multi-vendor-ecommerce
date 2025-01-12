@@ -2,7 +2,7 @@ import React from "react";
 
 import getData from "@/lib/getData";
 
-import NewStoreForm from "@/components/forms/NewStoreForm";
+import StoreForm from "@/components/forms/StoreForm";
 import FormHeader from "@/app/dashboard/_components/FormHeader";
 
 const NewStore = async () => {
@@ -18,7 +18,7 @@ const NewStore = async () => {
   return (
     <div>
       <FormHeader title="New Store" />
-      <NewStoreForm categories={categories} />
+      <StoreForm categories={categories} />
     </div>
   );
 };
