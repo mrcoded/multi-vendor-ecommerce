@@ -21,7 +21,7 @@ function RegisterForm({ role }: { role: string }) {
 
   const redirectUrl = (id: string) => {
     if (role === "USER") router.push(`/login`);
-    if (role === "VENDOR") router.push(`/onboarding/${id}`);
+    if (role === "VENDOR") router.push(`/verify/email`);
   };
 
   const onSubmit = async (data: FieldValues) => {
@@ -81,15 +81,38 @@ function RegisterForm({ role }: { role: string }) {
         loadingButtonTitle="Signing up..."
       />
 
-      <p className="text-sm font-light text-gray-500 dark:text-gray-400 py-4">
-        Already have an account?{" "}
-        <Link
-          href="/login"
-          className="font-medium text-lime-600 hover:underline dark:text-lime-500"
-        >
-          Login
-        </Link>
-      </p>
+      <div className="flex gap-2 justify-between">
+        <p className="text-[0.75rem] font-light text-gray-500 dark:text-gray-400 py-4">
+          Already have an account?{" "}
+          <Link
+            href="/login"
+            className="font-medium text-lime-600 hover:underline dark:text-lime-500"
+          >
+            Login
+          </Link>
+        </p>
+        {role === "USER" ? (
+          <p className="text-[0.75rem] font-light text-gray-500 dark:text-gray-400 py-4">
+            Are you a Vendor?{" "}
+            <Link
+              href="/register-vendor"
+              className="font-medium text-lime-600 hover:underline dark:text-lime-500"
+            >
+              Register here
+            </Link>
+          </p>
+        ) : (
+          <p className="text-[0.75rem] font-light text-gray-500 dark:text-gray-400 py-4">
+            Are you a User?{" "}
+            <Link
+              href="/register"
+              className="font-medium text-lime-600 hover:underline dark:text-lime-500"
+            >
+              Register here
+            </Link>
+          </p>
+        )}
+      </div>
     </form>
   );
 }
