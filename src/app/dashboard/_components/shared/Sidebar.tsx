@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { signOut, useSession } from "next-auth/react";
 
 import {
   Boxes,
@@ -40,8 +41,82 @@ interface SidebarProps {
 }
 
 function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
+  const router = useRouter();
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState(false);
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <p>Loading...</p>;
+  }
+
+  const role = session?.user?.role;
+
+  if (role === "VENDOR") {
+    sidebarLinks = [
+      {
+        title: "Customers",
+        icon: Users2,
+        href: "/dashboard/customers",
+      },
+      {
+        title: "Stores",
+        icon: Warehouse,
+        href: "/dashboard/stores",
+      },
+      {
+        title: "Orders",
+        icon: Truck,
+        href: "/dashboard/orders",
+      },
+      {
+        title: "Community",
+        icon: Building2,
+        href: "/dashboard/community",
+      },
+      {
+        title: "Wallet",
+        icon: CircleDollarSign,
+        href: "/dashboard/wallet",
+      },
+      {
+        title: "Settings",
+        icon: LayoutGrid,
+        href: "/dashboard/settings",
+      },
+      {
+        title: "Online Store",
+        icon: ExternalLink,
+        href: "/",
+      },
+    ];
+  }
+
+  if (role === "USER") {
+    catalogueLinks = [];
+    sidebarLinks = [
+      {
+        title: "Orders",
+        icon: Truck,
+        href: "/dashboard/orders",
+      },
+      {
+        title: "Profile",
+        icon: User,
+        href: "/dashboard/profile",
+      },
+      {
+        title: "Online Store",
+        icon: ExternalLink,
+        href: "/",
+      },
+    ];
+  }
+
+  async function handleLogout() {
+    await signOut({ callbackUrl: "/" });
+    // router.push("/");
+  }
 
   return (
     <div
@@ -57,9 +132,15 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
         href="/dashboard"
         onClick={() => setShowSidebar(true)}
       >
-        <Image src="/" alt="logo" width={100} height={18} className="w-36" />
+        <Image
+          src="/assets/userprofile.png"
+          alt="logo"
+          width={100}
+          height={18}
+          className="w-36"
+        />
       </Link>
-      <div className="space-y-3 flex flex-col mt-14">
+      <div className="space-y-3 flex flex-col mt-14 max-h-screen">
         <Link
           href="/dashboard"
           onClick={() => setShowSidebar(false)}
@@ -73,34 +154,36 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
           <span>Dashboard</span>
         </Link>
 
-        <Collapsible className="px-6 py-2">
-          <CollapsibleTrigger onClick={() => setOpenMenu(!openMenu)} asChild>
-            <button className="flex items-center space-x-6 py-2">
-              <div className="flex items-center space-x-3">
-                <Slack />
-                <span>Catalogue</span>
-              </div>
+        {catalogueLinks.length > 0 && (
+          <Collapsible className="px-6 py-2">
+            <CollapsibleTrigger onClick={() => setOpenMenu(!openMenu)} asChild>
+              <button className="flex items-center space-x-6 py-2">
+                <div className="flex items-center space-x-3">
+                  <Slack />
+                  <span>Catalogue</span>
+                </div>
 
-              {openMenu ? <ChevronDown /> : <ChevronRight />}
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="rounded-lg py-3 px-3 pl-6 dark:bg-slate-800 dark:text-slate-300 ">
-            {catalogueLinks.map((link, i) => (
-              <Link
-                key={i}
-                href={link.href}
-                onClick={() => setShowSidebar(false)}
-                className={cn(
-                  "flex items-center space-x-3 py-1 text-sm",
-                  link.href == pathname && " text-lime-500"
-                )}
-              >
-                <link.icon className="w-4 h-4" />
-                <span>{link.title}</span>
-              </Link>
-            ))}
-          </CollapsibleContent>
-        </Collapsible>
+                {openMenu ? <ChevronDown /> : <ChevronRight />}
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="rounded-lg py-3 px-3 pl-6 dark:bg-slate-800 dark:text-slate-300 ">
+              {catalogueLinks.map((link, i) => (
+                <Link
+                  key={i}
+                  href={link.href}
+                  onClick={() => setShowSidebar(false)}
+                  className={cn(
+                    "flex items-center space-x-3 py-1 text-sm",
+                    link.href == pathname && " text-lime-500"
+                  )}
+                >
+                  <link.icon className="w-4 h-4" />
+                  <span>{link.title}</span>
+                </Link>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
         {sidebarLinks.map((link, i) => (
           <Link
@@ -119,7 +202,10 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
         ))}
 
         <div className="px-6 py-2">
-          <button className="bg-lime-600 rounded-md flex items-center space-x-3 py-3 px-6">
+          <button
+            onClick={handleLogout}
+            className="bg-lime-600 rounded-md flex items-center space-x-3 py-3 px-6"
+          >
             <LogOut />
             <span>Logout</span>
           </button>
@@ -131,7 +217,7 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
 
 export default Sidebar;
 
-const sidebarLinks = [
+let sidebarLinks = [
   {
     title: "Customers",
     icon: Users2,
@@ -179,7 +265,7 @@ const sidebarLinks = [
   },
 ];
 
-const catalogueLinks = [
+let catalogueLinks = [
   {
     title: "Products",
     icon: Boxes,
@@ -196,7 +282,7 @@ const catalogueLinks = [
     href: "/dashboard/coupons",
   },
   {
-    title: "Store Banners",
+    title: "Banners",
     icon: MonitorPlay,
     href: "/dashboard/banners",
   },

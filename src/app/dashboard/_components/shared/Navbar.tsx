@@ -1,15 +1,13 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  AlignJustify,
-  Bell,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-  X,
-} from "lucide-react";
+import { AlignJustify, Bell, X } from "lucide-react";
 
+import { useSession } from "next-auth/react";
+
+import UserAvatar from "@/components/UserAvatar";
 import ThemeSwitcherButton from "@/components/ThemeSwitcherButton";
 
 import {
@@ -26,7 +24,19 @@ interface NavbarProps {
   setShowSidebar: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+interface UserAvatarProps {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
 function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <p>Loading...</p>;
+  }
+
   return (
     <div className="flex items-center justify-between bg-white text-slate-50 dark:bg-slate-800 h-20 p-8 fixed top-0 w-full z-50 sm:pr-[20rem]">
       <button
@@ -131,42 +141,9 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* My Account */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button>
-              <Image
-                src="/assets/userprofile.png"
-                alt="User Profile"
-                width={200}
-                height={200}
-                className="w-8 h-8 rounded-full"
-              />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="px-4 py-2 pr-8">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <button className="flex items-center space-x-2">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                <span>Dashboard</span>
-              </button>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <button className="flex items-center space-x-2">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Edit Profile</span>
-              </button>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <button className="flex items-center space-x-2">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {status === "authenticated" && (
+          <UserAvatar user={session?.user ?? null} />
+        )}
       </div>
     </div>
   );
