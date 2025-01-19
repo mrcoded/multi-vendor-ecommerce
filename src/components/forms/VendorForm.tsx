@@ -28,9 +28,16 @@ type VendorProps = {
   products: string[];
 };
 
-function VendorForm({ updateData }: { updateData?: VendorProps }) {
+function VendorForm({
+  updateData,
+  user,
+}: {
+  updateData?: VendorProps;
+  user?: VendorProps;
+}) {
   const router = useRouter();
   const id = updateData?.id ?? "";
+
   const initialImageUrl = updateData?.imageUrl ?? "";
   const initialProducts = updateData?.products ?? [];
 
@@ -47,7 +54,7 @@ function VendorForm({ updateData }: { updateData?: VendorProps }) {
   } = useForm();
 
   const redirectUrl = () => {
-    router.push("/dashboard/vendors");
+    router.push("/login");
   };
 
   const onSubmit = async (data: FieldValues) => {
@@ -55,7 +62,7 @@ function VendorForm({ updateData }: { updateData?: VendorProps }) {
     data.code = code;
     data.products = products;
     data.imageUrl = imageUrl;
-    data.userId = updateData?.id;
+    data.userId = updateData?.id ?? user?.id;
 
     if (id) {
       //PUT request (update)
@@ -92,7 +99,7 @@ function VendorForm({ updateData }: { updateData?: VendorProps }) {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.name}
+          defaultValue={updateData?.name ?? user?.name}
         />
 
         <TextInput
@@ -112,7 +119,7 @@ function VendorForm({ updateData }: { updateData?: VendorProps }) {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.email}
+          defaultValue={updateData?.email ?? user?.email}
         />
 
         <TextInput
