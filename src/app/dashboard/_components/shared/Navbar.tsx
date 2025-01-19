@@ -24,12 +24,6 @@ interface NavbarProps {
   setShowSidebar: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-interface UserAvatarProps {
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-}
-
 function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
   const { data: session, status } = useSession();
 
