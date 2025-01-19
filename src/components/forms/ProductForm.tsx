@@ -34,6 +34,7 @@ interface ProductFormData {
   productPrice: number;
   productCode: string;
   salePrice: number;
+  qty: number;
   tags: string[];
   wholesaleQuantity: number;
   wholesalePrice: number;
@@ -53,9 +54,11 @@ const ProductForm = ({
   const id = updateData?.id ?? "";
   const initialTags = updateData?.tags ?? [];
   const initialImageUrl = updateData?.imageUrl ?? "";
+  const isWholeSale = updateData?.isWholesale ?? false;
 
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState(initialImageUrl);
+  const [isWholesaleCheck, setIsWholesaleCheck] = useState(false);
 
   const [tags, setTags] = useState<string[]>(initialTags);
 
@@ -165,7 +168,7 @@ const ProductForm = ({
             className="w-full"
             options={categories}
             hasMultipleSelect={false}
-            defaultValue={updateData?.categoryId}
+            defaultValue={updateData?.categoryId ?? ""}
           />
 
           <SelectInput
@@ -185,22 +188,37 @@ const ProductForm = ({
             truthyValue="Supported"
             falsyValue="Not Supported"
             register={register}
-            // defaultValue={updateData?.vendorId}
+            setIsWholesaleCheck={setIsWholesaleCheck}
+            defaultCheck={isWholeSale}
           />
 
-          <TextInput
-            label="WholeSale Price"
-            name="wholesalePrice"
-            type="number"
-            register={register}
-            errors={errors}
-            className="w-full"
-            defaultValue={updateData?.wholesalePrice}
-          />
+          {isWholesaleCheck && (
+            <>
+              <TextInput
+                label="WholeSale Price"
+                name="wholesalePrice"
+                type="number"
+                register={register}
+                errors={errors}
+                className="w-full"
+                defaultValue={updateData?.wholesalePrice}
+              />
+
+              <TextInput
+                label="WholeSale Available Quantity"
+                name="wholesaleQuantity"
+                type="number"
+                register={register}
+                errors={errors}
+                className="w-full"
+                defaultValue={updateData?.wholesaleQuantity}
+              />
+            </>
+          )}
 
           <TextInput
-            label="WholeSale Available Quantity"
-            name="wholesaleQuantity"
+            label="Available Quantity"
+            name="qty"
             type="number"
             register={register}
             errors={errors}
