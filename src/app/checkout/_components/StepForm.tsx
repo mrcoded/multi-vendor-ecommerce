@@ -14,6 +14,7 @@ const StepForm = () => {
   const currentStep = useSelector(
     (state: RootState) => state.checkout.currentStep
   );
+
   const renderFormByStep = (step: number) => {
     if (step === 1) return <PersonalDetailsForm />;
     if (step === 2) return <ShippingDetailsForm />;
