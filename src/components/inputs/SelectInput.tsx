@@ -7,7 +7,7 @@ interface SelectInputProps {
   errors: FieldErrors<FieldValues>;
   className: string;
   hasMultipleSelect?: boolean;
-  defaultValue?: string;
+  defaultValue?: string | string[];
   options: {
     id: string;
     title?: string;
