@@ -13,7 +13,6 @@ import TextInput from "@/components/inputs/TextInput";
 import StepFormButton from "@/app/checkout/_components/StepFormButton";
 
 const ShippingDetailsForm = () => {
-  const router = useRouter();
   const dispatch = useDispatch();
 
   const currentStep = useSelector(
@@ -23,7 +22,7 @@ const ShippingDetailsForm = () => {
   const existingFormData = useSelector(
     (store: RootState) => store.checkout.checkoutFormData
   );
-  console.log("existing", existingFormData);
+
   const initialShippingCost = existingFormData.shippingCost || "";
   const [shippingCost, setShippingCost] = useState(initialShippingCost);
 
@@ -32,9 +31,7 @@ const ShippingDetailsForm = () => {
     reset,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    // defaultValues: { ...existingFormData },
-  });
+  } = useForm();
 
   const processData = (data: FieldValues) => {
     data.shippingCost = shippingCost;
@@ -58,6 +55,7 @@ const ShippingDetailsForm = () => {
           register={register}
           errors={errors}
           className="w-full"
+          defaultValue={existingFormData.streetAddress}
         />
 
         <TextInput
@@ -66,6 +64,7 @@ const ShippingDetailsForm = () => {
           register={register}
           errors={errors}
           className="w-full"
+          defaultValue={existingFormData.city}
         />
 
         <TextInput
@@ -74,15 +73,16 @@ const ShippingDetailsForm = () => {
           register={register}
           errors={errors}
           className="w-full"
+          defaultValue={existingFormData.country}
         />
 
         <TextInput
           label="District"
           name="district"
-          type="number"
           register={register}
           errors={errors}
           className="w-full"
+          defaultValue={existingFormData.district}
         />
 
         {/* Shipping Cost */}
@@ -98,7 +98,7 @@ const ShippingDetailsForm = () => {
                 name="shippingCost"
                 value="6"
                 className="sr-only peer"
-                onChange={(e) => setShippingCost(parseInt(e.target.value))}
+                onChange={(e) => setShippingCost(e.target.value)}
                 required
               />
               <label
@@ -123,7 +123,7 @@ const ShippingDetailsForm = () => {
                 name="shippingCost"
                 value="36"
                 className="sr-only peer"
-                onChange={(e) => setShippingCost(parseInt(e.target.value))}
+                onChange={(e) => setShippingCost(e.target.value)}
               />
               <label
                 htmlFor="expensive"
