@@ -42,7 +42,7 @@ model Category {
   isActive    Boolean
 
   products      Product[]
-  CommunityPost CommunityPost[]
+  communityPost CommunityPost[]
 
   storeIds String[] @db.ObjectId
   stores   Store[]  @relation(fields: [storeIds], references: [id])
@@ -55,7 +55,7 @@ model Store {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   slug        String  @unique
-  logoUrl     String?
+  imageUrl    String?
   description String?
   isActive    Boolean
 
@@ -75,6 +75,7 @@ model Product {
   isActive          Boolean
   isWholesale       Boolean
   sku               String?
+  qty               Int?
   barcode           String?
   productPrice      Float
   productCode       String?
@@ -83,14 +84,15 @@ model Product {
   wholesaleQuantity Int
   wholesalePrice    Float
 
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId String   @db.ObjectId
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  categoryId String    @db.ObjectId
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.ObjectId
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
+  OrderItems OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime?   @updatedAt
 }
 
 model VendorProfile {
@@ -98,7 +100,7 @@ model VendorProfile {
   code               String
   contactPerson      String?
   contactPersonPhone String?
-  profileImageUrl    String?
+  imageUrl           String?
   email              String
   name               String
   notes              String?
@@ -108,7 +110,7 @@ model VendorProfile {
   isActive           Boolean
   products           String[]
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique @db.ObjectId
 
   createdAt DateTime  @default(now())
@@ -124,8 +126,8 @@ model CommunityPost {
   content     String?
   isActive    Boolean
 
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId String   @db.ObjectId
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?   @db.ObjectId
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -138,19 +140,65 @@ enum UserRole {
   MODERATOR
 }
 
+model UserProfile {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+}
+
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String?   @unique
-  password      String
-  emailVerified DateTime?
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  name              String?
+  email             String? @unique
+  password          String
+  imageUrl          String?
+  emailVerified     Boolean @default(false)
+  verificationToken String?
 
-  Product Product[]
+  products Product[]
 
-  role UserRole @default(USER)
-
+  Order         Order[]
+  role          UserRole       @default(USER)
+  profile       UserProfile?
   vendorProfile VendorProfile?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String @unique @db.ObjectId
+  // Personal Details
+  firstName     String
+  lastName      String
+  emailAddress  String
+  phone         String
+  // Shipping Details
+  streetAddress String
+  city          String
+  country       String
+  district      String
+  shippingCost  Float
+  //Payment Method
+  paymentMethod String
+  // paymentToken  String
+
+  //Order Items
+  orderItems OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model OrderItem {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String   @db.ObjectId
+  productId String   @db.ObjectId
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
 }
