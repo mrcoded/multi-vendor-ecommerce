@@ -1,8 +1,8 @@
 import React from "react";
 import getData from "@/lib/getData";
 
-import FormHeader from "@/app/dashboard/_components/FormHeader";
 import CategoryForm from "@/components/forms/CategoryForm";
+import FormHeader from "@/app/dashboard/_components/shared/FormHeader";
 
 const UpdateCategory = async ({
   params: { id },

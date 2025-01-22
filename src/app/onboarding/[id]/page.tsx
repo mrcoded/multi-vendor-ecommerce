@@ -1,6 +1,7 @@
 import React from "react";
+
 import getData from "@/lib/getData";
-import NewVendorForm from "@/components/forms/NewVendorForm";
+import VendorForm from "@/components/forms/VendorForm";
 
 const page = async ({ params: { id } }: { params: { id: string } }) => {
   //GET user by ID
@@ -11,7 +12,7 @@ const page = async ({ params: { id } }: { params: { id: string } }) => {
       <div className="max-w-4xl p-4 mx-auto">
         <h2>Hello {user?.name} Tell Us More About Yourself</h2>
       </div>
-      <NewVendorForm user={user} />
+      <VendorForm user={user} />
     </div>
   );
 };

@@ -2,8 +2,8 @@ import React from "react";
 
 import getData from "@/lib/getData";
 
-import NewProductForm from "@/components/forms/NewProductForm";
-import FormHeader from "@/app/dashboard/_components/FormHeader";
+import ProductForm from "@/components/forms/ProductForm";
+import FormHeader from "@/app/dashboard/_components/shared/FormHeader";
 
 const NewProduct = async () => {
   const userData = await getData("users");
@@ -28,7 +28,7 @@ const NewProduct = async () => {
   return (
     <div>
       <FormHeader title="New Product" />
-      <NewProductForm categories={categories} vendors={vendors} />
+      <ProductForm categories={categories} vendors={vendors} />
     </div>
   );
 };

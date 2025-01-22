@@ -2,7 +2,7 @@ import React from "react";
 import getData from "@/lib/getData";
 
 import VendorForm from "@/components/forms/VendorForm";
-import FormHeader from "@/app/dashboard/_components/FormHeader";
+import FormHeader from "@/app/dashboard/_components/shared/FormHeader";
 
 const UpdateVendor = async ({ params: { id } }: { params: { id: string } }) => {
   const vendor = await getData(`vendors/${id}`);

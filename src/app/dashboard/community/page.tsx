@@ -4,8 +4,8 @@ import getData from "@/lib/getData";
 import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
 
-import TableActions from "../_components/TableActions";
-import PageHeader from "../_components/PageHeader";
+import PageHeader from "../_components/shared/PageHeader";
+import TableActions from "../_components/shared/TableActions";
 
 const page = async () => {
   const communityPosts = await getData("communityPosts");

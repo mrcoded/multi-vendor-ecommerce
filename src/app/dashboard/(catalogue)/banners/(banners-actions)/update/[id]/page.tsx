@@ -2,7 +2,7 @@ import React from "react";
 import getData from "@/lib/getData";
 
 import BannerForm from "@/components/forms/BannerForm";
-import FormHeader from "@/app/dashboard/_components/FormHeader";
+import FormHeader from "@/app/dashboard/_components/shared/FormHeader";
 
 const UpdateBanner = async ({ params: { id } }: { params: { id: string } }) => {
   const banner = await getData(`banners/${id}`);

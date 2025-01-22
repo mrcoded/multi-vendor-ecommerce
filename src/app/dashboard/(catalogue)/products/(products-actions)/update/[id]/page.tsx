@@ -2,7 +2,7 @@ import React from "react";
 import getData from "@/lib/getData";
 
 import ProductForm from "@/components/forms/ProductForm";
-import FormHeader from "@/app/dashboard/_components/FormHeader";
+import FormHeader from "@/app/dashboard/_components/shared/FormHeader";
 
 const UpdateProduct = async ({
   params: { id },

@@ -3,7 +3,7 @@ import React from "react";
 import getData from "@/lib/getData";
 
 import StoreForm from "@/components/forms/StoreForm";
-import FormHeader from "@/app/dashboard/_components/FormHeader";
+import FormHeader from "@/app/dashboard/_components/shared/FormHeader";
 
 const NewStore = async () => {
   const categoriesData = await getData("categories");

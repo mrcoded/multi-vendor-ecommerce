@@ -2,8 +2,8 @@ import React from "react";
 
 import getData from "@/lib/getData";
 
-import FormHeader from "@/app/dashboard/_components/FormHeader";
 import CommunityPostForm from "@/components/forms/CommunityPostForm";
+import FormHeader from "@/app/dashboard/_components/shared/FormHeader";
 
 const NewCommunityPost = async () => {
   const categoriesData = await getData("categories");

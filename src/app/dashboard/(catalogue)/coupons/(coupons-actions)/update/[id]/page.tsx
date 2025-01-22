@@ -1,8 +1,8 @@
 import React from "react";
 import getData from "@/lib/getData";
 
-import FormHeader from "@/app/dashboard/_components/FormHeader";
 import CouponForm from "@/components/forms/CouponForm";
+import FormHeader from "@/app/dashboard/_components/shared/FormHeader";
 
 const UpdateCoupon = async ({ params: { id } }: { params: { id: string } }) => {
   const coupon = await getData(`coupons/${id}`);

@@ -3,7 +3,7 @@
 import React from "react";
 
 import VendorForm from "@/components/forms/VendorForm";
-import FormHeader from "@/app/dashboard/_components/FormHeader";
+import FormHeader from "@/app/dashboard/_components/shared/FormHeader";
 
 const NewVendor = () => {
   return (
