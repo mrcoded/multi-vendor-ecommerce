@@ -1,9 +1,16 @@
-import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import bcrypt from "bcrypt";
+import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
+
+import { Resend } from "resend";
+import base64url from "base64url";
+import { v4 as uuidv4 } from "uuid";
+import EmailTemplate from "@/components/email-template";
 
 export async function POST(request: Request) {
   try {
+    // const resend = new Resend(process.env.RESEND_API_KEY);
+
     const { name, password, email, role } = await request.json();
 
     //check if user already exists in the db
@@ -24,16 +31,40 @@ export async function POST(request: Request) {
     //Encrypt password with bcrypt
     const hashedPassword = await bcrypt.hash(password, 16);
 
+    //Generate a random UUID
+    const rawToken = uuidv4();
+
+    //Encode the token using Base64 URL
+    const encodedToken = base64url.encode(rawToken);
+    console.log("encoded", encodedToken);
+
+    //Create new user
     const newUser = await db.user.create({
       data: {
         name,
         password: hashedPassword,
         email,
         role,
+        verificationToken: encodedToken,
       },
     });
 
     console.log(newUser);
+    //SEND THE EMAIL IF USER ROLE === FARMER
+    // if (role === "VENDOR") {
+    //Send an Email with the token in the link as a search params
+    //   const userId = newUser.id;
+    //   const linkText = "Verify Email";
+    //   const redirectUrl = `onboarding/${userId}?token=${encodedToken}`;
+
+    //   const sendMail = await resend.emails.send({
+    //     from: "Vendors Hub <6TlRj@example.com>",
+    //     to: email,
+    //     subject: "Account Verification - Multi Vendors Ecommerce",
+    //     react: EmailTemplate({ name, redirectUrl, linkText }),
+    //   });
+    //   console.log(sendMail);
+    // }
 
     return NextResponse.json(
       { data: newUser, message: "User Created Successfully" },
