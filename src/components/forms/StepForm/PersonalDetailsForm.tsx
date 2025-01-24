@@ -38,8 +38,6 @@ const PersonalDetailsForm = () => {
     dispatch(actions.updateCheckoutFormData(data));
     //Update the Current step
     dispatch(actions.setCurrentStep(currentStep + 1));
-
-    console.log(data);
   };
 
   return (
