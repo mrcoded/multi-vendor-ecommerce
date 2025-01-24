@@ -10,7 +10,7 @@ import generateUserCode from "@/lib/generateUserCode";
 import TextInput from "@/components/inputs/TextInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
-import FormHeader from "@/app/dashboard/_components/FormHeader";
+import FormHeader from "@/app/dashboard/_components/shared/FormHeader";
 
 interface StaffFormProps {
   id: string;
