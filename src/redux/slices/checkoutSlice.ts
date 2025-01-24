@@ -4,9 +4,19 @@ import { checkoutInitialStateProps } from "../types";
 const initialState: checkoutInitialStateProps = {
   currentStep: 1,
   checkoutFormData: {
-    shippingCost: {},
-    paymentMethod: {},
-    personalDetails: {},
+    firstName: "",
+    lastName: "",
+    emailAddress: "",
+    phone: "",
+    // Shipping Details
+    streetAddress: "",
+    city: "",
+    country: "",
+    district: "",
+    shippingCost: 0,
+    //Payment Method
+    paymentMethod: "",
+    paymentToken: "",
   },
 };
 
