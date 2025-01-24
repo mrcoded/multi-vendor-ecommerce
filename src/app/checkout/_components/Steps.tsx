@@ -15,6 +15,8 @@ const Steps = ({
     title: string;
   }[];
 }) => {
+  const cartItems = useSelector((store: RootState) => store.cart);
+
   const currentStep = useSelector(
     (state: RootState) => state.checkout.currentStep
   );
@@ -36,7 +38,7 @@ const Steps = ({
             </Link>
             <span className="inline-flex items-center justify-center w-5 h-5 ml-2 text-xs font-bold bg-lime-400 rounded-full text-gray-500">
               {" "}
-              4{" "}
+              {cartItems.length}{" "}
             </span>
           </div>
         </li>
