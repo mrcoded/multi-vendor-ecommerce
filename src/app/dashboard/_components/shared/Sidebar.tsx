@@ -96,7 +96,7 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
     catalogueLinks = [];
     sidebarLinks = [
       {
-        title: "Orders",
+        title: "My Orders",
         icon: Truck,
         href: "/dashboard/orders",
       },
@@ -237,6 +237,11 @@ let sidebarLinks = [
     title: "Orders",
     icon: Truck,
     href: "/dashboard/orders",
+  },
+  {
+    title: "Sales",
+    icon: Truck,
+    href: "/dashboard/sales",
   },
   {
     title: "Our Staff",
