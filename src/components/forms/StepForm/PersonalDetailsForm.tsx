@@ -33,11 +33,13 @@ const PersonalDetailsForm = () => {
   } = useForm();
 
   const processData = (data: FieldValues) => {
-    data.userId = userId;
-    //Update the checkout Data
-    dispatch(actions.updateCheckoutFormData(data));
-    //Update the Current step
-    dispatch(actions.setCurrentStep(currentStep + 1));
+    if (userId) {
+      data.userId = userId;
+      //Update the checkout Data
+      dispatch(actions.updateCheckoutFormData(data));
+      //Update the Current step
+      dispatch(actions.setCurrentStep(currentStep + 1));
+    }
   };
 
   return (
