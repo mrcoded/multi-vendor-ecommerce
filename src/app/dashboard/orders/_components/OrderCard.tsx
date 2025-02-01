@@ -1,8 +1,11 @@
 import React from "react";
 import Link from "next/link";
+
+import { generateSlug } from "@/lib/generateSlug";
 import generateISOFormatDate from "@/lib/generateISOFormatDate";
 
 interface OrderCardProps {
+  id: string;
   orderItems: Array<any>;
   orderNumber: string;
   createdAt: string;
@@ -72,9 +75,16 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
           <ul className="space-y-7">
             {order.orderItems.map(
               (
-                item: { title: string; imageUrl: string; price: string },
+                item: {
+                  title: string;
+                  imageUrl: string;
+                  price: string;
+                  quantity: string;
+                },
                 i: number
               ) => {
+                const slug = generateSlug(item.title);
+
                 return (
                   <li key={i} className="relative flex pb-10 smm:pb-0">
                     <div className="flex-shrink-0">
@@ -91,9 +101,15 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
                           <p className="text-base font-bold text-gray-900">
                             {item.title}
                           </p>
+                          {/* <p className="mt-1.5 text-sm font-medium text-gray-500">
+                            Golden
+                          </p> */}
                         </div>
 
-                        <div className="mt-4 sm:mt-0">
+                        <div className="mt-4 sm:mt-0 flex items-center justify-between">
+                          <p className="mt-1.5 text-sm font-medium text-gray-500">
+                            {item.quantity}
+                          </p>
                           <p className="text-base font-bold text-left text-gray-900 sm:text-right">
                             ${parseFloat(item.price).toFixed(2)}
                           </p>
@@ -101,9 +117,10 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
                       </div>
 
                       <div className="absolute bottom-0 left-0 sm:relative">
-                        <div>
+                        <div className="flex space-x-5">
                           <Link
-                            href="#"
+                            href={`/products/${slug}`}
+                            title={item.title}
                             className="p-1 -m-1 text-sm font-medium text-gray-500 transition-all duration-200 rounded hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                           >
                             {" "}
@@ -136,12 +153,12 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
               View Order
             </button>
 
-            <button
-              type="button"
+            <Link
+              href={`/dashboard/orders/${order.id}/invoice`}
               className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold text-gray-900 transition-all duration-200 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 hover:bg-gray-50"
             >
               View Invoice
-            </button>
+            </Link>
           </div>
         </div>
       </div>
