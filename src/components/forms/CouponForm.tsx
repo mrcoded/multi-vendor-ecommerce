@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { FieldValues, useForm } from "react-hook-form";
 
+import { useSession } from "next-auth/react";
 import { makePostRequest } from "@/lib/apiRequest";
 import { generateCouponCode } from "@/lib/generateCouponCode";
 
@@ -26,6 +27,10 @@ const CouponForm = ({ updateData }: { updateData?: CouponFormProps }) => {
   const id = updateData?.id ?? "";
 
   const [loading, setLoading] = useState(false);
+
+  const { data: session, status } = useSession();
+
+  const vendorId = session?.user?.id;
 
   //Convert updateData to required ISO date for display
   const isoDate = updateData?.expiryDate ?? "";
@@ -54,6 +59,7 @@ const CouponForm = ({ updateData }: { updateData?: CouponFormProps }) => {
     data.expiryDate = formattedDate;
 
     data.couponCode = couponCode;
+    data.vendorId = vendorId;
 
     if (id) {
       //PUT request (update)
