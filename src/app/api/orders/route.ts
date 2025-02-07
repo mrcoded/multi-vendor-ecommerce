@@ -40,10 +40,23 @@ export async function POST(request: Request) {
       paymentMethod,
     } = checkoutFormData;
 
+    //create customer profile
+    await db.userProfile.create({
+      data: {
+        firstName,
+        lastName,
+        phone,
+        streetAddress,
+        city,
+        country,
+        district,
+        userId,
+      },
+    });
+
     //Use the prisma transaction API
     const result = await db.$transaction(async (prisma) => {
       //create order and orderitems within the transaction
-
       const newOrder = await prisma.order.create({
         data: {
           userId,
@@ -98,8 +111,6 @@ export async function POST(request: Request) {
 
       return { newOrder, newOrderItems, sales };
     });
-
-    console.log(result.newOrder, result.newOrderItems, result.sales);
 
     return NextResponse.json(result.newOrder);
   } catch (error) {
