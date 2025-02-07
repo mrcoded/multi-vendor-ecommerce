@@ -5,7 +5,31 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
 
-    const newVendor = await db.vendorProfile.create({
+    //check if vendor already exists in the db
+    const existingUser = await db.user.findUnique({
+      where: { id: data.userId },
+    });
+
+    if (!existingUser) {
+      return NextResponse.json(
+        {
+          data: null,
+          message: `No User Found`,
+        },
+        { status: 404 }
+      );
+    }
+
+    //Update emailVerified
+    const updatedUser = await db.user.update({
+      where: { id: data.userId },
+
+      data: {
+        emailVerified: true,
+      },
+    });
+
+    await db.vendorProfile.create({
       data: {
         code: data.code,
         contactPerson: data.contactPerson,
@@ -17,14 +41,14 @@ export async function POST(request: Request) {
         physicalAddress: data.physicalAddress,
         terms: data.terms,
         isActive: data.isActive,
-        profileImageUrl: data.profileImageUrl,
+        imageUrl: data.imageUrl,
         products: data.products,
         userId: data.userId,
       },
     });
 
     return NextResponse.json(
-      { data: newVendor, message: "Vendor created successfully!" },
+      { data: updatedUser, message: "Vendor created successfully!" },
       { status: 201 }
     );
   } catch (error) {
@@ -44,19 +68,25 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const vendorProfile = await db.vendorProfile.findMany({
+    const vendors = await db.user.findMany({
       orderBy: {
         createdAt: "desc",
       },
+      where: {
+        role: "VENDOR",
+      },
+      include: {
+        vendorProfile: true,
+      },
     });
 
-    return NextResponse.json(vendorProfile);
+    return NextResponse.json(vendors);
   } catch (error) {
     console.log(error);
 
     return NextResponse.json(
       {
-        message: "Unable to fetch Vendor Profile",
+        message: "Unable to fetch Vendors",
         error,
       },
       {
