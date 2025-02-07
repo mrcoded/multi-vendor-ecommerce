@@ -14,8 +14,16 @@ export async function GET(
       where: {
         id,
       },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        profile: true,
+        createdAt: true,
+      },
     });
-    console.log(users);
+
     return NextResponse.json(users);
   } catch (error) {
     console.log(error);
