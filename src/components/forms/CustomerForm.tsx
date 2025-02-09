@@ -73,6 +73,7 @@ function CustomerForm({
       resourceName: "Customer Profile",
       reset,
       redirectUrl,
+      successMsg: "Customer Profile Updated Successfully!",
     });
   };
 
