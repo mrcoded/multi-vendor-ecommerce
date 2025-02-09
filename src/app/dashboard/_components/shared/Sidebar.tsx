@@ -55,19 +55,9 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
   if (role === "VENDOR") {
     sidebarLinks = [
       {
-        title: "Customers",
-        icon: Users2,
-        href: "/dashboard/customers",
-      },
-      {
         title: "Stores",
         icon: Warehouse,
         href: "/dashboard/stores",
-      },
-      {
-        title: "Orders",
-        icon: Truck,
-        href: "/dashboard/orders",
       },
       {
         title: "Community",
@@ -88,6 +78,18 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
         title: "Online Store",
         icon: ExternalLink,
         href: "/",
+      },
+    ];
+    catalogueLinks = [
+      {
+        title: "Products",
+        icon: Boxes,
+        href: "/dashboard/products",
+      },
+      {
+        title: "Coupons",
+        icon: ScanSearch,
+        href: "/dashboard/coupons",
       },
     ];
   }
@@ -249,7 +251,7 @@ let sidebarLinks = [
     href: "/dashboard/staffs",
   },
   {
-    title: "Community",
+    title: "MVE Community",
     icon: Building2,
     href: "/dashboard/community",
   },
