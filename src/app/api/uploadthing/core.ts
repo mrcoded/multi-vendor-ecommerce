@@ -107,6 +107,22 @@ export const ourFileRouter = {
 
       return { uploadedBy: metadata.userId };
     }),
+
+  multipleProductsUploader: f({
+    image: { maxFileSize: "8MB", maxFileCount: 4 },
+  })
+    .middleware(async ({ req }) => {
+      const user = await auth(req);
+
+      if (!user) throw new UploadThingError("Unauthorized");
+
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("file url", file.url, metadata);
+
+      return { uploadedBy: metadata.userId };
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
