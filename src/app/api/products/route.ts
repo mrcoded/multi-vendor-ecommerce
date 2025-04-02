@@ -1,17 +1,17 @@
 import { db } from "@/lib/db";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const {
       title,
       slug,
-      imageUrl,
+      productImages,
       categoryId,
       description,
       isActive,
       isWholesale,
-      qty,
+      qty = 1,
       sku,
       barcode,
       productPrice,
@@ -44,7 +44,8 @@ export async function POST(request: Request) {
       data: {
         title,
         slug,
-        imageUrl,
+        productImages,
+        imageUrl: productImages[0],
         categoryId,
         description,
         isActive,
@@ -78,13 +79,61 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  const min = request.nextUrl.searchParams.get("min");
+  const max = request.nextUrl.searchParams.get("max");
+  const sortBy = request.nextUrl.searchParams.get("sort");
+  const categoryId = request.nextUrl.searchParams.get("catId");
+
+  let where: Partial<{
+    categoryId: string | undefined;
+    salePrice?: {
+      gte?: number;
+      lte?: number;
+    };
+  }> = {};
+
+  if (categoryId !== null) {
+    where.categoryId = categoryId;
+  }
+
+  if (min && max) {
+    where.salePrice = {
+      gte: parseFloat(min),
+      lte: parseFloat(max),
+    };
+  } else if (min) {
+    where.salePrice = {
+      gte: parseFloat(min),
+    };
+  } else if (max) {
+    where.salePrice = {
+      lte: parseFloat(max),
+    };
+  }
+  let products;
+
   try {
-    const products = await db.product.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    if (categoryId && sortBy) {
+      products = await db.product.findMany({
+        where,
+        orderBy: {
+          salePrice: sortBy === "asc" ? "desc" : "desc",
+        },
+      });
+    } else if (categoryId) {
+      products = await db.product.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    } else {
+      products = await db.product.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }
 
     return NextResponse.json(products);
   } catch (error) {
