@@ -14,13 +14,17 @@ datasource db {
 }
 
 model Coupon {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   title      String
   couponCode String
   expiryDate DateTime
   isActive   Boolean
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime? @updatedAt
+
+  vendor   User   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorId String @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 model Banner {
@@ -71,6 +75,7 @@ model Product {
   title             String
   slug              String   @unique
   imageUrl          String?
+  productImages     String[]
   description       String?
   isActive          Boolean
   isWholesale       Boolean
@@ -93,6 +98,7 @@ model Product {
   OrderItems OrderItem[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime?   @updatedAt
+  sales      Sale[]
 }
 
 model VendorProfile {
@@ -140,10 +146,33 @@ enum UserRole {
   MODERATOR
 }
 
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 model UserProfile {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String @unique @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @unique @db.ObjectId
+  // Personal Details
+  name          String?
+  firstName     String?
+  lastName      String?
+  email         String?
+  userName      String?
+  phone         String?
+  // Shipping Details
+  streetAddress String?
+  city          String?
+  country       String?
+  district      String?
+  dateOfBirth   DateTime?
+  profileImage  String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -156,8 +185,11 @@ model User {
   verificationToken String?
 
   products Product[]
+  Coupon   Coupon[]
 
-  Order         Order[]
+  sales  Sale[]
+  orders Order[]
+
   role          UserRole       @default(USER)
   profile       UserProfile?
   vendorProfile VendorProfile?
@@ -167,8 +199,8 @@ model User {
 }
 
 model Order {
-  id            String @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String @unique @db.ObjectId
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String  @db.ObjectId
   // Personal Details
   firstName     String
   lastName      String
@@ -180,25 +212,56 @@ model Order {
   country       String
   district      String
   shippingCost  Float
+  orderNumber   String?
+
   //Payment Method
   paymentMethod String
   // paymentToken  String
 
+  //Order Status
+  orderStatus OrderStatus @default(PROCESSING)
+
   //Order Items
   orderItems OrderItem[]
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sales      Sale[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model OrderItem {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  orderId   String   @db.ObjectId
-  productId String   @db.ObjectId
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String  @db.ObjectId
+  productId String  @db.ObjectId
+  vendorId  String  @db.ObjectId
+  imageUrl  String?
+  title     String?
   quantity  Int
   price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Sale {
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  orderId         String  @db.ObjectId
+  productId       String  @db.ObjectId
+  vendorId        String  @db.ObjectId
+  productImageUrl String?
+  productTitle    String?
+  productPrice    Float?
+  productQty      Int?
+  total           Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  vendor  User    @relation(fields: [vendorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
