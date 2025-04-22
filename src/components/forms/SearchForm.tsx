@@ -1,9 +1,26 @@
+"use client";
+
 import React from "react";
+import { useRouter } from "next/navigation";
+
 import { DoorOpen } from "lucide-react";
+import { FieldValues, useForm } from "react-hook-form";
 
 function SearchForm() {
+  const router = useRouter();
+  const { register, handleSubmit, reset } = useForm();
+
+  const handleSearch = (data: FieldValues) => {
+    const { searchTerm } = data;
+    reset();
+    router.push(`/search?search=${searchTerm}`);
+  };
+
   return (
-    <form className="flex items-center max-w-lg mx-auto">
+    <form
+      onSubmit={handleSubmit(handleSearch)}
+      className="flex items-center max-w-lg mx-auto"
+    >
       <label htmlFor="voice-search" className="sr-only">
         Search
       </label>
@@ -12,9 +29,10 @@ function SearchForm() {
           <DoorOpen className="w-4 h-4 text-gray-500 dark:text-gray-400" />
         </div>
         <input
+          {...register("searchTerm")}
           type="text"
           id="voice-search"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-lime-500 dark:focus:border-lime-500"
           placeholder="Search Products, Categories, Markets..."
           required
         />
