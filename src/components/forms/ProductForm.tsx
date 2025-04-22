@@ -9,7 +9,7 @@ import { makePostRequest } from "@/lib/apiRequest";
 import generateUserCode from "@/lib/generateUserCode";
 
 import TextInput from "@/components/inputs/TextInput";
-import ImageInput from "@/components/inputs/ImageInput";
+import MultiImageInput from "@/components/inputs/MultiImageInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
 import SelectInput from "@/components/inputs/SelectInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
@@ -25,7 +25,7 @@ interface ProductFormData {
   id: string;
   title: string;
   slug: string;
-  imageUrl: string;
+  productImages: Array<string>;
   categoryId: string;
   description: string;
   isWholesale: boolean;
@@ -53,11 +53,11 @@ const ProductForm = ({
   const router = useRouter();
   const id = updateData?.id ?? "";
   const initialTags = updateData?.tags ?? [];
-  const initialImageUrl = updateData?.imageUrl ?? "";
+  const initialProductImages = updateData?.productImages ?? [];
   const isWholeSale = updateData?.isWholesale ?? false;
 
   const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState(initialImageUrl);
+  const [productImages, setProductImages] = useState(initialProductImages);
   const [isWholesaleCheck, setIsWholesaleCheck] = useState(false);
 
   const [tags, setTags] = useState<string[]>(initialTags);
@@ -77,7 +77,7 @@ const ProductForm = ({
     const slug = generateSlug(data.title);
     const productCode = generateUserCode("MVEP", data.title);
     data.slug = slug;
-    data.imageUrl = imageUrl;
+    data.productImages = productImages;
     data.tags = tags;
     data.productCode = productCode;
 
@@ -88,6 +88,7 @@ const ProductForm = ({
         endpoint: `api/products/${id}`,
         data,
         resourceName: "Product",
+        method: "PUT",
         reset,
         redirectUrl,
       });
@@ -103,7 +104,7 @@ const ProductForm = ({
       });
 
       setTags([]);
-      setImageUrl("");
+      setProductImages([]);
     }
   };
 
@@ -226,11 +227,11 @@ const ProductForm = ({
             defaultValue={updateData?.wholesaleQuantity}
           />
 
-          <ImageInput
-            imageUrl={imageUrl}
-            setImageUrl={setImageUrl}
-            endpoint="productImageUploader"
-            label="Product Image"
+          <MultiImageInput
+            imageUrls={productImages}
+            setImageUrls={setProductImages}
+            endpoint="multipleProductsUploader"
+            label="Product Images"
           />
 
           {/* Tags */}
