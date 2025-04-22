@@ -7,9 +7,10 @@ import FilteredProducts from "./FilteredProducts";
 
 interface ProductsProp {
   slug: string;
-  id: string;
+  id?: string;
   title: string;
-  imageUrl: string;
+  imageUrl?: string;
+  isSearch?: boolean | undefined;
   products: {
     slug: string;
     id: string;
@@ -33,7 +34,11 @@ const FilterComponent = ({
     <div>
       <div className="bg-white space-y-6 text-slate-900 py-8 px-4">
         <BreadCrumb title={title} resultCount={productCount} />
-        <SortingFilter title={title} slug={slug} />
+        <SortingFilter
+          isSearch={category?.isSearch}
+          title={title}
+          slug={slug}
+        />
 
         <div className="grid grid-cols-12 py-8 gap-4">
           <div className="col-span-3">
