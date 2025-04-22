@@ -8,11 +8,11 @@ async function page({ searchParams }: { searchParams: string }) {
   const sort = searchParamsObject.get("sort");
   const min = searchParamsObject.get("min");
   const max = searchParamsObject.get("max");
-  const search = searchParamsObject.get("search");
+  const search = searchParamsObject.get("search") || "";
   const page = searchParamsObject.get("page") || 1;
 
   const category = {
-    title: "",
+    title: search,
     slug: "",
     products: [],
     isSearch: true,
