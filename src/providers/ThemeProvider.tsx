@@ -3,6 +3,7 @@
 import * as React from "react";
 import { store } from "@/redux/store";
 import { Provider } from "react-redux";
+import AuthProvider from "./AuthProvider";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 import { Toaster } from "react-hot-toast";
@@ -18,7 +19,9 @@ export function ThemeProvider({
     <NextThemesProvider {...props}>
       <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
       <Toaster position="top-center" reverseOrder={false} />
-      <Provider store={store}>{children}</Provider>
+      <AuthProvider>
+        <Provider store={store}>{children}</Provider>
+      </AuthProvider>
     </NextThemesProvider>
   );
 }
