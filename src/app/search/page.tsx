@@ -5,9 +5,9 @@ import FilterComponent from "@/components/Filters/FilterComponent";
 
 async function page({ searchParams }: { searchParams: string }) {
   const searchParamsObject = new URLSearchParams(searchParams);
-  const sort = searchParamsObject.get("sort");
-  const min = searchParamsObject.get("min");
-  const max = searchParamsObject.get("max");
+  const sort = searchParamsObject.get("sort") || "asc";
+  const min = searchParamsObject.get("min") || 0;
+  const max = searchParamsObject.get("max") || "";
   const search = searchParamsObject.get("search") || "";
   const page = searchParamsObject.get("page") || 1;
 
@@ -18,7 +18,9 @@ async function page({ searchParams }: { searchParams: string }) {
     isSearch: true,
   };
 
-  let products;
+  let products = await getData(
+    `products/search?search=${search}&page=${page}&sort=${sort}&min=${min}&max=${max}`
+  );
 
   if (search) {
     products = await getData(`products?search=${search}`);
