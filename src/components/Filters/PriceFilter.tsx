@@ -1,40 +1,33 @@
 import React from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FieldValues, useForm } from "react-hook-form";
 import { Circle } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-function PriceFilter({ slug }: { slug: string }) {
+import { FieldValues, useForm } from "react-hook-form";
+import { priceRanges } from "@/app/constants/priceRanges";
+
+function PriceFilter({
+  slug,
+  isSearch,
+}: {
+  slug: string;
+  isSearch: boolean | undefined;
+}) {
   const router = useRouter();
 
+  //extract search params
   const searchParams = useSearchParams();
-  const minParam = searchParams.get("min");
-  const maxParam = searchParams.get("max");
-  console.log(minParam, maxParam);
+  const searchParamsObject = new URLSearchParams(searchParams);
 
-  const priceRanges = [
-    {
-      display: "under 300",
-      max: 300,
-    },
-    {
-      display: "Between 300 and 500",
-      max: 500,
-      min: 300,
-    },
-    {
-      display: "Between 500 and 700",
-      max: 700,
-      min: 500,
-    },
-    {
-      display: "Above 700",
-      min: 700,
-    },
-  ];
+  const maxParam = searchParams.get("max");
+  const minParam = searchParams.get("min");
+  const page = searchParamsObject.get("page") || 1;
+  const sort = searchParamsObject.get("sort") || "asc";
+  const search = searchParamsObject.get("search") || "";
 
   const { handleSubmit, reset, register } = useForm();
 
+  //submit function handler
   const onSubmit = (data: FieldValues) => {
     const { min, max } = data;
     console.log(min, max);
@@ -70,11 +63,9 @@ function PriceFilter({ slug }: { slug: string }) {
             <Link
               key={i}
               href={
-                range.max && range.min
-                  ? `/category/${slug}?sort=asc&max=${range.max}&min=${range.min}`
-                  : range.max
-                    ? `/category/${slug}?sort=asc&max=${range.max}:`
-                    : `/category/${slug}?sort=asc&min=${range.min}`
+                isSearch
+                  ? `?search=${search}&page=${page}&sort=${sort}&min=${range.min || 0}&max=${range.max || ""}`
+                  : `?page=${page}&sort=${sort}&min=${range.min || 0}&max=${range.max || ""}`
               }
               className={`${
                 (range.min && range.min == Number(minParam)) ||
@@ -83,11 +74,11 @@ function PriceFilter({ slug }: { slug: string }) {
                   range.max &&
                   range.min == Number(minParam) &&
                   range.max == Number(maxParam))
-                  ? "flex gap-2 items-center text-lime-500"
+                  ? "flex gap-2 items-center text-lime-500 peer:bg-lime-500"
                   : "flex gap-2 items-center"
               }`}
             >
-              <Circle className="size-4 flex-shrink-0" />
+              <Circle className="size-4 flex-shrink-0 peer-hover:fill-lime-500 peer-focus:fill-lime-500 peer-active:fill-lime-500" />
               {range.display}
             </Link>
           );
@@ -102,7 +93,7 @@ function PriceFilter({ slug }: { slug: string }) {
           <input
             {...register("min")}
             type="number"
-            id="cvv-input"
+            id="min-filter"
             placeholder="min"
             aria-describedby="helper-text-explanation"
             className="bg-gray-50 border border-gray-300 text-gray-300 text-sm rounded-lg focus:ring-lime-500 focus:border-lime-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-lime-500 dark:focus:border-lime-500"
@@ -112,7 +103,7 @@ function PriceFilter({ slug }: { slug: string }) {
           <input
             {...register("max")}
             type="number"
-            id="cvv-input"
+            id="max-filter"
             placeholder="max"
             aria-describedby="helper-text-explanation"
             className="bg-gray-50 border border-gray-300 text-gray-300 text-sm rounded-lg focus:ring-lime-500 focus:border-lime-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-lime-500 dark:focus:border-lime-500"
