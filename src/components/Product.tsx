@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 
 import Link from "next/link";
@@ -9,15 +11,9 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { actions } from "../redux/slices/cartSlice";
 
-interface ProductsProp {
-  slug: string;
-  id: string;
-  title: string;
-  imageUrl: string;
-  salePrice: number;
-}
+import { ProductProp } from "@/types/Products";
 
-function Product({ product }: { product: ProductsProp }) {
+function Product({ product }: { product: ProductProp }) {
   const dispatch = useDispatch();
 
   function handleAddToCart() {
