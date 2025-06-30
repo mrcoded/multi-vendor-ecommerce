@@ -5,10 +5,16 @@ import React from "react";
 import PriceFilter from "./PriceFilter";
 import BrandFilter from "./BrandFilter";
 
-function Filters({ slug }: { slug: string }) {
+function Filters({
+  slug,
+  isSearch,
+}: {
+  slug: string;
+  isSearch: boolean | undefined;
+}) {
   return (
     <div className="">
-      <PriceFilter slug={slug} />
+      <PriceFilter slug={slug} isSearch={isSearch} />
       <BrandFilter />
     </div>
   );
