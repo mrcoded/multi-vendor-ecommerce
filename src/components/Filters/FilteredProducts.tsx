@@ -3,7 +3,7 @@ import React from "react";
 import Product from "../Product";
 import Paginate from "./Paginate";
 
-import { ProductsProp } from "@/types/Products";
+import { ProductsProp } from "@/types/products";
 
 async function FilteredProducts({
   products = [],
