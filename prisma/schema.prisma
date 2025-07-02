@@ -108,7 +108,8 @@ model VendorProfile {
   contactPersonPhone String?
   imageUrl           String?
   email              String
-  name               String
+  firstName          String
+  lastName           String
   notes              String?
   phone              String
   physicalAddress    String?
@@ -190,6 +191,7 @@ model User {
   sales  Sale[]
   orders Order[]
 
+  plan          String?
   role          UserRole       @default(USER)
   profile       UserProfile?
   vendorProfile VendorProfile?
