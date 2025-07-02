@@ -18,7 +18,10 @@ function AddToCartButton({ product }: any) {
   }
 
   return (
-    <button className="flex items-center space-x-2 bg-lime-600 hover:bg-lime-800 duration-300 transition-all text-white rounded-md px-4 py-2">
+    <button
+      onClick={handleAddToCart}
+      className="flex items-center space-x-2 bg-lime-600 hover:bg-lime-800 duration-300 transition-all text-white rounded-md px-4 py-2"
+    >
       <BaggageClaim />
       <span>Add to Cart</span>
     </button>
