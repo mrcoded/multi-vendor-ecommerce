@@ -90,6 +90,7 @@ function ArrayItemsInput({
       )}
 
       <div className="flex flex-wrap gap-4 mt-4">
+        {items.length === 0 && <p className="text-slate-400">No {itemTitle}</p>}
         {items?.map((tag, index) => {
           return (
             <div

@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { actions } from "../redux/slices/cartSlice";
 
-import { ProductProp } from "@/types/Products";
+import { ProductProp } from "@/types/products";
 
 function Product({ product }: { product: ProductProp }) {
   const dispatch = useDispatch();
