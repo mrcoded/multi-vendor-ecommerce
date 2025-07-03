@@ -72,6 +72,7 @@ const CommunityPostForm = ({
         resourceName: "Community Post",
         reset,
         redirectUrl,
+        method: "PUT",
       });
     } else {
       //POST request (create)

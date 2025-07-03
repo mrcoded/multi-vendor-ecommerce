@@ -70,6 +70,7 @@ const CouponForm = ({ updateData }: { updateData?: CouponFormProps }) => {
         resourceName: "Coupon",
         reset,
         redirectUrl,
+        method: "PUT",
       });
     } else {
       //POST request (create)

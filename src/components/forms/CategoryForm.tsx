@@ -58,6 +58,7 @@ const CategoryForm = ({ updateData }: { updateData?: CategoryFormProps }) => {
         resourceName: "Category",
         reset,
         redirectUrl,
+        method: "PUT",
       });
     } else {
       //POST request (create)

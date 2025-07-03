@@ -62,6 +62,7 @@ const StoreForm = ({
         resourceName: "Store",
         reset,
         redirectUrl,
+        method: "PUT",
       });
     } else {
       //POST request (create)

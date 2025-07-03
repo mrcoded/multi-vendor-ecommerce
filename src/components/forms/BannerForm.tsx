@@ -56,6 +56,7 @@ const BannerForm = ({ updateData }: { updateData?: BannerFormProps }) => {
         resourceName: "Banner",
         reset,
         redirectUrl,
+        method: "PUT",
       });
     } else {
       //POST request (create)
