@@ -6,15 +6,16 @@ import Link from "next/link";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 
-interface VendorProps {
-  vendors: {
+interface StoreProps {
+  stores: {
     id: string;
+    slug: string;
     name: string;
     imageUrl: string;
   }[];
 }
 
-function VendorCarousel({ vendors }: VendorProps) {
+function StoreCarousel({ stores }: StoreProps) {
   const responsive = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
@@ -42,28 +43,33 @@ function VendorCarousel({ vendors }: VendorProps) {
       ssr={true} // means to render carousel on server-side.
       infinite={true}
       autoPlay={true}
-      autoPlaySpeed={1000}
+      autoPlaySpeed={5000}
       keyBoardControl={true}
       customTransition="all .5"
-      transitionDuration={500}
+      transitionDuration={1000}
       containerClass="carousel-container"
       removeArrowOnDeviceType={["tablet", "mobile"]}
       // deviceType={this.props.deviceType}
       dotListClass="custom-dot-list-style"
       itemClass="px-4"
     >
-      {vendors.map((vendor, i) => {
+      {stores?.map((store, i) => {
         return (
-          <Link key={i} href="#" className="rounded-lg mr-3 bg-red-400">
+          <Link
+            key={i}
+            href={`/store/${store.slug}`}
+            className="rounded-lg mr-3 bg-red-400"
+          >
             <Image
-              src={vendor.imageUrl}
-              alt={vendor.name}
+              id={store.id}
+              src={store?.imageUrl}
+              alt={store.name}
               width={556}
               height={556}
               className="w-full rounded-2xl"
             />
             <h2 className="text-center dark:text-slate-200 text-slate-800 mt-2">
-              {vendor.name}
+              {store.name}
             </h2>
           </Link>
         );
@@ -72,4 +78,4 @@ function VendorCarousel({ vendors }: VendorProps) {
   );
 }
 
-export default VendorCarousel;
+export default StoreCarousel;
