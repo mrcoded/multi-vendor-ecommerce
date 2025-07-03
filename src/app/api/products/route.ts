@@ -80,9 +80,12 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: NextRequest) {
+  const pageSize = 3;
   const min = request.nextUrl.searchParams.get("min");
   const max = request.nextUrl.searchParams.get("max");
+  const page = request.nextUrl.searchParams.get("page") || "1";
   const sortBy = request.nextUrl.searchParams.get("sort");
+  const searchTerm = request.nextUrl.searchParams.get("search");
   const categoryId = request.nextUrl.searchParams.get("catId");
 
   let where: Partial<{
@@ -114,7 +117,29 @@ export async function GET(request: NextRequest) {
   let products;
 
   try {
-    if (categoryId && sortBy) {
+    if (searchTerm) {
+      products = await db.product.findMany({
+        where: {
+          OR: [
+            {
+              title: {
+                contains: searchTerm,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+      });
+    } else if (categoryId && page) {
+      products = await db.product.findMany({
+        where,
+        skip: (parseInt(page) - 1) * pageSize,
+        take: pageSize,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    } else if (categoryId && sortBy) {
       products = await db.product.findMany({
         where,
         orderBy: {
