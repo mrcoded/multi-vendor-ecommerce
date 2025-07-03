@@ -30,7 +30,7 @@ function ResetPasswordForm() {
     if (!data.password) return;
 
     data.id = id;
-    console.log(id);
+
     makePostRequest({
       setLoading,
       endpoint: "api/users/reset-password",

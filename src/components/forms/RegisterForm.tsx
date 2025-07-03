@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { FieldValues, useForm } from "react-hook-form";
 import { makePostRequest } from "@/lib/apiRequest";
@@ -10,6 +10,9 @@ import SubmitButton from "../buttons/SubmitButton";
 
 function RegisterForm({ role }: { role: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("plan");
+
   const [loading, setLoading] = useState(false);
 
   const {
@@ -21,11 +24,13 @@ function RegisterForm({ role }: { role: string }) {
 
   const redirectUrl = (id: string) => {
     if (role === "USER") router.push(`/login`);
-    if (role === "VENDOR") router.push(`/verify/email`);
+    if (role === "VENDOR") router.push(`/verify-email?session=${id}`);
   };
 
   const onSubmit = async (data: FieldValues) => {
     if (!data.name || !data.email || !data.password) return;
+    //get selected plan type
+    data.plan = plan;
 
     makePostRequest({
       setLoading,
@@ -95,7 +100,7 @@ function RegisterForm({ role }: { role: string }) {
           <p className="text-[0.75rem] font-light text-gray-500 dark:text-gray-400 py-4">
             Are you a Vendor?{" "}
             <Link
-              href="/register-vendor"
+              href="/vendor-pricing"
               className="font-medium text-lime-600 hover:underline dark:text-lime-500"
             >
               Register here

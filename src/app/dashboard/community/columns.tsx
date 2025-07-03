@@ -61,7 +61,7 @@ export const columns: ColumnDef<RowDatas>[] = [
           row={row}
           title="Community Post"
           endpoint={`communityPosts/${communityPost.id}`}
-          editEndpoint={`communityPosts/update/${communityPost.id}`}
+          editEndpoint={`community/update/${communityPost.id}`}
         />
       );
     },

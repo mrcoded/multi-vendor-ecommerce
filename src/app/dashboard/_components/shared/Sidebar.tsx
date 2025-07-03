@@ -15,6 +15,7 @@ import {
   ChevronRight,
   CircleDollarSign,
   ExternalLink,
+  HeartHandshake,
   LayoutGrid,
   LayoutList,
   LogOut,
@@ -55,19 +56,19 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
   if (role === "VENDOR") {
     sidebarLinks = [
       {
-        title: "Stores",
-        icon: Warehouse,
-        href: "/dashboard/stores",
-      },
-      {
-        title: "Community",
-        icon: Building2,
-        href: "/dashboard/community",
+        title: "Sales",
+        icon: Truck,
+        href: "/dashboard/sales",
       },
       {
         title: "Wallet",
         icon: CircleDollarSign,
         href: "/dashboard/wallet",
+      },
+      {
+        title: "Vendor Support",
+        icon: HeartHandshake,
+        href: "/dashboard/vendor-support",
       },
       {
         title: "Settings",
