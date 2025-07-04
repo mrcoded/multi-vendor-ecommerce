@@ -2,8 +2,12 @@
 
 import React, { useState } from "react";
 
+import "../../../styles/main.scss";
+
 import Sidebar from "./_components/shared/Sidebar";
 import Navbar from "./_components/shared/Navbar";
+
+import AuthProvider from "@/providers/AuthProvider";
 
 export default function dashboardLayout({
   children,
@@ -13,7 +17,7 @@ export default function dashboardLayout({
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
 
   return (
-    <div className="flex">
+    <AuthProvider>
       {/* Sidebar */}
       <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
       <div className="lg:ml-64 ml-0 flex-grow bg-slate-100 min-h-screen">
@@ -24,6 +28,6 @@ export default function dashboardLayout({
           {children}
         </main>
       </div>
-    </div>
+    </AuthProvider>
   );
 }

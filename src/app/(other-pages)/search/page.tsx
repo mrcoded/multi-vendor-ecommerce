@@ -19,7 +19,7 @@ async function page({ searchParams }: { searchParams: string }) {
   };
 
   let products = await getData(
-    `products/search?search=${search}&page=${page}&sort=${sort}&min=${min}&max=${max}`
+    `products?search=${search}&page=${page}&sort=${sort}&min=${min}&max=${max}`
   );
 
   if (search) {

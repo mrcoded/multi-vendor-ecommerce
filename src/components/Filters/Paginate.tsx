@@ -12,11 +12,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { cn } from "@/lib/utils";
 
 function Paginate({ totalPages }: { totalPages: number }) {
   const searchParams = useSearchParams();
   const currentPage = searchParams.get("page") || "1";
-  console.log(currentPage, totalPages);
+
   return (
     <Pagination>
       <PaginationContent>
@@ -32,6 +33,9 @@ function Paginate({ totalPages }: { totalPages: number }) {
                 <PaginationLink
                   isActive={index + 1 === parseInt(currentPage)}
                   href={`?${new URLSearchParams({ page: (index + 1).toString() })}`}
+                  className={cn(
+                    index + 1 === parseInt(currentPage) && "dark:text-slate-200"
+                  )}
                 >
                   {index + 1}
                 </PaginationLink>

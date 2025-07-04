@@ -40,7 +40,7 @@ const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
   } = useForm();
 
   const redirectUrl = (id: string) => {
-    router.push(`/dashboard`);
+    router.push(`/login`);
   };
 
   const onSubmit = () => {

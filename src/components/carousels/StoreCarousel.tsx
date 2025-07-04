@@ -63,7 +63,7 @@ function StoreCarousel({ stores }: StoreProps) {
             <Image
               id={store.id}
               src={store?.imageUrl}
-              alt={store.name}
+              alt="store name"
               width={556}
               height={556}
               className="w-full rounded-2xl"

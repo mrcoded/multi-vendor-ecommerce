@@ -11,18 +11,18 @@ async function VendorDashboard() {
   const session = await getServerSession(authOptions);
   const user = session?.user;
 
-  const { id, status = false } = user;
+  const { id, status = false } = user ?? {};
 
   //Fetch all the sales
   const sales = await getData("orders/sales");
   const salesById = sales?.filter(
-    (sale: { vendorId: string }) => sale.vendorId === user?.id
+    (sale: { vendorId: string }) => sale.vendorId === id
   );
 
   //Fetch all the products
   const products = await getData("products");
   const productsById = products?.filter(
-    (product: { userId: string }) => product.userId === user?.id
+    (product: { userId: string }) => product.userId === id
   );
 
   if (!status) {
