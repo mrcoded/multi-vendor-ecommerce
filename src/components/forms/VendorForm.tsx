@@ -7,26 +7,14 @@ import { FieldValues, useForm } from "react-hook-form";
 import { makePostRequest } from "@/lib/apiRequest";
 import generateUserCode from "@/lib/generateUserCode";
 
+import { VendorProps } from "@/types/vendors";
+
 import TextInput from "@/components/inputs/TextInput";
 import ImageInput from "@/components/inputs/ImageInput";
 import ArrayItemsInput from "../inputs/ArrayItemsInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
-
-type VendorProps = {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  imageUrl?: string;
-  physicalAddress: string;
-  contactPerson: string;
-  contactPersonPhone: string;
-  terms: string;
-  notes: string;
-  products: string[];
-};
 
 function VendorForm({
   updateData,
@@ -72,6 +60,7 @@ function VendorForm({
         data,
         resourceName: "Vendor",
         reset,
+        method: "PUT",
         redirectUrl,
       });
     } else {
@@ -94,8 +83,17 @@ function VendorForm({
     >
       <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
         <TextInput
-          label="Vendor's Full Name"
-          name="name"
+          label="Vendor's First Name"
+          name="firstName"
+          register={register}
+          errors={errors}
+          className="w-full"
+          defaultValue={updateData?.name ?? user?.name}
+        />
+
+        <TextInput
+          label="Vendor's Last Name"
+          name="lastName"
           register={register}
           errors={errors}
           className="w-full"
@@ -124,7 +122,7 @@ function VendorForm({
 
         <TextInput
           label="Vendor's Physical Address"
-          name="address"
+          name="physicalAddress"
           register={register}
           errors={errors}
           className="w-full"
