@@ -1,13 +1,13 @@
 import { db } from "./db";
 import { compare } from "bcrypt";
 
-import { JWT } from "next-auth/jwt";
-import { User, Session } from "next-auth";
+import { Adapter } from "next-auth/adapters";
+import { User, NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-export const authOptions = {
-  adapter: PrismaAdapter(db),
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(db) as Adapter,
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
@@ -26,7 +26,7 @@ export const authOptions = {
           placeholder: "*******",
         },
       },
-      async authorize(credentials): Promise<User | null> {
+      async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
             throw new Error("Please provide both email and password.");
@@ -70,13 +70,7 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async session({
-      session,
-      token,
-    }: {
-      session: Session;
-      token: JWT;
-    }): Promise<Session> {
+    async session({ session, token }) {
       if (token) {
         session.user = {
           id: token.id as string,
@@ -91,7 +85,7 @@ export const authOptions = {
       console.log("Session: ", session);
       return session;
     },
-    async jwt({ token, user }: { token: JWT; user: User }): Promise<JWT> {
+    async jwt({ token, user }) {
       if (user) {
         const updatedUser = await db.user.findUnique({
           where: { id: user.id },
@@ -108,7 +102,7 @@ export const authOptions = {
         token.email = user.email;
         token.role = user.role;
         token.status = user.status;
-        token.emailVerified = user.emailVerified;
+        token.emailVerified = !!user.emailVerified;
       }
       // console.log("Token: ", token);
       return token;

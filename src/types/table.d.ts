@@ -2,6 +2,7 @@
 // You can use a Zod schema here if you want.
 export type RowDatas = {
   id: string;
+  name?: string;
   isActive: boolean;
   role?: string;
   email?: string;

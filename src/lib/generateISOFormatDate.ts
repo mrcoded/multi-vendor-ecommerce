@@ -1,15 +1,11 @@
-function generateISOFormatDate(date: string) {
-  // Convert the date string to a Javascript Date object
-  const dateObject = new Date(date);
+function generateISOFormatDate(dateString: string): string {
+  const date = new Date(dateString);
 
-  // Format the date as a string in the desired format
-  const formattedDate = dateObject.toLocaleString("default", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid date format. Please use a valid date string.");
+  }
 
-  return formattedDate;
+  return date.toISOString(); // Returns in ISO 8601 format with 'Z'
 }
 
 export default generateISOFormatDate;

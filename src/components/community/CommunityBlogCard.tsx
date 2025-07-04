@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { CommunityPostProps } from "@/types/communityPost";
-import generateISOFormatDate from "@/lib/generateISOFormatDate";
+import formatDate from "@/lib/formatDate";
 import getData from "@/lib/getData";
 
 async function CommunityBlogCard({
@@ -15,7 +15,7 @@ async function CommunityBlogCard({
   const category = await getData(`categories/${categoryId}`);
   const categoryTitle = category.title;
 
-  const normalDate = generateISOFormatDate(communityPost.createdAt);
+  const normalDate = formatDate(communityPost.createdAt);
 
   return (
     <div className="group">

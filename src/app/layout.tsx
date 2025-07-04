@@ -2,6 +2,7 @@ import { Metadata } from "next";
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import "../styles/main.scss";
 
 export const metadata: Metadata = {
   title: "Multi Vendor E-commerce",

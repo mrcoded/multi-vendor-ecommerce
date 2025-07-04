@@ -1,7 +1,7 @@
 import React from "react";
 
 import getData from "@/lib/getData";
-import generateISOFormatDate from "@/lib/generateISOFormatDate";
+import formatDate from "@/lib/formatDate";
 
 import CategoryList from "../../category/_components/CategoryList";
 import CommunityPostHtml from "@/components/community/CommunityPostHtml";
@@ -11,7 +11,7 @@ async function page({ params: { slug } }: { params: { slug: string } }) {
   const communityPost = await getData(`communityPosts/post/${slug}`);
   const communityPostId = communityPost.id;
   //Format date
-  const normalDate = generateISOFormatDate(communityPost.createdAt);
+  const normalDate = formatDate(communityPost.createdAt);
 
   //Get recent community posts
   const allCommunityPosts = await getData(`communityPosts`);

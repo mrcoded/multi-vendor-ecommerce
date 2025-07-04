@@ -22,8 +22,8 @@ const page = async () => {
     return null;
   }
 
-  const vendorCoupons = coupons.filter(
-    (coupon: { userId: string }) => coupon.userId === id
+  const vendorCoupons = coupons?.filter(
+    (coupon: { vendorId: string }) => coupon.vendorId === id
   );
 
   return (
