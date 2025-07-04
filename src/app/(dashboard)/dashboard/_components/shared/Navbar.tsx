@@ -32,17 +32,17 @@ function Navbar({ showSidebar, setShowSidebar }: NavbarProps) {
   }
 
   return (
-    <div className="flex items-center justify-between bg-white text-slate-50 dark:bg-slate-800 h-20 p-8 fixed top-0 w-full z-50 sm:pr-[20rem]">
+    <div className="flex items-center justify-between lg:justify-end bg-white text-slate-50 dark:bg-slate-800 h-20 p-8 fixed top-0 w-full z-50 lg:pr-[20rem]">
       <button
         onClick={() => setShowSidebar(!showSidebar)}
-        className="text-lime-700 dark:text-lime-500"
+        className="text-lime-700 dark:text-lime-500 lg:hidden"
       >
         <AlignJustify />
       </button>
       <Link href="/dashboard" className="sm:hidden">
         Logo
       </Link>
-      <div className="flex space-x-3 ">
+      <div className="inline-flex space-x-3">
         <ThemeSwitcherButton />
 
         {/* Notifications */}

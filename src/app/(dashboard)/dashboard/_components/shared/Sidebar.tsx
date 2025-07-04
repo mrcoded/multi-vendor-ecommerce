@@ -126,8 +126,8 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
       className={cn(
         "dark:bg-slate-800 bg-white space-y-6 w-64 h-screen text-slate-800 dark:text-slate-300 fixed left-0 top-0 shadow-md overflow-y-scroll",
         showSidebar
-          ? "sm:block mt-20 sm:mt-0 "
-          : "mt-20 sm:mt-0 hidden sm:block"
+          ? "sm:block mt-20 sm:mt-0 z-10"
+          : "mt-20 sm:mt-0 hidden lg:block"
       )}
     >
       <Link
