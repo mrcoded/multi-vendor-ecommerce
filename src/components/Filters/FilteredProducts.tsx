@@ -17,14 +17,22 @@ async function FilteredProducts({
   const totalPages = Math.ceil(productCount / pageSize);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {products.map((product, i: React.Key) => {
-        return <Product key={i} product={product} />;
-      })}
+    <>
+      {products.length === 0 && (
+        <p className="text-center text-base tracking-wider italic">
+          Product Not Found!
+        </p>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {products.length > 0 &&
+          products.map((product, i: React.Key) => {
+            return <Product key={i} product={product} />;
+          })}
+      </div>
       <div className="p-8 mx-auto flex items-center justify-center w-full">
         <Paginate totalPages={totalPages} />
       </div>
-    </div>
+    </>
   );
 }
 
