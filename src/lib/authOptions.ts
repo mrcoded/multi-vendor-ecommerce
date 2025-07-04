@@ -1,11 +1,12 @@
 import { db } from "./db";
 import { compare } from "bcrypt";
 
-import { NextAuthOptions } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import { User, Session } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   adapter: PrismaAdapter(db),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
@@ -25,7 +26,7 @@ export const authOptions: NextAuthOptions = {
           placeholder: "*******",
         },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         try {
           if (!credentials?.email || !credentials?.password) {
             throw new Error("Please provide both email and password.");
@@ -57,10 +58,10 @@ export const authOptions: NextAuthOptions = {
             name: existingUser.name,
             role: existingUser.role,
             status: existingUser.status,
-            imageUrl: existingUser.imageUrl,
+            imageUrl: existingUser.imageUrl ?? undefined,
             emailVerified: existingUser.emailVerified,
           };
-          return user;
+          return user as User;
         } catch (error) {
           console.log(error);
           throw { error: "Something went wrong", status: 401 };
@@ -69,7 +70,13 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, token }) {
+    async session({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT;
+    }): Promise<Session> {
       if (token) {
         session.user = {
           id: token.id as string,
@@ -84,7 +91,7 @@ export const authOptions: NextAuthOptions = {
       console.log("Session: ", session);
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user: User }): Promise<JWT> {
       if (user) {
         const updatedUser = await db.user.findUnique({
           where: { id: user.id },
@@ -99,6 +106,9 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
+        token.role = user.role;
+        token.status = user.status;
+        token.emailVerified = user.emailVerified;
       }
       // console.log("Token: ", token);
       return token;

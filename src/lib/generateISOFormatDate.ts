@@ -2,8 +2,12 @@ function generateISOFormatDate(date: string) {
   // Convert the date string to a Javascript Date object
   const dateObject = new Date(date);
 
-  //Format the date as a string in ISO 8601 format
-  const formattedDate = dateObject.toISOString();
+  // Format the date as a string in the desired format
+  const formattedDate = dateObject.toLocaleString("default", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
   return formattedDate;
 }
