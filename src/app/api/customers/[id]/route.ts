@@ -42,9 +42,22 @@ export async function PUT(
       );
     }
 
+    //Update User Data
+    await db.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        name,
+        email,
+        imageUrl: profileImage,
+      },
+    });
+
+    //Update Customer Profile
     const updatedUser = await db.userProfile.update({
       where: {
-       id,
+        id,
       },
       data: {
         name,
