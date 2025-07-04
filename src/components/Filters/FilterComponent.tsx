@@ -5,20 +5,7 @@ import BreadCrumb from "./BreadCrumb";
 import SortingFilter from "./SortingFilter";
 import FilteredProducts from "./FilteredProducts";
 
-interface ProductsProp {
-  slug: string;
-  id?: string;
-  title: string;
-  imageUrl?: string;
-  isSearch?: boolean | undefined;
-  products: {
-    slug: string;
-    id: string;
-    title: string;
-    imageUrl: string;
-    salePrice: number;
-  }[];
-}
+import { ProductsProp } from "@/types/products";
 
 const FilterComponent = ({
   category,
@@ -31,23 +18,17 @@ const FilterComponent = ({
   const productCount = category.products.length;
 
   return (
-    <div>
-      <div className="bg-white space-y-6 text-slate-900 py-8 px-4">
-        <BreadCrumb title={title} resultCount={productCount} />
-        <SortingFilter
-          isSearch={category?.isSearch}
-          title={title}
-          slug={slug}
-        />
+    <div className="bg-white space-y-6 text-slate-900 py-8 px-4">
+      <BreadCrumb title={title} resultCount={productCount} />
+      <SortingFilter isSearch={category?.isSearch} title={title} slug={slug} />
 
-        <div className="grid grid-cols-12 py-8 gap-4">
-          <div className="col-span-3">
-            <Filters slug={slug} />
-          </div>
+      <div className="grid grid-cols-12 py-8 gap-4">
+        <div className="col-span-3">
+          <Filters slug={slug} isSearch={category?.isSearch} />
+        </div>
 
-          <div className="col-span-9">
-            <FilteredProducts products={products} productCount={productCount} />
-          </div>
+        <div className="col-span-9">
+          <FilteredProducts products={products} productCount={productCount} />
         </div>
       </div>
     </div>
