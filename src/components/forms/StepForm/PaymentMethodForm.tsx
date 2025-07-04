@@ -8,7 +8,7 @@ import { actions } from "@/redux/slices/checkoutSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { FieldValues, useForm } from "react-hook-form";
 
-import StepFormButton from "@/app/checkout/_components/StepFormButton";
+import StepFormButton from "@/app/(other-pages)/checkout/_components/StepFormButton";
 
 const PaymentMethodForm = () => {
   const dispatch = useDispatch();

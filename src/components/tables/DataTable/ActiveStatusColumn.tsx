@@ -11,8 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { RowDatas } from "@/types/table";
 import { Row } from "@tanstack/react-table";
-import { RowDatas } from "@/app/dashboard/(catalogue)/categories/columns";
 
 import EditBtn from "@/components/buttons/EditBtn";
 import DeleteBtn from "@/components/buttons/DeleteBtn";

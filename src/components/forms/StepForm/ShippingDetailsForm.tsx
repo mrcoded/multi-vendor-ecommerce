@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { actions } from "@/redux/slices/checkoutSlice";
 
 import TextInput from "@/components/inputs/TextInput";
-import StepFormButton from "@/app/checkout/_components/StepFormButton";
+import StepFormButton from "@/app/(other-pages)/checkout/_components/StepFormButton";
 
 const ShippingDetailsForm = () => {
   const dispatch = useDispatch();

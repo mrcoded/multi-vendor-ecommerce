@@ -11,7 +11,7 @@ import UserAvatar from "../UserAvatar";
 import SearchForm from "../forms/SearchForm";
 import { HelpModal } from "../modals/HelpModal";
 import ThemeSwitcherButton from "../ThemeSwitcherButton";
-import CartCounter from "@/app/cart/_components/CartCounter";
+import CartCounter from "@/app/(other-pages)/cart/_components/CartCounter";
 
 function Navbar() {
   const { data: session, status } = useSession();

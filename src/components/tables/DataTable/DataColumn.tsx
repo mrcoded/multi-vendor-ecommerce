@@ -1,6 +1,6 @@
 import React from "react";
 import { Row } from "@tanstack/react-table";
-import { RowDatas } from "@/app/dashboard/(catalogue)/categories/columns";
+import { RowDatas } from "@/types/table";
 
 // This type is used to define the shape of our data.
 function DataColumn({

@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { FieldValues, useForm } from "react-hook-form";
 
 import TextInput from "@/components/inputs/TextInput";
-import StepFormButton from "@/app/checkout/_components/StepFormButton";
+import StepFormButton from "@/app/(other-pages)/checkout/_components/StepFormButton";
 
 const PersonalDetailsForm = () => {
   const dispatch = useDispatch();

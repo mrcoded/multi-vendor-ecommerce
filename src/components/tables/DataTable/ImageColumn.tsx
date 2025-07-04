@@ -1,8 +1,8 @@
 import React from "react";
 import Image from "next/image";
 
+import { RowDatas } from "@/types/table";
 import { Row } from "@tanstack/react-table";
-import { RowDatas } from "@/app/dashboard/(catalogue)/categories/columns";
 
 function ImageColumn({
   row,
