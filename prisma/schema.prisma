@@ -192,6 +192,7 @@ model User {
   orders Order[]
 
   plan          String?
+  status        Boolean        @default(false)
   role          UserRole       @default(USER)
   profile       UserProfile?
   vendorProfile VendorProfile?
