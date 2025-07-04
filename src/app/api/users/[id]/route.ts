@@ -21,6 +21,8 @@ export async function GET(
         role: true,
         profile: true,
         createdAt: true,
+        verificationToken: true,
+        emailVerified: true,
       },
     });
 
