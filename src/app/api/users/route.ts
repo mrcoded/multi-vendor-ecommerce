@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   try {
     // const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const { name, password, email, role } = await request.json();
+    const { name, password, email, role, plan, status } = await request.json();
 
     //check if user already exists in the db
     const existingUser = await db.user.findUnique({
@@ -45,6 +45,8 @@ export async function POST(request: Request) {
         password: hashedPassword,
         email,
         role,
+        plan,
+        status,
         verificationToken: encodedToken,
       },
     });
