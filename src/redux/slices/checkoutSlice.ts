@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { checkoutInitialStateProps } from "../types";
+import { checkoutInitialStateProps } from "../../types/redux";
 
 const initialState: checkoutInitialStateProps = {
   currentStep: 1,

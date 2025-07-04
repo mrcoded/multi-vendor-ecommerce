@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { OnboardingInitialStateProps } from "../types";
+import { OnboardingInitialStateProps } from "../../types/redux";
 
 const initialState: OnboardingInitialStateProps = {
   currentStep: 1,

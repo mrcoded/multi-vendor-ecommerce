@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { cartInitialStateProps } from "../types";
+import { cartInitialStateProps } from "../../types/redux";
 
 //Get InitialState from locastorage if available
 const initialState: cartInitialStateProps[] =
@@ -14,7 +14,13 @@ export const cartSlice = createSlice({
   //Create reducers for the cart
   reducers: {
     addToCart: (state, action) => {
-      const { id, title, salePrice, imageUrl } = action.payload;
+      const {
+        id,
+        title,
+        salePrice,
+        imageUrl,
+        userId: vendorId,
+      } = action.payload;
       //Check if item already exists in the cart
       const existingItem = state.find((item) => item.id === id);
 
@@ -23,7 +29,7 @@ export const cartSlice = createSlice({
         existingItem.qty += 1;
       } else {
         //If the item does not exists, add it to the cart
-        const newItem = { id, title, salePrice, imageUrl, qty: 1 };
+        const newItem = { id, title, salePrice, imageUrl, qty: 1, vendorId };
         state.push(newItem);
 
         //Update Localstorage with the new state

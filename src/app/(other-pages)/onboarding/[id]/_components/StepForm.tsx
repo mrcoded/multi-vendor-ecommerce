@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { RootState } from "@/redux/types";
+import { RootState } from "@/types/redux";
 import { useSelector } from "react-redux";
 
 import VendorDetailsSummary from "./StepForm/VendorDetailsSummary";

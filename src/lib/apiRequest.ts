@@ -9,6 +9,8 @@ interface PostRequestProps {
   endpoint: string;
   data: FieldValues;
   resourceName: string;
+  successMsg?: string;
+  method?: string;
   reset: UseFormReset<FieldValues>;
   redirectUrl: (id: string) => void;
 }
@@ -17,16 +19,18 @@ export const makePostRequest = async ({
   setLoading,
   endpoint,
   data,
+  method = "POST",
   resourceName,
   reset,
   redirectUrl,
+  successMsg,
 }: PostRequestProps) => {
   try {
     setLoading(true);
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
     const response = await fetch(`${baseUrl}/${endpoint}`, {
-      method: "POST",
+      method: method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -50,10 +54,10 @@ export const makePostRequest = async ({
 
     if (response.ok) {
       setLoading(false);
-      toast.success(`New ${resourceName} created successfully!`);
+      toast.success(successMsg ?? `New ${resourceName} created succesfully`);
       reset();
 
-      redirectUrl(responseData.data?.id);
+      redirectUrl(responseData.data?.id ?? responseData?.id);
     }
 
     if (response.status === 409) {

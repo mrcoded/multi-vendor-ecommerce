@@ -8,7 +8,7 @@ import { ChevronRight, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { makePostRequest } from "@/lib/apiRequest";
 
-import { RootState } from "@/redux/types";
+import { RootState } from "@/types/redux";
 import { useSelector, useDispatch } from "react-redux";
 import { actions } from "@/redux/slices/checkoutSlice";
 

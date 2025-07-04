@@ -22,24 +22,6 @@ async function page({
     `products?catId=${category.id}&page=${page}&sort=${sort}&min=${min}&max=${max}`
   );
 
-  // if (page) {
-  //   products = await getData(`products?catId=${category.id}&page=${page}`);
-  // } else if (max && min) {
-  //   products = await getData(
-  //     `products?catId=${category.id}&sort=asc&min=${min}&max=${max}`
-  //   );
-  // } else if (min) {
-  //   products = await getData(
-  //     `products?catId=${category.id}&sort=${sort}&min=${min}`
-  //   );
-  // } else if (max) {
-  //   products = await getData(
-  //     `products?catId=${category.id}&sort=${sort}&max=${max}`
-  //   );
-  // } else {
-  //   products = await getData(`products?catId=${category.id}`);
-  // }
-
   return (
     <div>
       <FilterComponent category={category} products={products} />

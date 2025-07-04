@@ -4,7 +4,7 @@ import React from "react";
 import { ChevronRight } from "lucide-react";
 
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/types";
+import { RootState } from "@/types/redux";
 
 const Steps = ({
   steps,

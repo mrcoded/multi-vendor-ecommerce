@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/types";
+import { RootState } from "@/types/redux";
 
 const CartBanner = () => {
   const cartItems = useSelector((store: RootState) => store.cart);

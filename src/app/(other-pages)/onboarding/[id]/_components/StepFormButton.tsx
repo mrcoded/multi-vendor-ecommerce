@@ -1,7 +1,7 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
 
-import { RootState } from "@/redux/types";
+import { RootState } from "@/types/redux";
 import { actions } from "@/redux/slices/onboardingSlice";
 import { useDispatch, useSelector } from "react-redux";
 

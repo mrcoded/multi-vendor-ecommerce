@@ -3,7 +3,7 @@
 import React from "react";
 
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/types";
+import { RootState } from "@/types/redux";
 
 import BreadCrumb from "@/components/BreadCrumb";
 

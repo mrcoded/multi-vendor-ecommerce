@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Circle, Truck } from "lucide-react";
 
-import { RootState } from "@/redux/types";
+import { RootState } from "@/types/redux";
 import { FieldValues, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { actions } from "@/redux/slices/checkoutSlice";
