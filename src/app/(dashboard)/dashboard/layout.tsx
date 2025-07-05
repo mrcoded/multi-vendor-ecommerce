@@ -9,7 +9,7 @@ import Navbar from "./_components/shared/Navbar";
 
 import AuthProvider from "@/providers/AuthProvider";
 
-export default function dashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;

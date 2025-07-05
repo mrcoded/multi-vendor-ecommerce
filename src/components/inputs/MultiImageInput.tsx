@@ -2,8 +2,8 @@
 
 import React from "react";
 import Image from "next/image";
+import { XCircle } from "lucide-react";
 
-import { Pencil, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { UploadDropzone } from "@/lib/uploadthing";
 
@@ -64,12 +64,13 @@ function MultiImageInput({
       ) : (
         <UploadDropzone
           endpoint={endpoint}
-          onClientUploadComplete={(res: any) => {
+          onClientUploadComplete={(res: { url: string }[]) => {
             const urls = res.map((item: { url: string }) => item.url);
             setImageUrls(urls);
             toast.success("Image uploaded successfully");
           }}
           onUploadError={(error: Error) => {
+            console.log("Upload failed:", error);
             toast.error("Image Upload failed");
           }}
         />

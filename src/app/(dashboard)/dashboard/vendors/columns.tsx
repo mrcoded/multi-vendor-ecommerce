@@ -1,10 +1,9 @@
 "use client";
 
+import { RowDatas } from "@/types/table";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Checkbox } from "@/components/ui/checkbox";
-
-import { RowDatas } from "@/types/table";
 
 import DataColumn from "@/components/tables/DataTable/DataColumn";
 import StatusColumn from "@/components/tables/DataTable/StatusColumn";
@@ -67,7 +66,6 @@ export const columns: ColumnDef<RowDatas>[] = [
 
       return (
         <ActiveStatusColumn
-          row={row}
           title="Vendor"
           endpoint={`vendors/${vendor.id}`}
           editEndpoint={`vendors/update/${vendor.id}`}

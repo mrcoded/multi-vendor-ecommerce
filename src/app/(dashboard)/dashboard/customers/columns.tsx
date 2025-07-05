@@ -50,7 +50,6 @@ export const columns: ColumnDef<RowDatas>[] = [
 
       return (
         <ActiveStatusColumn
-          row={row}
           title="Customer"
           endpoint={`customers/${customer.id}`}
           editEndpoint={`customers/update/${customer.id}`}

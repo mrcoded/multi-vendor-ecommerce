@@ -3,7 +3,13 @@ import { CheckCheck, Loader, RefreshCcw, ShoppingCart } from "lucide-react";
 
 import SmallCard from "./SmallCard";
 
-function SmallCardGroups({ orders }: { orders: any }) {
+function SmallCardGroups({
+  orders,
+}: {
+  orders: {
+    orderStatus: string;
+  }[];
+}) {
   const status = {
     pending: "PENDING",
     processing: "PROCESSING",
@@ -23,10 +29,10 @@ function SmallCardGroups({ orders }: { orders: any }) {
   // Get the count of orders
   const totalOrdersCount = orders.length.toString().padStart(2, "0");
   const pendingOrders = getOrdersCountByStatus(status.pending);
-  const shippingOrders = getOrdersCountByStatus(status.shipping);
+  // const shippingOrders = getOrdersCountByStatus(status.shipping);
   const processedOrders = getOrdersCountByStatus(status.processing);
   const deliveredOrders = getOrdersCountByStatus(status.delivering);
-  const cancellingOrders = getOrdersCountByStatus(status.cancelling);
+  // const cancellingOrders = getOrdersCountByStatus(status.cancelling);
 
   const orderStatus = [
     {

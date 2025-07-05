@@ -1,27 +1,13 @@
 "use client";
 
 import React, { useRef } from "react";
-import Image from "next/image";
 import { useReactToPrint } from "react-to-print";
+
+import { SalesInvoiceProps } from "@/types/sales";
 
 import InvoiceDownloadButton from "./InvoiceDownloadButton";
 import generateISOFormatDate from "@/lib/generateISOFormatDate";
-
-type SalesInvoiceProps = {
-  order: {
-    id: string;
-    orderItems: Array<any>;
-    orderNumber: string;
-    createdAt: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    streetAddress: string;
-    city: string;
-    district: string;
-    country: string;
-  };
-};
+import Image from "next/image";
 
 function SalesInvoice({ order }: SalesInvoiceProps) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -63,7 +49,13 @@ function SalesInvoice({ order }: SalesInvoiceProps) {
               <p>Shopify@gmail.com</p>
             </div>
 
-            <img src="/logo" alt="MVE logo" className="w-32 h-16" />
+            <Image
+              src="/assets/logo.png"
+              alt="MVE logo"
+              className="w-32 h-16"
+              height={64}
+              width={128}
+            />
           </div>
 
           {/* Header End */}
@@ -118,34 +110,27 @@ function SalesInvoice({ order }: SalesInvoiceProps) {
                 </tr>
               </thead>
               <tbody>
-                {order?.orderItems.map(
-                  (
-                    item: { title: string; quantity: number; price: number },
-                    index: number
-                  ) => {
-                    const itemSubtotal = (item.quantity * item.price).toFixed(
-                      2
-                    );
+                {order?.orderItems.map((item, index: number) => {
+                  const itemSubtotal = (item.quantity * item.price).toFixed(2);
 
-                    return (
-                      <tr
-                        key={index}
-                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                  return (
+                    <tr
+                      key={index}
+                      className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                    >
+                      <th
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                       >
-                        <th
-                          scope="row"
-                          className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                        >
-                          {item.title}
-                        </th>
-                        <td className="px-6 py-4">Silver</td>
-                        <td className="px-6 py-4">{item.quantity}</td>
-                        <td className="px-6 py-4">${item.price}</td>
-                        <td className="px-6 py-4">${itemSubtotal}</td>
-                      </tr>
-                    );
-                  }
-                )}
+                        {item.title}
+                      </th>
+                      <td className="px-6 py-4">Silver</td>
+                      <td className="px-6 py-4">{item.quantity}</td>
+                      <td className="px-6 py-4">${item.price}</td>
+                      <td className="px-6 py-4">${itemSubtotal}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -172,7 +157,13 @@ function SalesInvoice({ order }: SalesInvoiceProps) {
           </div>
 
           <div className="flex justify-center items-center pt-8">
-            <img src="/logo" alt="MVE logo" className="w-32 h-16" />
+            <Image
+              src="/assets/logo.png"
+              alt="MVE logo"
+              className="w-32 h-16"
+              height={64}
+              width={128}
+            />
           </div>
         </div>
       </div>

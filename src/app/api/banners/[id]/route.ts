@@ -34,11 +34,7 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  {
-    params: { id },
-  }: {
-    params: { id: string };
-  }
+  { params: { id } }: { params: { id: string } }
 ) {
   try {
     const existingBanner = await db.banner.findUnique({

@@ -1,10 +1,11 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-import { CommunityPostProps } from "@/types/communityPost";
-import formatDate from "@/lib/formatDate";
 import getData from "@/lib/getData";
+import formatDate from "@/lib/formatDate";
+import { CommunityPostProps } from "@/types/communityPost";
 
 async function CommunityBlogCard({
   communityPost,
@@ -21,7 +22,7 @@ async function CommunityBlogCard({
     <div className="group">
       <div className="relative">
         <div className="block overflow-hidden aspect-w-16 aspect-h-9 rounded-xl">
-          <img
+          <Image
             src={communityPost.imageUrl}
             alt={communityPost.title}
             className="object-cover w-full h-48 transition-all duration-200 transform group-hover:scale-110"

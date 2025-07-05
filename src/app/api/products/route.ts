@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
   const searchTerm = request.nextUrl.searchParams.get("search");
   const categoryId = request.nextUrl.searchParams.get("catId");
 
-  let where: Partial<{
+  const where: Partial<{
     categoryId: string | undefined;
     salePrice?: {
       gte?: number;

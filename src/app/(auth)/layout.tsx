@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import "../../styles/main.scss";
 
 export default function AuthLayout({
@@ -5,5 +6,5 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>;
 }

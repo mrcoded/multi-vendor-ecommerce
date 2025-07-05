@@ -5,6 +5,8 @@ import OrderCard from "./_components/OrderCard";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
+import { OrderCardProps } from "@/types/order";
+
 const page = async () => {
   //Fetch all orders
   const orders = await getData("orders");
@@ -18,7 +20,9 @@ const page = async () => {
     return <p>No Order Yet</p>;
   }
   //Filter by userId
-  const userOrders = orders.filter((order: any) => order.userId === userId);
+  const userOrders = orders.filter(
+    (order: { userId: string }) => order.userId === userId
+  );
 
   return (
     <section className="py-12 bg-white sm:py-16 lg:py-20">
@@ -34,7 +38,7 @@ const page = async () => {
           </div>
 
           <ul className="mt-8 space-y-5 lg:mt-12 sm:space-y-6 lg:space-y-10">
-            {userOrders.map((order: any, i: number) => {
+            {userOrders.map((order: OrderCardProps, i: number) => {
               return <OrderCard key={i} order={order} />;
             })}{" "}
           </ul>

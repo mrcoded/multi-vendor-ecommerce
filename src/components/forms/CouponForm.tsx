@@ -28,7 +28,7 @@ const CouponForm = ({ updateData }: { updateData?: CouponFormProps }) => {
 
   const [loading, setLoading] = useState(false);
 
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const vendorId = session?.user?.id;
 

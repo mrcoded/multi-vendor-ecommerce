@@ -11,6 +11,7 @@ import CategoryList from "./category/_components/CategoryList";
 
 export default async function Home() {
   const communityPosts = await getData("communityPosts");
+  if (!communityPosts) return null;
 
   const categoriesData = await getData("categories");
   const categories = categoriesData?.filter((category: CategoryProps) => {
@@ -19,6 +20,8 @@ export default async function Home() {
 
   const session = await getServerSession(authOptions);
   console.log("session", session?.user);
+
+  const slicedPosts = communityPosts?.slice(0, 3);
 
   return (
     <div className="min-h-screen">
@@ -33,10 +36,7 @@ export default async function Home() {
         );
       })}
 
-      <CommunityPost
-        posts={communityPosts.slice(0, 3)}
-        title="Featured Community Posts"
-      />
+      <CommunityPost posts={slicedPosts} title="Featured Community Posts" />
     </div>
   );
 }

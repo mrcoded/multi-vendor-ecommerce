@@ -24,7 +24,7 @@ function StatusColumn({
     const newStatus = e.target.value === "true";
     setStatus(newStatus);
     const data = { status: newStatus, emailVerified: true };
-    console.log(data);
+    // console.log(data);
 
     try {
       setLoading(true);
@@ -43,9 +43,9 @@ function StatusColumn({
     }
   };
 
-  const optionStyle = {
-    color: status ? "green" : "red",
-  };
+  // const optionStyle = {
+  //   color: status ? "green" : "red",
+  // };
 
   const selectBorderStyle = {
     borderColor: status ? "green" : "red",

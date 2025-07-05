@@ -1,4 +1,3 @@
-import { fa } from "@faker-js/faker";
 import React, { useState } from "react";
 import { FieldValues, UseFormRegister } from "react-hook-form";
 

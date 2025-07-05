@@ -6,7 +6,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import DataColumn from "@/components/tables/DataTable/DataColumn";
-import ImageColumn from "@/components/tables/DataTable/ImageColumn";
 import SortableColumn from "@/components/tables/DataTable/SortableColumn";
 import ActiveStatusColumn from "@/components/tables/DataTable/ActiveStatusColumn";
 
@@ -67,7 +66,6 @@ export const columns: ColumnDef<RowDatas>[] = [
 
       return (
         <ActiveStatusColumn
-          row={row}
           title="Coupon"
           endpoint={`coupons/${coupon.id}`}
           editEndpoint={`coupons/update/${coupon.id}`}

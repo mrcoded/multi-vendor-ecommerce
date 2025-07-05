@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 import getData from "@/lib/getData";
 import formatDate from "@/lib/formatDate";
@@ -40,7 +41,9 @@ async function page({ params: { slug } }: { params: { slug: string } }) {
                   </div>
 
                   <div className="mt-12 sm:mt-16 aspect-w-16 aspect-h-9 lg:aspect-h-6">
-                    <img
+                    <Image
+                      width={100}
+                      height={100}
                       src={communityPost.imageUrl}
                       alt={communityPost.title}
                       className="object-cover w-full h-full"

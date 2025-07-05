@@ -1,11 +1,8 @@
-import bcrypt from "bcrypt";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-import { Resend } from "resend";
 import base64url from "base64url";
 import { v4 as uuidv4 } from "uuid";
-import EmailTemplate from "@/components/email-template";
 
 export async function PUT(request: Request) {
   try {

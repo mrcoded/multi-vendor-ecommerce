@@ -3,15 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { Info } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
-import getData from "@/lib/getData";
-
-async function page() {
+function Page() {
   const searchParams = useSearchParams();
   const id = searchParams.get("session");
-
-  const user = await getData(`users/${id}`);
 
   return (
     <div className="max-w-2xl mx-auto min-h-screen mt-8">
@@ -30,7 +26,7 @@ async function page() {
           Verification email. Kindly check your inbox, click on the link to
           complete your onboarding process. OR click to
           <Link
-            href={`/onboarding/${user.id}?token=${user.verificationToken}`}
+            href={`/onboarding/${id}`}
             className="mx-4 text-white hover:underline hover:text-lg"
           >
             Verify Account
@@ -41,4 +37,4 @@ async function page() {
   );
 }
 
-export default page;
+export default Page;

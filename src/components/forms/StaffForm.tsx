@@ -25,14 +25,13 @@ interface StaffFormProps {
 
 const StaffForm = ({ updateData }: { updateData?: StaffFormProps }) => {
   const router = useRouter();
-  const id = updateData?.id ?? "";
+  // const id = updateData?.id ?? "";
 
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     reset,
-    watch,
     handleSubmit,
     formState: { errors },
   } = useForm();

@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
+
 import LoginForm from "@/components/forms/LoginForm";
 
 const page = () => {
@@ -11,7 +13,9 @@ const page = () => {
           href="#"
           className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
         >
-          <img
+          <Image
+            width={32}
+            height={32}
             className="w-8 h-8 mr-2"
             src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
             alt="logo"
@@ -25,7 +29,7 @@ const page = () => {
             </h1>
           </div>
 
-          <LoginForm/>
+          <LoginForm />
         </div>
       </div>
     </section>

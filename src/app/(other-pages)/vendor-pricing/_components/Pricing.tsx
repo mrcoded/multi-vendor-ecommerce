@@ -59,7 +59,7 @@ function Pricing() {
               </div>
               <div className="pt-6 pb-8 px-6">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-wide uppercase">
-                  What's Included
+                  What&apos;s Included
                 </h3>
                 {plan.features.map((feature, index) => (
                   <p

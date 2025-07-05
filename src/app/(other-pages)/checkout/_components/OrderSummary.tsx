@@ -31,13 +31,7 @@ const OrderSummary = () => {
     dispatch(actions.setCurrentStep(currentStep - 1));
   };
 
-  const {
-    register,
-    reset,
-    watch,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { reset } = useForm();
 
   const redirectUrl = (id: string) => {
     router.push(`/order-confirmation/${id}`);

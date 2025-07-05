@@ -1,3 +1,5 @@
+// @typescript-eslint/no-explicit-any
+
 "use client";
 
 import React from "react";
@@ -22,7 +24,6 @@ function ImageInput({
   className = "col-span-full",
   endpoint = "imageUploader",
 }: ImageInputProps) {
-
   return (
     <div className={className}>
       <div className="flex justify-between items-center mb-4">
@@ -57,11 +58,12 @@ function ImageInput({
       ) : (
         <UploadDropzone
           endpoint={endpoint}
-          onClientUploadComplete={(res: any) => {
+          onClientUploadComplete={(res: { url: string }[]) => {
             setImageUrl(res[0].url);
             toast.success("Image uploaded successfully");
           }}
           onUploadError={(error: Error) => {
+            console.log(error);
             toast.error("Image Upload failed");
           }}
         />

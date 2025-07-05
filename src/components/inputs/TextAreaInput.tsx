@@ -19,7 +19,6 @@ function TextAreaInput({
   register,
   errors,
   isRequired = true,
-  type = "text",
   className = "sm:col-span-2",
   defaultValue = "",
 }: TextAreaInputProps) {

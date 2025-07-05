@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Send, Share2, Tag } from "lucide-react";
+import { Send, Tag } from "lucide-react";
 
 import getData from "@/lib/getData";
 import Location from "../_components/Location";

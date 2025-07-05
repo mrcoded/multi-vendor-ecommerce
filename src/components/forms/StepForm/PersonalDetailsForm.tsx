@@ -14,7 +14,7 @@ import StepFormButton from "@/app/(other-pages)/checkout/_components/StepFormBut
 
 const PersonalDetailsForm = () => {
   const dispatch = useDispatch();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const userId = session?.user?.id;
 
   const currentStep = useSelector(
@@ -27,7 +27,6 @@ const PersonalDetailsForm = () => {
 
   const {
     register,
-    reset,
     handleSubmit,
     formState: { errors },
   } = useForm();

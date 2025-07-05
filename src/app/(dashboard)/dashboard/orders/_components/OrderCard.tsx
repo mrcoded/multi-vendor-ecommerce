@@ -1,16 +1,10 @@
 import React from "react";
 import Link from "next/link";
 
+import { OrderCardProps } from "@/types/order";
 import { generateSlug } from "@/lib/generateSlug";
 import generateISOFormatDate from "@/lib/generateISOFormatDate";
-
-interface OrderCardProps {
-  id: string;
-  orderItems: Array<any>;
-  orderNumber: string;
-  createdAt: string;
-  orderStatus: string;
-}
+import Image from "next/image";
 
 const OrderCard = ({ order }: { order: OrderCardProps }) => {
   const orderCreationDate = generateISOFormatDate(order.createdAt);
@@ -73,74 +67,66 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
 
         <div className="flex-1 px-4 py-6 sm:p-6 lg:p-8">
           <ul className="space-y-7">
-            {order.orderItems.map(
-              (
-                item: {
-                  title: string;
-                  imageUrl: string;
-                  price: string;
-                  quantity: string;
-                },
-                i: number
-              ) => {
-                const slug = generateSlug(item.title);
+            {order.orderItems.map((item, i: number) => {
+              const slug = generateSlug(item.title);
 
-                return (
-                  <li key={i} className="relative flex pb-10 smm:pb-0">
-                    <div className="flex-shrink-0">
-                      <img
-                        className="object-cover rounded-lg w-28 h-28"
-                        src={item.imageUrl}
-                        alt={item.title}
-                      />
-                    </div>
+              return (
+                <li key={i} className="relative flex pb-10 smm:pb-0">
+                  <div className="flex-shrink-0">
+                    <Image
+                      className="object-cover rounded-lg w-28 h-28"
+                      height={112}
+                      width={112}
+                      src={item.imageUrl}
+                      alt={item.title}
+                    />
+                  </div>
 
-                    <div className="flex flex-col justify-between flex-1 ml-5">
-                      <div className="sm:grid sm:grid-cols-2 sm:gap-x-5">
-                        <div>
-                          <p className="text-base font-bold text-gray-900">
-                            {item.title}
-                          </p>
-                          {/* <p className="mt-1.5 text-sm font-medium text-gray-500">
+                  <div className="flex flex-col justify-between flex-1 ml-5">
+                    <div className="sm:grid sm:grid-cols-2 sm:gap-x-5">
+                      <div>
+                        <p className="text-base font-bold text-gray-900">
+                          {item.title}
+                        </p>
+                        {/* <p className="mt-1.5 text-sm font-medium text-gray-500">
                             Golden
                           </p> */}
-                        </div>
-
-                        <div className="mt-4 sm:mt-0 flex items-center justify-between">
-                          <p className="mt-1.5 text-sm font-medium text-gray-500">
-                            {item.quantity}
-                          </p>
-                          <p className="text-base font-bold text-left text-gray-900 sm:text-right">
-                            ${parseFloat(item.price).toFixed(2)}
-                          </p>
-                        </div>
                       </div>
 
-                      <div className="absolute bottom-0 left-0 sm:relative">
-                        <div className="flex space-x-5">
-                          <Link
-                            href={`/products/${slug}`}
-                            title={item.title}
-                            className="p-1 -m-1 text-sm font-medium text-gray-500 transition-all duration-200 rounded hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                          >
-                            {" "}
-                            View Product{" "}
-                          </Link>
-                          <span className="text-gray-200"> | </span>
-                          <Link
-                            href="#"
-                            className="p-1 -m-1 text-sm font-medium text-gray-500 transition-all duration-200 rounded hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                          >
-                            {" "}
-                            Similar Product{" "}
-                          </Link>{" "}
-                        </div>
+                      <div className="mt-4 sm:mt-0 flex items-center justify-between">
+                        <p className="mt-1.5 text-sm font-medium text-gray-500">
+                          {item.quantity}
+                        </p>
+                        <p className="text-base font-bold text-left text-gray-900 sm:text-right">
+                          ${item.price.toFixed(2)}
+                        </p>
                       </div>
                     </div>
-                  </li>
-                );
-              }
-            )}
+
+                    <div className="absolute bottom-0 left-0 sm:relative">
+                      <div className="flex space-x-5">
+                        <Link
+                          href={`/products/${slug}`}
+                          title={item.title}
+                          className="p-1 -m-1 text-sm font-medium text-gray-500 transition-all duration-200 rounded hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                        >
+                          {" "}
+                          View Product{" "}
+                        </Link>
+                        <span className="text-gray-200"> | </span>
+                        <Link
+                          href="#"
+                          className="p-1 -m-1 text-sm font-medium text-gray-500 transition-all duration-200 rounded hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                        >
+                          {" "}
+                          Similar Product{" "}
+                        </Link>{" "}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
 
           <hr className="mt-8 border-gray-200" />

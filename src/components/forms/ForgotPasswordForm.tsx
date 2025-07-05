@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { FieldValues, useForm } from "react-hook-form";
 import { makePostRequest } from "@/lib/apiRequest";
@@ -9,10 +8,8 @@ import TextInput from "../inputs/TextInput";
 import SubmitButton from "../buttons/SubmitButton";
 
 function ForgotPasswordForm() {
-  const router = useRouter();
-
   const [loading, setLoading] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
+  // const [showNotification, setShowNotification] = useState(false);
 
   const {
     register,

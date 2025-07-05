@@ -18,7 +18,7 @@ async function page({
 
   const category = await getData(`categories/filter/${slug}`);
 
-  let products = await getData(
+  const products = await getData(
     `products?catId=${category.id}&page=${page}&sort=${sort}&min=${min}&max=${max}`
   );
 

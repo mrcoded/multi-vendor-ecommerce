@@ -1,6 +1,6 @@
 "use client";
 
-import { RowDatas } from "../(catalogue)/categories/columns";
+import { RowDatas } from "@/types/table";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -53,6 +53,15 @@ export const columns: ColumnDef<RowDatas>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <ActiveStatusColumn row={row} title="Payment" />,
+    cell: ({ row }) => {
+      const payment = row.original;
+
+      return (
+        <ActiveStatusColumn
+          title="Payment"
+          editEndpoint={`payments/update/${payment.id}`}
+        />
+      );
+    },
   },
 ];

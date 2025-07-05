@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -21,7 +21,6 @@ import {
   LogOut,
   MonitorPlay,
   ScanSearch,
-  SendToBack,
   Slack,
   Truck,
   User,
@@ -42,7 +41,6 @@ interface SidebarProps {
 }
 
 function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState(false);
   const { data: session, status } = useSession();
@@ -131,16 +129,16 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
       )}
     >
       <Link
-        className="py-4 px-6"
+        className="py-4 px-6 w-full"
         href="/dashboard"
         onClick={() => setShowSidebar(true)}
       >
         <Image
-          src="/assets/userprofile.png"
+          src="/assets/logo.png"
           alt="logo"
-          width={100}
+          width={554}
           height={18}
-          className="w-36"
+          className="w-36 object-cover"
         />
       </Link>
       <div className="space-y-3 flex flex-col mt-14 max-h-screen">

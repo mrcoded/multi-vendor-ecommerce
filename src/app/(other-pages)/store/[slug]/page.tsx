@@ -13,9 +13,9 @@ async function page({ params: { slug } }: { params: { slug: string } }) {
 
   //Get Categories
   const categoriesData = await getData("categories");
-  const categories = categoriesData?.filter((category: CategoryProps) => {
-    return category.products.length > 1;
-  });
+  // const categories = categoriesData?.filter((category: CategoryProps) => {
+  //   return category.products.length > 1;
+  // });
 
   const storeCategories = categoriesData?.filter((category: CategoryProps) => {
     return storeCategoriyIds?.includes(category.id);

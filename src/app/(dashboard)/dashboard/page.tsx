@@ -9,7 +9,6 @@ import UserDashboard from "./_components/dashboard/UserDashboard";
 import VendorDashboard from "./_components/dashboard/VendorDashboard";
 import LargeCardGroups from "@/components/cards/LargeCardGroups";
 import SmallCardGroups from "@/components/cards/SmallCardGroups";
-import CustomDataTable from "@/components/tables/CustomDataTable";
 import DashboardCharts from "./_components/charts/DashboardCharts";
 
 const page = async () => {
@@ -18,7 +17,7 @@ const page = async () => {
 
   const orders = await getData("orders");
   const sales = await getData("orders/sales");
-  const products = await getData("products");
+
   //Set User and Vendor Dashboard
   if (role === "USER") return <UserDashboard />;
   if (role === "VENDOR") return <VendorDashboard />;
@@ -31,7 +30,7 @@ const page = async () => {
       {/* Small Cards */}
       <SmallCardGroups orders={orders} />
       {/* Charts */}
-      <DashboardCharts sales={sales} />
+      <DashboardCharts />
       {/* Recent Orders Table */}
       {/* <CustomDataTable /> */}
     </div>

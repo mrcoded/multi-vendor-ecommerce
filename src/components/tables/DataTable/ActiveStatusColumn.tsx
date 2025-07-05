@@ -11,25 +11,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { RowDatas } from "@/types/table";
-import { Row } from "@tanstack/react-table";
-
 import EditBtn from "@/components/buttons/EditBtn";
 import DeleteBtn from "@/components/buttons/DeleteBtn";
 
 function ActiveStatusColumn({
-  row,
   title,
   endpoint,
   editEndpoint,
 }: {
-  row: Row<RowDatas>;
   title: string;
   endpoint?: string;
   editEndpoint: string;
 }) {
   // const isActive = row.isActive;
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

@@ -29,7 +29,6 @@ const AdditionalInformationForm = () => {
 
   const {
     register,
-    reset,
     handleSubmit,
     formState: { errors },
   } = useForm();

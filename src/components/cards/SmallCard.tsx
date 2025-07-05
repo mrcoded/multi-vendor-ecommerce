@@ -4,7 +4,7 @@ import { LucideIcon } from "lucide-react";
 interface SmallCardProps {
   data: {
     title: string;
-    number: number;
+    number: string;
     iconBg: string;
     icon: LucideIcon;
   };

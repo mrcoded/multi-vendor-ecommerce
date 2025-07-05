@@ -11,7 +11,7 @@ import EmptyCart from "./_components/EmptyCart";
 import CartItems from "./_components/CartItems";
 import CartSubTotalCard from "./_components/CartSubTotalCard";
 
-const page = () => {
+const Page = () => {
   const cartItems = useSelector((store: RootState) => store.cart);
 
   const subTotal = cartItems
@@ -35,4 +35,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

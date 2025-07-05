@@ -24,12 +24,7 @@ const PaymentMethodForm = () => {
   const initialPaymentMethod = existingFormData.paymentMethod;
   const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethod);
 
-  const {
-    register,
-    reset,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { handleSubmit } = useForm();
 
   const processData = (data: FieldValues) => {
     data.paymentMethod = paymentMethod;

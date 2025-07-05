@@ -8,9 +8,9 @@ import { CategoryProps } from "@/types/category";
 async function CategorySidebar() {
   const categoriesData = await getData("categories");
   //Only categories with Products
-  const catgories = categoriesData.filter(
-    (category: { products: { length: number } }) => category.products.length > 0
-  );
+  // const catgories = categoriesData.filter(
+  //   (category: { products: { length: number } }) => category.products.length > 0
+  // );
 
   const categories = categoriesData.map((category: CategoryProps) => ({
     id: category.id,

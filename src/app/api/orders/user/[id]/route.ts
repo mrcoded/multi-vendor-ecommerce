@@ -3,11 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  {
-    params: { id },
-  }: {
-    params: { id: string };
-  }
+  { params: { id } }: { params: { id: string } }
 ) {
   try {
     const order = await db.order.findMany({
@@ -40,11 +36,7 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  {
-    params: { id },
-  }: {
-    params: { id: string };
-  }
+  { params: { id } }: { params: { id: string } }
 ) {
   try {
     const existingOrder = await db.order.findUnique({

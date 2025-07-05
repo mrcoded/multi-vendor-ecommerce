@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { ErrorInfo } from "react";
 
 type Props = {
   children: React.ReactNode;
@@ -20,14 +20,14 @@ class ErrorBoundary extends React.Component<Props, State> {
     };
   }
 
-  static getDerivedStateFromError(error: any) {
+  static getDerivedStateFromError(error: Error) {
     return {
       hasError: true,
       message: error?.message || "Something went wrong.",
     };
   }
 
-  componentDidCatch(error: any, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Error caught by boundary:", error, errorInfo);
   }
 

@@ -1,7 +1,17 @@
 import React from "react";
 import LargeCard from "./LargeCard";
 
-function LargeCardGroups({ sales }: { sales: any }) {
+function LargeCardGroups({
+  sales,
+}: {
+  sales: Array<{
+    period: string;
+    sales: number;
+    color: string;
+    createdAt: Date;
+    total: number;
+  }>;
+}) {
   const today = new Date();
 
   const thisWeekStart = new Date(
@@ -60,7 +70,7 @@ function LargeCardGroups({ sales }: { sales: any }) {
     },
     {
       period: "All-Time Sales",
-      sales: totalSales,
+      sales: parseFloat(totalSales),
       color: "bg-purple-600",
     },
   ];

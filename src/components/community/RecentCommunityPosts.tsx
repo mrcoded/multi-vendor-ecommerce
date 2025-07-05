@@ -1,9 +1,10 @@
 import React from "react";
+import Link from "next/link";
+import Image from "next/image";
 
 import { CommunityPostProps } from "@/types/communityPost";
 
-import generateISOFormatDate from "@/lib/generateISOFormatDate";
-import Link from "next/link";
+// import generateISOFormatDate from "@/lib/generateISOFormatDate";
 
 function RecentCommunityPosts({ posts }: { posts: CommunityPostProps[] }) {
   return (
@@ -14,7 +15,7 @@ function RecentCommunityPosts({ posts }: { posts: CommunityPostProps[] }) {
 
       <div className="mt-6 space-y-5">
         {posts.map((post: CommunityPostProps, i) => {
-          const normalDate = generateISOFormatDate(post.createdAt);
+          // const normalDate = generateISOFormatDate(post.createdAt);
 
           return (
             <div
@@ -23,9 +24,11 @@ function RecentCommunityPosts({ posts }: { posts: CommunityPostProps[] }) {
             >
               <div className="p-4">
                 <div className="flex items-start flex-col lg:items-center">
-                  <img
+                  <Image
                     alt={post.title}
                     src={post.imageUrl}
+                    height={64}
+                    width={556}
                     className="object-cover w-full h-16 rounded-lg shrink-0"
                   />
                   <div className="ml-5">

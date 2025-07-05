@@ -34,19 +34,17 @@ function EmailTemplate({
 
           <Text style={title}>{linkText}</Text>
 
-          <Section style={section}>
-            <Text style={text}>
+          <Section>
+            <Text>
               Hey <strong>{name}</strong>!
             </Text>
-            <Text style={text}>
+            <Text>
               Thank you for creating an account with Us, we have sent you a
               Verification email. Kindly check your inbox, click on the link to
               complete your onboarding process.
             </Text>
 
-            <Link style={button} href={`${baseUrl}/${redirectUrl}`}>
-              {linkText}
-            </Link>
+            <Link href={`${baseUrl}/${redirectUrl}`}>{linkText}</Link>
             <Section>
               <Row style={footerLogos}>
                 <Column style={{ width: "66%" }}>
@@ -131,20 +129,20 @@ const socialMediaIcon = {
   marginLeft: "32px",
 };
 
-const footerLogos = {
+const footerLogos: React.CSSProperties = {
   marginBottom: "32px",
   paddingLeft: "8px",
   paddingRight: "8px",
   width: "100%",
 };
 
-const title = { fontSize: "24px", lineHeight: 1.25 };
+const title: React.CSSProperties = { fontSize: "24px", lineHeight: 1.25 };
 
-const links = { textAlign: "center" };
+const links: React.CSSProperties = { textAlign: "center" };
 
-const link = { color: "#0366d6", fontSize: "12px" };
+const link: React.CSSProperties = { color: "#0366d6", fontSize: "12px" };
 
-const footer = {
+const footer: React.CSSProperties = {
   color: "#6a737d",
   fontSize: "12px",
   textAlign: "center",

@@ -10,7 +10,7 @@ async function CommunityPost({
   title,
 }: {
   posts: CommunityPostProps[];
-  title: String;
+  title: string;
 }) {
   return (
     <section className="py-12 bg-white rounded-md shadow-lg sm:py-16 dark:bg-gray-700">

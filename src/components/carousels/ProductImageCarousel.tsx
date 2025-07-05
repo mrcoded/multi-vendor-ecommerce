@@ -45,7 +45,7 @@ function ProductImageCarousel({
               {
                 "--swiper-navigation-color": "#fff",
                 "--swiper-pagination-color": "#fff",
-              } as any
+              } as React.CSSProperties
             }
             spaceBetween={10}
             navigation={true}
@@ -55,7 +55,7 @@ function ProductImageCarousel({
           >
             {productImages.map((image, index) => (
               <SwiperSlide key={index}>
-                <img src={image} />
+                <Image height={556} width={556} alt="iamges" src={image} />
               </SwiperSlide>
             ))}
           </Swiper>
@@ -70,7 +70,7 @@ function ProductImageCarousel({
           >
             {productImages.map((image, index) => (
               <SwiperSlide key={index}>
-                <img src={image} />
+                <Image height={556} width={556} alt="iamges" src={image} />
               </SwiperSlide>
             ))}
           </Swiper>

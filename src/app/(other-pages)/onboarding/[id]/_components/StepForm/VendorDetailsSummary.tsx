@@ -31,15 +31,9 @@ const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
     dispatch(actions.setCurrentStep(currentStep - 1));
   };
 
-  const {
-    register,
-    reset,
-    watch,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { reset } = useForm();
 
-  const redirectUrl = (id: string) => {
+  const redirectUrl = () => {
     router.push(`/login`);
   };
 

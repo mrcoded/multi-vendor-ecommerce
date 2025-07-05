@@ -1,6 +1,7 @@
 import React from "react";
 import { ArrowUpDown } from "lucide-react";
 
+import { RowDatas } from "@/types/table";
 import { Button } from "@/components/ui/button";
 import { Column } from "@tanstack/react-table";
 
@@ -8,7 +9,7 @@ function SortableColumn({
   column,
   title,
 }: {
-  column: Column<any, unknown> & { toggleSorting: () => void };
+  column: Column<RowDatas, unknown> & { toggleSorting: () => void };
   title: string;
 }) {
   return (

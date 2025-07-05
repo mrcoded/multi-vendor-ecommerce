@@ -3,11 +3,13 @@
 import React from "react";
 import { BaggageClaim } from "lucide-react";
 
+import { ProductProp } from "@/types/products";
+
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { actions } from "@/redux/slices/cartSlice";
 
-function AddToCartButton({ product }: any) {
+function AddToCartButton({ product }: { product: ProductProp }) {
   const dispatch = useDispatch();
 
   function handleAddToCart() {

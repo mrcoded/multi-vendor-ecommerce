@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Circle, Truck } from "lucide-react";
 
 import { RootState } from "@/types/redux";
@@ -28,7 +27,6 @@ const ShippingDetailsForm = () => {
 
   const {
     register,
-    reset,
     handleSubmit,
     formState: { errors },
   } = useForm();

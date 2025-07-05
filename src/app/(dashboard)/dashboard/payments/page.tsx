@@ -1,5 +1,7 @@
+export const dynamic = "force-dynamic";
+
 import getData from "@/lib/getData";
-import {  columns } from "./columns";
+import { columns } from "./columns";
 import { DataTable } from "./data-table";
 
 export default async function page() {

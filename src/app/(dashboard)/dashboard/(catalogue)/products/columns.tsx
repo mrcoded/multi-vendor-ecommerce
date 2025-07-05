@@ -58,7 +58,6 @@ export const columns: ColumnDef<RowDatas>[] = [
 
       return (
         <ActiveStatusColumn
-          row={row}
           title="Product"
           endpoint={`products/${product.id}`}
           editEndpoint={`products/update/${product.id}`}

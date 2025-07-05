@@ -72,7 +72,7 @@ export function DataTable<TData, TValue>({
       <DataTableToolbar
         table={table}
         filterKeys={filterKeys}
-        columnKey={(columns[1] as any).accessorKey}
+        columnKey={(columns[1] as { accessorKey: string }).accessorKey}
       />
       <div className="rounded-md border">
         <Table>
