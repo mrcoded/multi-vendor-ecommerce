@@ -59,16 +59,6 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
         href: "/dashboard/sales",
       },
       {
-        title: "Wallet",
-        icon: CircleDollarSign,
-        href: "/dashboard/wallet",
-      },
-      {
-        title: "Vendor Support",
-        icon: HeartHandshake,
-        href: "/dashboard/vendor-support",
-      },
-      {
         title: "Settings",
         icon: LayoutGrid,
         href: "/dashboard/settings",
@@ -125,7 +115,7 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
         "dark:bg-slate-800 bg-white space-y-6 w-64 h-screen text-slate-800 dark:text-slate-300 fixed left-0 top-0 shadow-md overflow-y-scroll",
         showSidebar
           ? "sm:block mt-20 sm:mt-0 z-10"
-          : "mt-20 sm:mt-0 hidden lg:block"
+          : "mt-20 sm:mt-0 hidden lg:block",
       )}
     >
       <Link
@@ -138,7 +128,7 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
           alt="logo"
           width={554}
           height={18}
-          className="w-36 object-cover"
+          className="h-20 w-36 object-cover"
         />
       </Link>
       <div className="space-y-3 flex flex-col mt-14 max-h-screen">
@@ -148,7 +138,7 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
           className={cn(
             "flex items-center space-x-3 px-6 py-2",
             pathname === "/dashboard" &&
-              "border-l-8 border-lime-500 text-lime-500"
+              "border-l-8 border-lime-500 text-lime-500",
           )}
         >
           <LayoutGrid />
@@ -175,7 +165,7 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
                   onClick={() => setShowSidebar(false)}
                   className={cn(
                     "flex items-center space-x-3 py-1 text-sm",
-                    link.href == pathname && " text-lime-500"
+                    link.href == pathname && " text-lime-500",
                   )}
                 >
                   <link.icon className="w-4 h-4" />
@@ -194,7 +184,7 @@ function Sidebar({ showSidebar, setShowSidebar }: SidebarProps) {
             className={cn(
               "flex items-center space-x-3 px-6 py-2",
               link.href == pathname &&
-                "border-l-8 border-lime-500 text-lime-500"
+                "border-l-8 border-lime-500 text-lime-500",
             )}
           >
             <link.icon />
@@ -245,29 +235,14 @@ let sidebarLinks = [
     href: "/dashboard/sales",
   },
   {
-    title: "Our Staff",
-    icon: User,
-    href: "/dashboard/staffs",
-  },
-  {
-    title: "MVE Community",
+    title: "Community Posts",
     icon: Building2,
     href: "/dashboard/community",
-  },
-  {
-    title: "Wallet",
-    icon: CircleDollarSign,
-    href: "/dashboard/wallet",
   },
   {
     title: "Settings",
     icon: LayoutGrid,
     href: "/dashboard/settings",
-  },
-  {
-    title: "Online Store",
-    icon: ExternalLink,
-    href: "/",
   },
 ];
 

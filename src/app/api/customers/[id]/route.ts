@@ -4,12 +4,14 @@ import { db } from "@/lib/db";
 export async function PUT(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
-    params: { id: string };
-  }
+    params: Promise<{ id: string }>;
+  },
 ) {
   try {
+    const { id } = await params;
+
     const {
       name,
       phone,
@@ -38,7 +40,7 @@ export async function PUT(
           data: null,
           message: "User Profile not found",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -87,7 +89,7 @@ export async function PUT(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

@@ -1,17 +1,12 @@
 import React from "react";
 
+import { steps } from "@/constants/checkoutSteps";
+
 import Steps from "./_components/Steps";
-import CartBanner from "./_components/CartBanner";
 import StepForm from "./_components/StepForm";
+import CartBanner from "./_components/CartBanner";
 
-function page() {
-  const steps = [
-    { index: 1, title: "Personal Details" },
-    { index: 2, title: "Shipping Details" },
-    { index: 3, title: "Payment Method" },
-    { index: 4, title: "Order Summary" },
-  ];
-
+function Page() {
   return (
     <div className="bg-slate-200 dark:bg-slate-950 min-h-screen">
       <div className="max-w-3xl my-6 mx-auto p-6 border border-slate-700 rounded-lg">
@@ -28,4 +23,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

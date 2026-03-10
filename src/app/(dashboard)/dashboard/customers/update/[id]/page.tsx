@@ -5,10 +5,12 @@ import CustomerForm from "@/components/forms/CustomerForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
 const UpdateCustomer = async ({
-  params: { id },
+  params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) => {
+  const { id } = await params;
+
   const customer = await getData(`users/${id}`);
   const { profile } = customer;
 

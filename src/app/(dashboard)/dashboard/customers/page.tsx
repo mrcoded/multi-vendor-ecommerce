@@ -1,12 +1,10 @@
-export const dynamic = "force-dynamic";
-
 import React from "react";
 import getData from "@/lib/getData";
 
 import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
 
-const page = async () => {
+const Page = async () => {
   const customers = await getData("customers");
 
   return (
@@ -18,4 +16,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;

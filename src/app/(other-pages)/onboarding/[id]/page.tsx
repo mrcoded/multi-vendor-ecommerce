@@ -3,7 +3,9 @@ import React from "react";
 import Steps from "./_components/Steps";
 import StepForm from "./_components/StepForm";
 
-function page({ params }: { params: { id: string } }) {
+async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
   const steps = [
     { index: 1, title: "Personal Details" },
     { index: 2, title: "Other Details" },
@@ -17,11 +19,11 @@ function page({ params }: { params: { id: string } }) {
         <Steps steps={steps} />
         <div className="w-full p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
           {/* FORM */}
-          <StepForm vendorId={params.id} />
+          <StepForm vendorId={id} />
         </div>
       </div>
     </div>
   );
 }
 
-export default page;
+export default Page;

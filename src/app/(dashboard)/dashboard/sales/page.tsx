@@ -7,7 +7,7 @@ import { authOptions } from "@/lib/authOptions";
 import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
 
-const page = async () => {
+const Page = async () => {
   const sales = await getData("orders/sales");
   const session = await getServerSession(authOptions);
 
@@ -21,7 +21,7 @@ const page = async () => {
   //Customer Name, Email, Phone, OrderNumber
 
   const vendorSales = sales?.filter(
-    (sale: { userId: string }) => sale.userId === id
+    (sale: { userId: string }) => sale.userId === id,
   );
 
   return (
@@ -47,4 +47,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;

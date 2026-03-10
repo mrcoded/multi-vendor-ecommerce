@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import React from "react";
 
 import getData from "@/lib/getData";
@@ -12,7 +10,7 @@ const NewProduct = async () => {
   const categoriesData = await getData("categories");
 
   const vendorData = userData.filter(
-    (vendor: { role: string }) => vendor.role === "VENDOR"
+    (vendor: { role: string }) => vendor.role === "VENDOR",
   );
 
   const vendors = vendorData.map((vendor: { id: string; name: string }) => ({
@@ -24,7 +22,7 @@ const NewProduct = async () => {
     (category: { id: string; title: string }) => ({
       id: category.id,
       title: category.title,
-    })
+    }),
   );
 
   return (

@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import React from "react";
 
 import getData from "@/lib/getData";
@@ -14,7 +12,7 @@ const NewStore = async () => {
     (category: { id: string; title: string }) => ({
       id: category.id,
       title: category.title,
-    })
+    }),
   );
 
   return (

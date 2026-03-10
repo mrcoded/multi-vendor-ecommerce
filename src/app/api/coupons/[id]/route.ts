@@ -4,12 +4,14 @@ import { db } from "@/lib/db";
 export async function GET(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
-    params: { id: string };
-  }
+    params: Promise<{ id: string }>;
+  },
 ) {
   try {
+    const { id } = await params;
+
     const coupon = await db.coupon.findUnique({
       where: {
         id,
@@ -27,7 +29,7 @@ export async function GET(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -35,12 +37,14 @@ export async function GET(
 export async function DELETE(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
-    params: { id: string };
-  }
+    params: Promise<{ id: string }>;
+  },
 ) {
   try {
+    const { id } = await params;
+
     const existingCoupon = await db.coupon.findUnique({
       where: {
         id,
@@ -55,7 +59,7 @@ export async function DELETE(
         },
         {
           status: 404,
-        }
+        },
       );
     }
 
@@ -76,7 +80,7 @@ export async function DELETE(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -84,12 +88,14 @@ export async function DELETE(
 export async function PUT(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
-    params: { id: string };
-  }
+    params: Promise<{ id: string }>;
+  },
 ) {
   try {
+    const { id } = await params;
+
     const { title, expiryDate, couponCode, isActive } = await request.json();
 
     const existingCoupon = await db.coupon.findUnique({
@@ -104,7 +110,7 @@ export async function PUT(
           data: null,
           message: "Coupon not found",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -126,7 +132,7 @@ export async function PUT(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

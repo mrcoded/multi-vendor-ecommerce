@@ -3,13 +3,14 @@ import getData from "@/lib/getData";
 
 import FilterComponent from "@/components/Filters/FilterComponent";
 
-async function page({
-  params: { slug },
+async function Page({
+  params,
   searchParams,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
   searchParams: string;
 }) {
+  const { slug } = await params;
   const searchParamsObject = new URLSearchParams(searchParams);
   const sort = searchParamsObject.get("sort") || "asc";
   const min = searchParamsObject.get("min") || 0;
@@ -19,7 +20,7 @@ async function page({
   const category = await getData(`categories/filter/${slug}`);
 
   const products = await getData(
-    `products?catId=${category.id}&page=${page}&sort=${sort}&min=${min}&max=${max}`
+    `products?catId=${category.id}&page=${page}&sort=${sort}&min=${min}&max=${max}`,
   );
 
   return (
@@ -29,4 +30,4 @@ async function page({
   );
 }
 
-export default page;
+export default Page;

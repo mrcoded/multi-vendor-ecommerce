@@ -5,10 +5,12 @@ import CommunityPostForm from "@/components/forms/CommunityPostForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
 const UpdateCommunityPost = async ({
-  params: { id },
+  params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) => {
+  const { id } = await params;
+
   const communityPost = await getData(`communityPosts/${id}`);
   const categoriesData = await getData("categories");
 
@@ -16,7 +18,7 @@ const UpdateCommunityPost = async ({
     (category: { id: string; title: string }) => ({
       id: category.id,
       title: category.title,
-    })
+    }),
   );
 
   return (

@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import React from "react";
 import getData from "@/lib/getData";
 
@@ -7,9 +5,8 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
 
 import PageHeader from "../../_components/shared/PageHeader";
-import TableActions from "../../_components/shared/TableActions";
 
-const page = async () => {
+const Page = async () => {
   const banners = await getData("banners");
 
   return (
@@ -21,9 +18,6 @@ const page = async () => {
         linkAction="Add Banner"
       />
 
-      {/* Table Actions */}
-      <TableActions />
-
       <div className="py-8">
         <DataTable data={banners} columns={columns} />
       </div>
@@ -31,4 +25,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;

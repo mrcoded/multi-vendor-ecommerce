@@ -13,7 +13,6 @@ export async function POST(request: Request) {
         isActive,
       },
     });
-    console.log(newBanner);
 
     return NextResponse.json(newBanner);
   } catch (error) {
@@ -26,7 +25,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -50,7 +49,7 @@ export async function GET(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import Pricing from "@/app/(other-pages)/vendor-pricing/_components/Pricing";
 
-function page() {
+function Page() {
   return (
     <div>
       <Pricing />
@@ -9,4 +9,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

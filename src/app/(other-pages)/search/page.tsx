@@ -3,7 +3,7 @@ import getData from "@/lib/getData";
 
 import FilterComponent from "@/components/Filters/FilterComponent";
 
-async function page({ searchParams }: { searchParams: string }) {
+async function Page({ searchParams }: { searchParams: string }) {
   const searchParamsObject = new URLSearchParams(searchParams);
   const sort = searchParamsObject.get("sort") || "asc";
   const min = searchParamsObject.get("min") || 0;
@@ -19,7 +19,7 @@ async function page({ searchParams }: { searchParams: string }) {
   };
 
   let products = await getData(
-    `products?search=${search}&page=${page}&sort=${sort}&min=${min}&max=${max}`
+    `products?search=${search}&page=${page}&sort=${sort}&min=${min}&max=${max}`,
   );
 
   if (search) {
@@ -35,4 +35,4 @@ async function page({ searchParams }: { searchParams: string }) {
   );
 }
 
-export default page;
+export default Page;

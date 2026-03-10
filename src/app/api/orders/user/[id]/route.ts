@@ -3,9 +3,11 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params: { id } }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
+
     const order = await db.order.findMany({
       where: {
         userId: id,
@@ -29,16 +31,18 @@ export async function GET(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params: { id } }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
+
     const existingOrder = await db.order.findUnique({
       where: {
         id,
@@ -53,7 +57,7 @@ export async function DELETE(
         },
         {
           status: 404,
-        }
+        },
       );
     }
 
@@ -74,7 +78,7 @@ export async function DELETE(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

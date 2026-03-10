@@ -11,10 +11,12 @@ import CategoryCarousel from "@/components/carousels/CategoryCarousel";
 import ProductImageCarousel from "@/components/carousels/ProductImageCarousel";
 
 const ProductDetailPage = async ({
-  params: { slug },
+  params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) => {
+  const { slug } = await params;
+
   const product = await getData(`products/product/${slug}`);
   const { id } = product;
 
@@ -23,7 +25,7 @@ const ProductDetailPage = async ({
 
   const categoryProducts = category.products;
   const products = categoryProducts.filter(
-    (product: { id: string }) => product.id !== id
+    (product: { id: string }) => product.id !== id,
   );
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;

@@ -1,11 +1,13 @@
+import { getServerSession } from "next-auth";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
 
-const auth = (req: Request) => {
-  console.log(req);
-  return { id: "fakeId" };
+const auth = async (req: Request) => {
+  const user = await getServerSession();
+
+  return { id: user?.user.id };
 }; // Fake auth function
 
 // FileRouter for your app, can contain multiple FileRoutes
@@ -27,7 +29,7 @@ export const ourFileRouter = {
       // This code RUNS ON YOUR SERVER after upload
       console.log("Upload complete for userId:", metadata.userId);
 
-      console.log("file url", file.url);
+      console.log("file url", file.ufsUrl);
 
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };
@@ -41,11 +43,11 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("file url", file.url, metadata);
+      console.log("file url", file.ufsUrl, metadata);
 
       return { uploadedBy: metadata.userId };
     }),
-  bannerImageUploader: f({ image: { maxFileSize: "2MB" } })
+  bannerImageUploader: f({ image: { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       const user = await auth(req);
 
@@ -54,7 +56,7 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("file url", file.url, metadata);
+      console.log("file url", file.ufsUrl, metadata);
 
       return { uploadedBy: metadata.userId };
     }),
@@ -67,7 +69,7 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("file url", file.url, metadata);
+      console.log("file url", file.ufsUrl, metadata);
 
       return { uploadedBy: metadata.userId };
     }),
@@ -80,7 +82,7 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("file url", file.url, metadata);
+      console.log("file url", file.ufsUrl, metadata);
 
       return { uploadedBy: metadata.userId };
     }),
@@ -93,7 +95,7 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("file url", file.url, metadata);
+      console.log("file url", file.ufsUrl, metadata);
 
       return { uploadedBy: metadata.userId };
     }),
@@ -106,7 +108,7 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("file url", file.url, metadata);
+      console.log("file url", file.ufsUrl, metadata);
 
       return { uploadedBy: metadata.userId };
     }),
@@ -122,7 +124,7 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      console.log("file url", file.url, metadata);
+      console.log("file url", file.ufsUrl, metadata);
 
       return { uploadedBy: metadata.userId };
     }),

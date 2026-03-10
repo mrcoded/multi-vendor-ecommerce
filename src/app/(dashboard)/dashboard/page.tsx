@@ -11,7 +11,7 @@ import LargeCardGroups from "@/components/cards/LargeCardGroups";
 import SmallCardGroups from "@/components/cards/SmallCardGroups";
 import DashboardCharts from "./_components/charts/DashboardCharts";
 
-const page = async () => {
+const Page = async () => {
   const session = await getServerSession(authOptions);
   const role = session?.user?.role;
 
@@ -37,4 +37,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;

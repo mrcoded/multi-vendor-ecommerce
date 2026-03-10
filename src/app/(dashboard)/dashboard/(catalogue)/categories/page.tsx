@@ -9,7 +9,7 @@ import { DataTable } from "@/components/tables/DataTable/page";
 import PageHeader from "../../_components/shared/PageHeader";
 import TableActions from "../../_components/shared/TableActions";
 
-const page = async () => {
+const Page = async () => {
   const categories = await getData("categories");
 
   return (
@@ -31,4 +31,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;

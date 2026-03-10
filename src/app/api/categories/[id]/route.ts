@@ -18,7 +18,7 @@ export async function POST(request: Request) {
           data: null,
           message: "Category already exists",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -44,12 +44,14 @@ export async function POST(request: Request) {
 export async function GET(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
-    params: { id: string };
-  }
+    params: Promise<{ id: string }>;
+  },
 ) {
   try {
+    const { id } = await params;
+
     const category = await db.category.findUnique({
       where: {
         id,
@@ -70,7 +72,7 @@ export async function GET(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -78,12 +80,14 @@ export async function GET(
 export async function DELETE(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
-    params: { id: string };
-  }
+    params: Promise<{ id: string }>;
+  },
 ) {
   try {
+    const { id } = await params;
+
     const existingCategory = await db.category.findUnique({
       where: {
         id,
@@ -98,7 +102,7 @@ export async function DELETE(
         },
         {
           status: 404,
-        }
+        },
       );
     }
 
@@ -119,7 +123,7 @@ export async function DELETE(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -127,12 +131,14 @@ export async function DELETE(
 export async function PUT(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
-    params: { id: string };
-  }
+    params: Promise<{ id: string }>;
+  },
 ) {
   try {
+    const { id } = await params;
+
     const { title, slug, imageUrl, description, isActive } =
       await request.json();
 
@@ -148,7 +154,7 @@ export async function PUT(
           data: null,
           message: "Category not found",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -170,7 +176,7 @@ export async function PUT(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

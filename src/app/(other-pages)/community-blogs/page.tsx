@@ -5,7 +5,7 @@ import getData from "@/lib/getData";
 
 import CommunityPost from "@/components/community/CommunityPost";
 
-async function page() {
+async function Page() {
   const communityPosts = await getData("communityPosts");
 
   return (
@@ -18,4 +18,4 @@ async function page() {
   );
 }
 
-export default page;
+export default Page;

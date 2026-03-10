@@ -4,7 +4,13 @@ import getData from "@/lib/getData";
 import VendorForm from "@/components/forms/VendorForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
-const UpdateVendor = async ({ params: { id } }: { params: { id: string } }) => {
+const UpdateVendor = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) => {
+  const { id } = await params;
+
   const vendor = await getData(`vendors/${id}`);
 
   return (

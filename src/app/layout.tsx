@@ -17,9 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

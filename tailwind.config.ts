@@ -1,5 +1,7 @@
 import { withUt } from "uploadthing/tw";
-const flowbite = require("flowbite-react/tailwind");
+import flowbite from "flowbite-react/tailwind";
+import tailwindcssAnimate from "tailwindcss-animate";
+import flowbitePlugin from "@tailwindcss/forms";
 
 export default withUt({
   darkMode: ["class"],
@@ -60,9 +62,5 @@ export default withUt({
       },
     },
   },
-  plugins: [
-    require("tailwindcss-animate"),
-    require("@tailwindcss/forms"),
-    flowbite.plugin(),
-  ],
+  plugins: [tailwindcssAnimate, flowbitePlugin, flowbite.plugin()],
 });

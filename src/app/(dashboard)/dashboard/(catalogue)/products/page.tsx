@@ -12,7 +12,7 @@ import { DataTable } from "@/components/tables/DataTable/page";
 import PageHeader from "../../_components/shared/PageHeader";
 import TableActions from "../../_components/shared/TableActions";
 
-const page = async () => {
+const Page = async () => {
   const products = await getData("products");
   const session = await getServerSession(authOptions);
 
@@ -25,7 +25,7 @@ const page = async () => {
   }
 
   const vendorProducts = products.filter(
-    (product: { userId: string }) => product.userId === id
+    (product: { userId: string }) => product.userId === id,
   );
 
   return (
@@ -51,4 +51,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;

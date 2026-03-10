@@ -12,7 +12,7 @@ interface OrderItemProps {
   title: string;
 }
 
-const page = async ({ params: { id } }: { params: { id: string } }) => {
+const Page = async ({ params: { id } }: { params: { id: string } }) => {
   const order = await getData(`/orders/${id}`);
   const { orderItems } = order;
 
@@ -116,7 +116,7 @@ const page = async ({ params: { id } }: { params: { id: string } }) => {
                                     </p>
                                   </div>
                                 </li>
-                              )
+                              ),
                             )}
                         </ul>
 
@@ -154,4 +154,4 @@ const page = async ({ params: { id } }: { params: { id: string } }) => {
   );
 };
 
-export default page;
+export default Page;

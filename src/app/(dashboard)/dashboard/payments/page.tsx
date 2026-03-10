@@ -1,10 +1,8 @@
-export const dynamic = "force-dynamic";
-
 import getData from "@/lib/getData";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 
-export default async function page() {
+export default async function Page() {
   const data = await getData("categories");
 
   return (

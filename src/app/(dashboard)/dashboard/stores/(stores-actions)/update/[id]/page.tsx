@@ -4,7 +4,9 @@ import getData from "@/lib/getData";
 import StoreForm from "@/components/forms/StoreForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
-const UpdateStore = async ({ params: { id } }: { params: { id: string } }) => {
+const UpdateStore = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
+
   const store = await getData(`stores/${id}`);
 
   const categoriesData = await getData("categories");
@@ -13,7 +15,7 @@ const UpdateStore = async ({ params: { id } }: { params: { id: string } }) => {
     (category: { id: string; title: string }) => ({
       id: category.id,
       title: category.title,
-    })
+    }),
   );
 
   return (

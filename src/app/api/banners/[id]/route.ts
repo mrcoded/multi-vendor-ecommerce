@@ -3,13 +3,11 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  {
-    params: { id },
-  }: {
-    params: { id: string };
-  }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
+
     const banner = await db.banner.findUnique({
       where: {
         id,
@@ -27,16 +25,18 @@ export async function GET(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params: { id } }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
+
     const existingBanner = await db.banner.findUnique({
       where: {
         id,
@@ -51,7 +51,7 @@ export async function DELETE(
         },
         {
           status: 404,
-        }
+        },
       );
     }
 
@@ -72,7 +72,7 @@ export async function DELETE(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -80,12 +80,14 @@ export async function DELETE(
 export async function PUT(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
-    params: { id: string };
-  }
+    params: Promise<{ id: string }>;
+  },
 ) {
   try {
+    const { id } = await params;
+
     const { title, link, imageUrl, isActive } = await request.json();
 
     const existingBanner = await db.banner.findUnique({
@@ -100,7 +102,7 @@ export async function PUT(
           data: null,
           message: "Banner not found",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -122,7 +124,7 @@ export async function PUT(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

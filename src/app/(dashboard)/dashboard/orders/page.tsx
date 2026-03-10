@@ -7,7 +7,7 @@ import { authOptions } from "@/lib/authOptions";
 
 import { OrderCardProps } from "@/types/order";
 
-const page = async () => {
+const Page = async () => {
   //Fetch all orders
   const orders = await getData("orders");
   //Get the userId
@@ -21,7 +21,7 @@ const page = async () => {
   }
   //Filter by userId
   const userOrders = orders.filter(
-    (order: { userId: string }) => order.userId === userId
+    (order: { userId: string }) => order.userId === userId,
   );
 
   return (
@@ -48,4 +48,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;

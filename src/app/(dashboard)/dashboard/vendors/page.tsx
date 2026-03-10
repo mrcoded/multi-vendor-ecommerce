@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import React from "react";
 import getData from "@/lib/getData";
 
@@ -9,7 +7,7 @@ import { DataTable } from "@/components/tables/DataTable/page";
 import PageHeader from "../_components/shared/PageHeader";
 import TableActions from "../_components/shared/TableActions";
 
-const page = async () => {
+const Page = async () => {
   const vendorProfile = await getData("vendors");
 
   return (
@@ -35,4 +33,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;

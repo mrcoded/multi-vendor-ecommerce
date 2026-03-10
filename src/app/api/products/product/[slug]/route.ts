@@ -4,12 +4,14 @@ import { NextResponse } from "next/server";
 export async function GET(
   request: Request,
   {
-    params: { slug },
+    params,
   }: {
-    params: { slug: string };
-  }
+    params: Promise<{ slug: string }>;
+  },
 ) {
   try {
+    const { slug } = await params;
+
     const product = await db.product.findUnique({
       where: {
         slug,
@@ -27,7 +29,7 @@ export async function GET(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

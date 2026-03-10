@@ -5,10 +5,12 @@ import ProductForm from "@/components/forms/ProductForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
 const UpdateProduct = async ({
-  params: { id },
+  params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) => {
+  const { id } = await params;
+  
   const userData = await getData("users");
   const product = await getData(`products/${id}`);
   const categoriesData = await getData("categories");

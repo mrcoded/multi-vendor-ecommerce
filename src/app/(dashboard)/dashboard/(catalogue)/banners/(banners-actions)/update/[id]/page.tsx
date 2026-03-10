@@ -4,7 +4,13 @@ import getData from "@/lib/getData";
 import BannerForm from "@/components/forms/BannerForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
-const UpdateBanner = async ({ params: { id } }: { params: { id: string } }) => {
+const UpdateBanner = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) => {
+  const { id } = await params;
+
   const banner = await getData(`banners/${id}`);
 
   return (

@@ -7,7 +7,9 @@ import BreadCrumb from "@/components/BreadCrumb";
 import { CategoryProps } from "@/types/category";
 import CategoryList from "../../category/_components/CategoryList";
 
-async function page({ params: { slug } }: { params: { slug: string } }) {
+async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+
   const store = await getData(`stores/details/${slug}`);
   const storeCategoriyIds = store?.categoryIds;
 
@@ -54,4 +56,4 @@ async function page({ params: { slug } }: { params: { slug: string } }) {
   );
 }
 
-export default page;
+export default Page;

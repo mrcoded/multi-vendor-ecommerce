@@ -4,12 +4,13 @@ import { NextResponse } from "next/server";
 export async function GET(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
   }
 ) {
-  try {
+  try {const { id } = await params;
+
     const vendor = await db.user.findUnique({
       where: {
         id,
@@ -38,12 +39,13 @@ export async function GET(
 export async function DELETE(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
   }
 ) {
-  try {
+  try {const { id } = await params;
+
     const existingUser = await db.user.findUnique({
       where: {
         id,
@@ -87,11 +89,12 @@ export async function DELETE(
 export async function PUT(
   request: Request,
   {
-    params: { id },
+    params,
   }: {
     params: { id: string };
   }
-) {
+) {const { id } = await params;
+
   try {
     const {
       // contactPerson,

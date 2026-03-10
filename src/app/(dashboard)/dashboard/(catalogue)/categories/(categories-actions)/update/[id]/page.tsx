@@ -5,10 +5,12 @@ import CategoryForm from "@/components/forms/CategoryForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
 const UpdateCategory = async ({
-  params: { id },
+  params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) => {
+  const { id } = await params;
+
   const category = await getData(`categories/${id}`);
 
   return (

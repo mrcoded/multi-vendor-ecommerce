@@ -8,7 +8,9 @@ import CategoryList from "../../category/_components/CategoryList";
 import CommunityPostHtml from "@/components/community/CommunityPostHtml";
 import RecentCommunityPosts from "@/components/community/RecentCommunityPosts";
 
-async function page({ params: { slug } }: { params: { slug: string } }) {
+async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+
   const communityPost = await getData(`communityPosts/post/${slug}`);
   const communityPostId = communityPost.id;
   //Format date
@@ -17,7 +19,7 @@ async function page({ params: { slug } }: { params: { slug: string } }) {
   //Get recent community posts
   const allCommunityPosts = await getData(`communityPosts`);
   const recentCommunityPosts = allCommunityPosts.filter(
-    (post: { id: string }) => post.id !== communityPostId
+    (post: { id: string }) => post.id !== communityPostId,
   );
 
   //Get category
@@ -73,4 +75,4 @@ async function page({ params: { slug } }: { params: { slug: string } }) {
   );
 }
 
-export default page;
+export default Page;
