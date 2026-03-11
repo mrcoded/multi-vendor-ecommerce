@@ -7,6 +7,7 @@ import { FieldValues, useForm } from "react-hook-form";
 
 import { generateSlug } from "@/lib/generateSlug";
 import { makePostRequest } from "@/lib/apiRequest";
+import { CommunityPostFormProps } from "@/types/communityPost";
 
 import TextInput from "@/components/inputs/TextInput";
 import ImageInput from "@/components/inputs/ImageInput";
@@ -18,16 +19,6 @@ import TextAreaInput from "@/components/inputs/TextAreaInput";
 const QuillEditor = dynamic(() => import("@/components/QuillEditor"), {
   ssr: false,
 });
-
-interface CommunityPostFormProps {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  imageUrl: string;
-  categoryId: string;
-  content: string;
-}
 
 const CommunityPostForm = ({
   updateData,

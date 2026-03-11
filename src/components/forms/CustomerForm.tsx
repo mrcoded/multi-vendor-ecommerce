@@ -86,7 +86,7 @@ function CustomerForm({
         Personal Details
       </h2>
 
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 border-b border-gray-700 pb-10">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 sm:gap-6 border-b border-gray-700 pb-10">
         <TextInput
           label="Full Name"
           name="name"

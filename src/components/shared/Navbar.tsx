@@ -25,7 +25,13 @@ function Navbar() {
       <div className="flex items-center justify-between py-3 max-w-7xl mx-auto px-8 gap-8">
         {/* Logo */}
         <Link className="" href="/">
-          <Image src="" alt="MVE logo" className="w-24" />
+          <Image
+            src={"/assets/logo.png"}
+            alt="MVE logo"
+            width={100}
+            height={100}
+            className="w-24"
+          />
         </Link>
 
         {/* Search */}

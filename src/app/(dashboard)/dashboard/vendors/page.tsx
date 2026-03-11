@@ -5,7 +5,6 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
 
 import PageHeader from "../_components/shared/PageHeader";
-import TableActions from "../_components/shared/TableActions";
 
 const Page = async () => {
   const vendorProfile = await getData("vendors");
@@ -19,10 +18,7 @@ const Page = async () => {
         linkAction="Add Vendor"
       />
 
-      {/* Table Actions */}
-      <TableActions />
-
-      <div className="py-8">
+      <div className="py-1">
         <DataTable
           data={vendorProfile}
           columns={columns}

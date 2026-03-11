@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
           data: null,
           message: "User Already exists",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { data: null, message: "User Created Successfully" },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.log(error);
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -104,7 +104,7 @@ export async function GET(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

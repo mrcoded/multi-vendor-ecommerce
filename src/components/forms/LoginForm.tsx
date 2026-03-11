@@ -6,13 +6,14 @@ import toast from "react-hot-toast";
 import { signIn } from "next-auth/react";
 import { FieldValues, useForm } from "react-hook-form";
 
-import TextInput from "../inputs/TextInput";
-import SubmitButton from "../buttons/SubmitButton";
+import TextInput from "@/components/inputs/TextInput";
+import SubmitButton from "@/components/buttons/SubmitButton";
+import PasswordVisibility from "@/components/PasswordVisibility";
 
 function LoginForm() {
   const router = useRouter();
-
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const {
     register,
@@ -62,14 +63,20 @@ function LoginForm() {
         className="sm:col-span-2 mb-3"
       />
 
-      <TextInput
-        label="Password"
-        name="password"
-        type="password"
-        register={register}
-        errors={errors}
-        className="w-full"
-      />
+      <div className="relative flex flex-col space-y-1.5">
+        <TextInput
+          label="Password"
+          name="password"
+          type={showPassword ? "text" : "password"}
+          register={register}
+          errors={errors}
+          className="w-full"
+        />
+        <PasswordVisibility
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+        />
+      </div>
 
       <div className="flex gap-4 items-center justify-between">
         <Link

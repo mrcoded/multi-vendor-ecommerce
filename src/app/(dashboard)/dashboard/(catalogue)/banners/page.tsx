@@ -18,7 +18,7 @@ const Page = async () => {
         linkAction="Add Banner"
       />
 
-      <div className="py-8">
+      <div className="py-1">
         <DataTable data={banners} columns={columns} />
       </div>
     </div>

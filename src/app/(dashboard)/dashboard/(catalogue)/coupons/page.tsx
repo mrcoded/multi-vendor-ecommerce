@@ -8,7 +8,6 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
 
 import PageHeader from "../../_components/shared/PageHeader";
-import TableActions from "../../_components/shared/TableActions";
 
 const Page = async () => {
   const coupons = await getData("coupons");
@@ -35,10 +34,7 @@ const Page = async () => {
         linkAction="Add Coupon"
       />
 
-      {/* Table Actions */}
-      <TableActions />
-
-      <div className="py-8">
+      <div className="py-1">
         {role === "ADMIN" ? (
           <DataTable data={coupons} columns={columns} />
         ) : (

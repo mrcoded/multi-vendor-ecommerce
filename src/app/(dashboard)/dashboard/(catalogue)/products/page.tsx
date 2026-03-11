@@ -10,7 +10,6 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
 
 import PageHeader from "../../_components/shared/PageHeader";
-import TableActions from "../../_components/shared/TableActions";
 
 const Page = async () => {
   const products = await getData("products");
@@ -37,10 +36,7 @@ const Page = async () => {
         linkAction="Add Product"
       />
 
-      {/* Table Actions */}
-      <TableActions />
-
-      <div className="py-8">
+      <div className="py-1">
         {role === "ADMIN" ? (
           <DataTable data={products} columns={columns} />
         ) : (

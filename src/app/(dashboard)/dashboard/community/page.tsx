@@ -5,7 +5,6 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
 
 import PageHeader from "../_components/shared/PageHeader";
-import TableActions from "../_components/shared/TableActions";
 
 const Page = async () => {
   const communityPosts = await getData("communityPosts");
@@ -19,10 +18,7 @@ const Page = async () => {
         linkAction="Add Community Post"
       />
 
-      {/* Table Actions */}
-      <TableActions />
-
-      <div className="py-8">
+      <div className="py-1">
         <DataTable data={communityPosts} columns={columns} />
       </div>
     </div>

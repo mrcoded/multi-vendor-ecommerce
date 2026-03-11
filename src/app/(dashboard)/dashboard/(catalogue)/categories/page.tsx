@@ -21,10 +21,7 @@ const Page = async () => {
         linkAction="Add Category"
       />
 
-      {/* Table Actions */}
-      <TableActions />
-
-      <div className="py-8">
+      <div className="py-1">
         <DataTable data={categories} columns={columns} />
       </div>
     </div>

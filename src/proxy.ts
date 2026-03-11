@@ -15,7 +15,7 @@ export default withAuth(
 
     // Redirect to login if trying to access protected routes without auth
     const isProtected = protectedPaths.some((path) =>
-      pathname.startsWith(path)
+      pathname.startsWith(path),
     );
 
     if (!token && isProtected) {
@@ -49,7 +49,7 @@ export default withAuth(
     pages: {
       signIn: "/login",
     },
-  }
+  },
 );
 
 export const config = {

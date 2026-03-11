@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { compare } from "bcrypt";
+import { compare } from "bcryptjs";
 
 import { Adapter } from "next-auth/adapters";
 import { User, NextAuthOptions } from "next-auth";
@@ -44,7 +44,7 @@ export const authOptions: NextAuthOptions = {
           // Check if password matches
           const isPasswordValid = await compare(
             credentials.password,
-            existingUser.password
+            existingUser.password,
           );
 
           if (!isPasswordValid) {

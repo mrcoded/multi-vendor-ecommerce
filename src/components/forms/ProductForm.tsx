@@ -7,6 +7,7 @@ import { FieldValues, useForm } from "react-hook-form";
 import { generateSlug } from "@/lib/generateSlug";
 import { makePostRequest } from "@/lib/apiRequest";
 import generateUserCode from "@/lib/generateUserCode";
+import { ProductFormData, ProductFormProps } from "@/types/products";
 
 import TextInput from "@/components/inputs/TextInput";
 import MultiImageInput from "@/components/inputs/MultiImageInput";
@@ -15,31 +16,6 @@ import SelectInput from "@/components/inputs/SelectInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
 import ArrayItemsInput from "@/components/inputs/ArrayItemsInput";
-
-interface ProductFormProps {
-  categories: { id: string; title: string }[];
-  vendors: { id: string; name: string }[];
-}
-
-interface ProductFormData {
-  id: string;
-  title: string;
-  slug: string;
-  productImages: Array<string>;
-  categoryId: string;
-  description: string;
-  isWholesale: boolean;
-  sku: string;
-  barcode: string;
-  productPrice: number;
-  productCode: string;
-  salePrice: number;
-  qty: number;
-  tags: string[];
-  wholesaleQuantity: number;
-  wholesalePrice: number;
-  userId: string;
-}
 
 const ProductForm = ({
   categories,
@@ -112,7 +88,7 @@ const ProductForm = ({
     <div>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
+        className="w-full max-w-4xl p-4 sm:p-6 md:p-8 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
       >
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
           <TextInput

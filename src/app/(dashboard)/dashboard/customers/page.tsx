@@ -9,7 +9,7 @@ const Page = async () => {
 
   return (
     <div>
-      <div className="py-8">
+      <div className="py-1">
         <DataTable data={customers} columns={columns} />
       </div>
     </div>

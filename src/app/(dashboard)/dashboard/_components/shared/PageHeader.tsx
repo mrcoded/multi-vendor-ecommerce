@@ -14,10 +14,10 @@ const PageHeader = ({
   linkAction: string;
 }) => {
   return (
-    <div className="flex justify-between py-4 mb-4">
+    <div className="flex justify-between py-2 sm:py-4 mb-4">
       <Heading title={heading} />
       <Link
-        className="text-white bg-lime-600 hover:bg-lime-600 focus:ring-4 focus:outline-none focus:ring-lime-600/50 font-medium rounded-lg text-base px-2 md:px-3 md:py-2.5 text-center inline-flex items-center dark:focus:ring-lime-600/55 me-2 space-x-1.5"
+        className="inline-flex items-center text-base px-2 py-1 md:px-3 md:py-2.5 me-2 text-center text-white bg-lime-600 hover:bg-lime-600 focus:ring-4 focus:outline-none focus:ring-lime-600/50 font-medium rounded-lg dark:focus:ring-lime-600/55 space-x-1.5"
         href={href}
       >
         <Plus className="size-4 md:size-6" />

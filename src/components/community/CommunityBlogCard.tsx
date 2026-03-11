@@ -25,6 +25,8 @@ async function CommunityBlogCard({
           <Image
             src={communityPost.imageUrl}
             alt={communityPost.title}
+            width={556}
+            height={556}
             className="object-cover w-full h-48 transition-all duration-200 transform group-hover:scale-110"
           />
         </div>

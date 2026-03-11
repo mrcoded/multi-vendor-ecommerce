@@ -19,10 +19,7 @@ const Page = async () => {
         linkAction="Add Store"
       />
 
-      {/* Table Actions */}
-      <TableActions />
-
-      <div className="py-8">
+      <div className="py-1">
         <DataTable data={stores} columns={columns} />
       </div>
     </div>

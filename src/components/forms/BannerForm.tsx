@@ -76,9 +76,9 @@ const BannerForm = ({ updateData }: { updateData?: BannerFormProps }) => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
+      className="w-full max-w-4xl p-4 sm:p-6 md:p-8 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
     >
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 sm:gap-6">
         <TextInput
           label="Banner Title"
           name="title"
