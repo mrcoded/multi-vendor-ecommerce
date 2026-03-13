@@ -27,6 +27,7 @@ async function CommunityBlogCard({
             alt={communityPost.title}
             width={556}
             height={556}
+            priority
             className="object-cover w-full h-48 transition-all duration-200 transform group-hover:scale-110"
           />
         </div>
@@ -34,10 +35,10 @@ async function CommunityBlogCard({
           {categoryTitle}
         </span>
       </div>
-      <p className="mt-6 text-sm font-medium text-gray-500 dark:text-slate-200">
+      <p className="mt-2 sm:mt-6 text-sm font-medium text-gray-500 dark:text-slate-200">
         {normalDate}
       </p>
-      <h2 className="mt-4 min-h-[50px] text-xl font-bold leading-tight text-gray-900 xl:pr-8">
+      <h2 className="mt-1 sm:mt-4 lg:min-h-[50px] text-xl font-bold leading-tight text-gray-900 xl:pr-8">
         <Link
           href={`/community-blogs/${communityPost.slug}`}
           className="line-clamp-2 dark:text-slate-200"
@@ -45,7 +46,7 @@ async function CommunityBlogCard({
           {communityPost.title}
         </Link>
       </h2>
-      <div className="mt-6">
+      <div className="mt-2 lg:mt-6">
         <Link
           href={`/community-blogs/${communityPost.slug}`}
           className="inline-flex items-center pb-2 text-xs font-bold tracking-widest text-gray-900 uppercase border-b border-gray-900 dark:border-lime-200 group dark:text-lime-200"

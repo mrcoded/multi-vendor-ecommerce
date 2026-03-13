@@ -19,7 +19,7 @@ function BreadCrumb({
   const endRange = Math.ceil(parseInt(currentPage) * pageSize);
 
   return (
-    <div className="flex items-center justify-between text-xs">
+    <div className="flex items-center justify-between text-xs dark:text-gray-400">
       <div className="flex items-center">
         <Link href="/">Home</Link>
         <ChevronRight className="size-5" />

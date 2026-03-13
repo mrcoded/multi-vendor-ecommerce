@@ -13,28 +13,28 @@ async function CommunityPost({
   title: string;
 }) {
   return (
-    <section className="py-12 bg-white rounded-md shadow-lg sm:py-16 dark:bg-gray-700">
+    <section className="py-7 sm:py-12 bg-white rounded-md shadow-lg md:py-16 dark:bg-gray-700">
       <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
         <div className="mx-auto md:mx-0">
           <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl dark:text-slate-100">
+            <h2 className="text-lg  sm:text-2xl md:text-3xl font-bold text-gray-900 lg:text-4xl dark:text-slate-100">
               {title}
             </h2>
             <Link
               href="/community-blogs"
-              className="bg-slate-800 py-3 px-5 rounded flex items-center text"
+              className="bg-slate-800 py-2 md:py-3 px-2 md:px-5 rounded flex items-center text-sm md:text-base"
             >
               See All
-              <MoveRight className="flex-shrink-0 mx-2" />
+              <MoveRight className="flex-shrink-0 sm:mx-2 hidden sm:flex sm:size-4" />
             </Link>
           </div>
-          <p className="mt-5 text-base font-normal leading-7 text-gray-500 dark:text-gray-400">
+          <p className="mt-2 lg:mt-5 text-base font-normal leading-7 text-gray-500 dark:text-gray-400">
             Create custom landing pages with Rareblocks that convert more
             visitors than any website.
           </p>
         </div>
 
-        <div className="grid max-w-md grid-cols-1 mx-auto mt-12 sm:mt-16 md:grid-cols-3 gap-y-12 md:gap-x-8 lg:gap-x-16 md:max-w-none">
+        <div className="grid max-w-md grid-cols-1 mx-auto mt-8 lg:mt-16 md:grid-cols-3 gap-9 sm:gap-12 md:max-w-none">
           {posts
             .slice(0, 3)
             .map((communityPost: CommunityPostProps, index: React.Key) => {

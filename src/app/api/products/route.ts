@@ -36,7 +36,7 @@ export async function POST(request: Request) {
           data: null,
           message: "Product already exists",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -74,13 +74,13 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
 
 export async function GET(request: NextRequest) {
-  const pageSize = 3;
+  const pageSize = 6;
   const min = request.nextUrl.searchParams.get("min");
   const max = request.nextUrl.searchParams.get("max");
   const page = request.nextUrl.searchParams.get("page") || "1";
@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
