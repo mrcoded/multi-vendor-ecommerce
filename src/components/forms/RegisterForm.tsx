@@ -5,8 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FieldValues, useForm } from "react-hook-form";
 import { makePostRequest } from "@/lib/apiRequest";
 
-import TextInput from "../inputs/TextInput";
-import SubmitButton from "../buttons/SubmitButton";
+import TextInput from "@/components/inputs/TextInput";
+import SubmitButton from "@/components/buttons/SubmitButton";
+import PasswordVisibility from "@/components/PasswordVisibility";
 
 function RegisterForm({ role }: { role: string }) {
   const router = useRouter();
@@ -14,6 +15,7 @@ function RegisterForm({ role }: { role: string }) {
   const plan = searchParams.get("plan");
 
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const {
     register,
@@ -71,14 +73,20 @@ function RegisterForm({ role }: { role: string }) {
         className="sm:col-span-2 mb-3"
       />
 
-      <TextInput
-        label="Password"
-        name="password"
-        type="password"
-        register={register}
-        errors={errors}
-        className="w-full"
-      />
+      <div className="relative flex flex-col space-y-1.5">
+        <TextInput
+          label="Password"
+          name="password"
+          type={showPassword ? "text" : "password"}
+          register={register}
+          errors={errors}
+          className="w-full"
+        />
+        <PasswordVisibility
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+        />
+      </div>
 
       <SubmitButton
         isLoading={loading}
