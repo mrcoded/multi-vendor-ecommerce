@@ -2,11 +2,20 @@ import React from "react";
 import WeeklySalesChart from "./WeeklySalesChart";
 import BestSellingProductsChart from "./BestSellingProductsChart";
 
-function DashboardCharts() {
+import { SalesProps } from "@/types/dashboard";
+import { OrderCardProps } from "@/types/order";
+
+function DashboardCharts({
+  orders,
+  sales,
+}: {
+  orders: OrderCardProps[];
+  sales: SalesProps["sales"];
+}) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <WeeklySalesChart />
-      <BestSellingProductsChart />
+      <WeeklySalesChart orders={orders} sales={sales} />
+      <BestSellingProductsChart sales={sales} />
     </div>
   );
 }
