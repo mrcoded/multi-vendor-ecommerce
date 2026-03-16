@@ -1,34 +1,59 @@
 "use client";
 
 import React, { useState } from "react";
-import { Modal } from "flowbite-react";
+import { Modal, ModalBody, ModalHeader } from "flowbite-react"; // Import Modal directly
 import { Share2 } from "lucide-react";
-
 import { ShareSocial } from "react-share-social";
 
 function ProductShareButton({ urlToShare }: { urlToShare: string }) {
-  const [openModal, setOpenModal] = useState(true);
+  // 1. Set initial state to false
+  const [openModal, setOpenModal] = useState(false);
 
   return (
     <>
-      <button onClick={() => setOpenModal(true)}>
-        <Share2 />
+      <button
+        type="button" // Always good practice to define button type
+        onClick={() => setOpenModal(true)}
+        className="flex items-center gap-2"
+      >
+        <Share2 size={20} />
       </button>
 
-      <Modal show={openModal} onClose={() => setOpenModal(false)}>
-        <Modal.Header>Share this product with Others</Modal.Header>
-        <Modal.Body>
-          <ShareSocial
-            url={urlToShare}
-            socialTypes={[
-              "facebook",
-              "twitter",
-              "whatsapp",
-              "linkedin",
-              "email",
-            ]}
-          />
-        </Modal.Body>
+      <Modal
+        dismissible
+        show={openModal}
+        size="md" // Medium size is usually better for share modals
+        popup // Makes the close button look cleaner
+        onClose={() => setOpenModal(false)}
+      >
+        <ModalHeader>
+          <span className="p-4">Share this product with Others</span>
+        </ModalHeader>
+        <ModalBody>
+          <div className="pt-2">
+            <ShareSocial
+              url={urlToShare}
+              socialTypes={[
+                "facebook",
+                "twitter",
+                "whatsapp",
+                "linkedin",
+                "email",
+              ]}
+              // Optional: style the container to match your app
+              style={{
+                root: {
+                  background: "transparent",
+                  padding: 0,
+                },
+                copyContainer: {
+                  border: "1px solid #e5e7eb",
+                  background: "#f9fafb",
+                },
+              }}
+            />
+          </div>
+        </ModalBody>
       </Modal>
     </>
   );

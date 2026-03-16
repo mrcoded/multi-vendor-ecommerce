@@ -1,154 +1,171 @@
 import React from "react";
 import Image from "next/image";
-import { CheckCircle2 } from "lucide-react";
-
+import { CheckCircle2, FileText } from "lucide-react";
 import getData from "@/lib/getData";
+import Link from "next/link";
+import formatDate from "@/lib/formatDate";
 
 interface OrderItemProps {
   id: string;
   imageUrl: string;
-  qty: number;
+  quantity: number; // Updated to match your seeder's property name
   price: number;
   title: string;
 }
 
-const Page = async ({ params: { id } }: { params: { id: string } }) => {
+const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   const order = await getData(`/orders/${id}`);
   const { orderItems } = order;
 
-  const subTotal = orderItems
-    ?.reduce((total: number, item: { price: number; quantity: number }) => {
+  const subTotal =
+    orderItems?.reduce((total: number, item: OrderItemProps) => {
       return total + item.price * item.quantity;
-    }, 0)
-    .toFixed(2);
+    }, 0) || 0;
+
+  const shipping = order.shippingCost || 0;
+  const total = (subTotal + shipping).toFixed(2);
 
   return (
-    <section className="py-12 bg-gray-50 sm:py-16 lg:py-20">
-      <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
-        <div className="max-w-2xl mx-auto">
-          <div className="relative mt-6 overflow-hidden bg-white rounded-lg shadow md:mt-10">
-            <div className="absolute top-4 right-4">
-              <button
-                type="button"
-                className="inline-flex items-center px-4 py-3 text-xs font-bold text-gray-900 transition-all duration-200 dark:bg-slate-50 bg-gray-100 border border-transparent rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-              >
-                View invoice
-              </button>
-            </div>
+    <section className="min-h-screen py-4 sm:py-8 bg-gray-50 lg:py-12">
+      <div className="px-2 mx-auto max-w-3xl sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Header Section */}
+          <div className="p-6 text-center border-b border-gray-50 sm:p-10">
+            <div className="flex flex-col items-center">
+              <CheckCircle2 className="size-12 text-green-500 mb-4" />
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                Order Received!
+              </h1>
 
-            <div className="px-4 py-6 sm:px-8 sm:py-10">
-              <div className="-my-8 divide-y divide-gray-200">
-                <div className="pt-16 pb-8 text-center sm:py-8">
-                  <CheckCircle2 className="size-10 mx-auto text-green-500" />
-                  <h1 className="mt-4 text-2xl font-bold text-gray-900">
-                    We received your order!
-                  </h1>
-                  <p className="mt-2 text-sm font-normal text-gray-600">
-                    Your order #{order.orderNumber} is completed and ready to
-                    ship
+              <p className="mt-2 text-sm text-gray-500 sm:text-base">
+                Thanks for your purchase. Your order{" "}
+                <span className="font-semibold text-gray-900">
+                  #{order.orderNumber}
+                </span>{" "}
+                is being processed.
+              </p>
+
+              <Link
+                href={`/orders/${id}/invoice`}
+                className="mt-6 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <FileText className="size-4" />
+                View Invoice
+              </Link>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-8">
+            {/* Order Meta Grid */}
+            <div className="grid grid-cols-1 gap-8 pb-8 border-b border-gray-100 sm:grid-cols-2">
+              <div>
+                <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
+                  Shipping Address
+                </h2>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p className="font-bold text-gray-900">
+                    {order.firstName} {order.lastName}
+                  </p>
+                  <p>{order.streetAddress}</p>
+                  <p>
+                    {order.city}, {order.country}
                   </p>
                 </div>
+              </div>
 
-                <div className="py-8">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-8 sm:gap-x-20">
-                    <div>
-                      <h2 className="text-xs font-bold text-gray-400 tracking-widest uppercase">
-                        Shipping Address
-                      </h2>
-                      <p className="mt-6 text-sm font-medium text-gray-600">
-                        {order.firstName} {order.lastName}
-                      </p>
-                      <p className="mt-3 text-sm font-medium text-gray-600">
-                        {order.streetAddress} {order.city}, {order.district},{" "}
-                        {order.country}
-                      </p>
-                    </div>
-
-                    <div>
-                      <h2 className="text-xs font-bold text-gray-400 tracking-widest uppercase">
-                        Payment Info
-                      </h2>
-                      <p className="mt-6 text-sm font-medium text-gray-600">
-                        {order.paymentMethod}
-                      </p>
-                      {/* <p className="mt-3 text-sm font-medium text-gray-600">
-                        {order.streetAddress} {order.city}, {order.district},{" "}
-                        {order.country}
-                      </p> */}
-                    </div>
-                  </div>
+              <div>
+                <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
+                  Payment Detail
+                </h2>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p className="font-medium">{order.paymentMethod}</p>
+                  <p className="text-xs text-gray-600 capitalize">
+                    Transaction Date: {formatDate(order.createdAt)}
+                  </p>
+                  <p className="text-xs text-gray-400 uppercase">
+                    Transaction ID: {order.orderNumber}
+                  </p>
                 </div>
+              </div>
+            </div>
 
-                <div className="py-8">
-                  <div className="grid grid-cols-1 gap-y-8 sm:gap-x-20">
-                    <div>
-                      <h2 className="text-xs font-bold text-gray-400 tracking-widest uppercase">
-                        Order Items
-                      </h2>
-
-                      <div className="flow-root mt-8">
-                        <ul className="divide-y divide-gray-200 -my-7">
-                          {orderItems.length > 0 &&
-                            orderItems.map(
-                              (item: OrderItemProps, i: number) => (
-                                <li
-                                  key={i}
-                                  className="flex items-start justify-between space-x-5 py-7 md:items-stretch"
-                                >
-                                  <div className="flex items-stretch">
-                                    <div className="flex-shrink-0">
-                                      <Image
-                                        src={item.imageUrl}
-                                        height={200}
-                                        width={200}
-                                        alt={item.title}
-                                        className="object-cover size-20 rounded-lg"
-                                      />
-                                      <div>
-                                        <h2>{item.title}</h2>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <div className="ml-auto">
-                                    <p className="text-sm font-bold text-right text-gray-900">
-                                      {item.price}
-                                    </p>
-                                  </div>
-                                </li>
-                              ),
-                            )}
-                        </ul>
-
-                        <div className="py-8">
-                          <ul className="space-y-4">
-                            <li className="flex items-center justify-between">
-                              <p className="text-sm font-medium text-gray-600">
-                                Sub total
-                              </p>
-                              <p className="text-sm font-medium text-gray-600">
-                                {subTotal}
-                              </p>
-                            </li>
-
-                            <li className="flex items-center justify-between">
-                              <p className="text-sm font-medium text-gray-900">
-                                Total
-                              </p>
-                              <p className="text-sm font-bold text-gray-900">
-                                {subTotal}
-                              </p>
-                            </li>
-                          </ul>
-                        </div>
+            {/* Order Items */}
+            <div className="py-4 sm:py-8">
+              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
+                Your Items
+              </h2>
+              <ul className="divide-y divide-gray-100">
+                {orderItems?.map((item: OrderItemProps) => (
+                  <li
+                    key={item.id}
+                    className="flex py-2 sm:py-4 gap-4 sm:gap-6"
+                  >
+                    <div className="relative size-16 sm:size-20 flex-shrink-0 overflow-hidden rounded-lg border border-gray-100">
+                      <Image
+                        src={item.imageUrl}
+                        fill
+                        alt={item.title}
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-1 flex-col justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900 sm:text-base">
+                          {item.title}
+                        </h3>
+                        <span className="flex items-center space-x-3">
+                          <p className="mt-1 text-sm text-gray-500">
+                            Qty: {item.quantity}
+                          </p>
+                          <p className="mt-1">
+                            <span className="text-sm text-gray-500">Cost:</span>{" "}
+                            <span className="text-sm font-bold text-gray-900">
+                              ${(item.price * item.quantity).toFixed(2)}
+                            </span>
+                          </p>
+                        </span>
                       </div>
                     </div>
-                  </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Summary */}
+            <div className="pt-6 mt-4 sm:mt-6 border-t border-gray-100">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>Subtotal</span>
+                  <span>${subTotal.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>Shipping</span>
+                  <span>${shipping.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <span className="text-base font-bold text-gray-900">
+                    Total
+                  </span>
+                  <span className="text-xl font-bold text-muted-foreground">
+                    ${total}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Support Footer */}
+        <p className="mt-8 text-center text-sm text-gray-400">
+          Need help with your order?{" "}
+          <a
+            href="#"
+            className="text-muted-foreground hover:underline underline-offset-4"
+          >
+            Contact our support team
+          </a>
+        </p>
       </div>
     </section>
   );
