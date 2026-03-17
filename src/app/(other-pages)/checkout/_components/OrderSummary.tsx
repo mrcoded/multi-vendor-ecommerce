@@ -3,134 +3,145 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { makePostRequest } from "@/lib/apiRequest";
 
 import { RootState } from "@/types/redux";
+
 import { useSelector, useDispatch } from "react-redux";
-import { actions } from "@/redux/slices/checkoutSlice";
+import { actions as checkoutActions } from "@/redux/slices/checkoutSlice";
+import { actions as cartActions } from "@/redux/slices/cartSlice";
 
 const OrderSummary = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
-  const checkoutFormData = useSelector(
-    (store: RootState) => store.checkout.checkoutFormData
+  const { checkoutFormData, currentStep } = useSelector(
+    (store: RootState) => store.checkout,
   );
 
+  //Get cart items
   const cartItems = useSelector((store: RootState) => store.cart);
-
-  const currentStep = useSelector(
-    (state: RootState) => state.checkout.currentStep
-  );
-
-  const handlePrevious = () => {
-    dispatch(actions.setCurrentStep(currentStep - 1));
-  };
-
   const { reset } = useForm();
 
-  const redirectUrl = (id: string) => {
-    router.push(`/order-confirmation/${id}`);
+  //Sub total
+  const subTotal =
+    cartItems
+      .reduce((total, item) => {
+        return total + item.salePrice * item.qty;
+      }, 0)
+      .toFixed(2) ?? 0;
+
+  //handleprevious function
+  const handlePrevious = () => {
+    dispatch(checkoutActions.setCurrentStep(currentStep - 1));
   };
 
   const onSubmit = () => {
-    const data = {
-      orderItems: cartItems,
-      checkoutFormData,
-    };
-
+    const data = { orderItems: cartItems, checkoutFormData };
     makePostRequest({
       setLoading,
       endpoint: "api/orders",
       data,
       resourceName: "Order",
       reset,
-      redirectUrl,
+      redirectUrl: (id: string) => {
+        // 1. Dispatch the clear cart action to Redux
+        dispatch(cartActions.clearCart());
+
+        // 2. Redirect the user to the confirmation page
+        router.push(`/order-confirmation/${id}`);
+      },
     });
   };
 
   return (
-    <div className="my-6">
-      <h2 className="text-xl font-semibold mb-2 dark:text-lime-400">
+    <div className="w-full">
+      <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-lime-400">
         Order Summary
       </h2>
 
-      {cartItems.map((cartItem, i) => {
-        return (
+      {/* High-Density List */}
+      <div className="divide-y divide-gray-100 dark:divide-zinc-800 border-y border-gray-100 dark:border-zinc-800">
+        {cartItems.map((cartItem, i) => (
           <div
-            key={i}
-            className="flex items-center justify-between border-b border-slate-400 pb-3 font-semibold text-sm mb-4"
+            key={cartItem.id || i}
+            className="flex items-center justify-between py-3 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <Image
-                src={cartItem.imageUrl}
-                alt={cartItem.title}
-                width={249}
-                height={249}
-                className="rounded-xl w-14 h-14"
-              />
-              <div className="flex flex-col">
-                <h2>{cartItem.title}</h2>
+              {/* Compact Image with Badge */}
+              <div className="relative size-12 flex-shrink-0">
+                <Image
+                  src={cartItem.imageUrl}
+                  alt={cartItem.title}
+                  fill
+                  className="rounded-lg object-cover"
+                />
+                <div className="absolute -top-1.5 -right-1.5 size-5 bg-gray-900 dark:bg-lime-600 text-white text-[9px] font-black flex items-center justify-center rounded-full border border-white dark:border-zinc-950">
+                  {cartItem.qty}
+                </div>
+              </div>
+
+              <div className="min-w-0">
+                <h3 className="text-[13px] font-semibold md:font-bold text-gray-900 dark:text-zinc-100 line-clamp-2 leading-tight">
+                  {cartItem.title}
+                </h3>
+                <p className="text-[11px] text-gray-500 dark:text-zinc-500 mt-0.5">
+                  ${cartItem.salePrice.toFixed(2)} / unit
+                </p>
               </div>
             </div>
-            <div className="rounded-xl border border-gray-400 flex gap-3 items-center">
-              {/* <button
-            className="border-r border-gray-400 py-2 px-4"
-            onClick={() => {}}
-          >
-            <Minus />
-          </button> */}
 
-              <p className="flex-grow py-2 px-4">{cartItem.qty}</p>
-              {/* <button
-            className="border-l border-gray-400 py-2 px-4"
-            onClick={() => {}}
-          >
-            <Plus />
-          </button> */}
-            </div>
-            <div className="flex items-center gap-2">
-              <h4>${cartItem.salePrice}</h4>
-              {/* <button
-            className="border-l border-gray-400 py-2 px-4"
-            onClick={() => {}}
-          >
-            <Trash2 className="text-red-600 size-5" />
-          </button> */}
+            <div className="text-right flex-shrink-0 ml-2">
+              <p className="text-[13px] font-black text-gray-900 dark:text-white">
+                ${(cartItem.salePrice * cartItem.qty).toFixed(2)}
+              </p>
             </div>
           </div>
-        );
-      })}
-      <div className="flex items-center justify-between mt-4">
+        ))}
+      </div>
+
+      {/* Minimalist Price Summary before Buttons */}
+      <div className="mt-4 space-y-1.5 px-1">
+        <div className="flex justify-between text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+          <span>Subtotal</span>
+          <span className="text-gray-900 dark:text-white">${subTotal}</span>
+        </div>
+        <div className="flex justify-between text-sm font-black text-gray-900 dark:text-white pt-2 border-t border-gray-50 dark:border-zinc-900">
+          <span>Total</span>
+          <span className="text-lime-600">${subTotal}</span>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 mt-8">
         <button
           onClick={handlePrevious}
           type="button"
-          className="inline-flex items-center px-6 py-3 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-slate-900 rounded-lg focus:ring-4 focus:ring-lime-200 dark:focus:ring-lime-900 hover:bg-slate-800 dark:bg-lime-600 dark:hover:bg-lime-700"
+          className="w-full sm:w-auto flex items-center justify-center px-3.5 sm:px-6 py-2 sm:py-3 text-[12px] font-bold text-gray-500 dark:text-zinc-400 hover:text-gray-900 transition-colors"
         >
-          <span>Previous</span>
-          <ChevronRight className="size-5 ml-2" />
+          <ChevronLeft className="size-4 mr-1" />
+          Back
         </button>
+
         {loading ? (
           <button
             disabled
-            type="button"
-            className="inline-flex items-center px-6 py-3 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-slate-900 rounded-lg focus:ring-4 focus:ring-lime-200 dark:focus:ring-lime-900 hover:bg-slate-800 dark:bg-lime-600 dark:hover:bg-lime-700"
+            className="w-full sm:w-auto flex items-center justify-center px-8 py-3.5 text-[12px] font-black text-white bg-gray-900 dark:bg-lime-600 rounded-xl opacity-70"
           >
-            <span>Processing Please wait...</span>
-            <Loader2 className="inline size-5 ml-2 text-white animate-spin" />
+            Processing...
+            <Loader2 className="size-4 ml-2 animate-spin" />
           </button>
         ) : (
           <button
             onClick={onSubmit}
-            type="submit"
-            className="inline-flex items-center px-6 py-3 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-slate-900 rounded-lg focus:ring-4 focus:ring-lime-200 dark:focus:ring-lime-900 hover:bg-slate-800 dark:bg-lime-600 dark:hover:bg-lime-700"
+            className="w-full sm:w-auto flex items-center justify-center px-3 sm:px-8 py-3 text-xs font-bold lg:font-black text-white bg-gray-900 dark:bg-lime-600 hover:bg-black dark:hover:bg-lime-700 rounded-xl transition-all active:scale-[0.98] shadow-md dark:shadow-none"
           >
-            <span>Proceed to Payment</span>
-            <ChevronRight className="size-5 ml-2" />
+            <span>Proceed to checkout</span>
+            <ChevronRight className="size-4 ml-1" />
           </button>
         )}
       </div>
