@@ -20,11 +20,11 @@ const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
   const [loading, setLoading] = useState(false);
 
   const onboardingFormData = useSelector(
-    (store: RootState) => store.onboarding.onboardingFormData
+    (store: RootState) => store.onboarding.onboardingFormData,
   );
 
   const currentStep = useSelector(
-    (state: RootState) => state.onboarding.currentStep
+    (state: RootState) => state.onboarding.currentStep,
   );
 
   const handlePrevious = () => {
@@ -66,20 +66,21 @@ const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
 
       <div className="flex items-center justify-between mt-4">
         <button
+          type="submit"
           onClick={handlePrevious}
-          type="button"
-          className="inline-flex items-center px-6 py-3 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-slate-900 rounded-lg focus:ring-4 focus:ring-lime-200 dark:focus:ring-lime-900 hover:bg-slate-800 dark:bg-lime-600 dark:hover:bg-lime-700"
+          className="inline-flex items-center px-3 sm:px-5 py-2.5 mt-4 sm:mt-6 text-xs sm:text-sm font-medium text-center text-white bg-slate-900 rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-slate-800 dark:bg-lime-600 dark:hover:bg-lime-700"
         >
+          <ChevronRight className="size-3.5 sm:size-5 ml-2" />
           <span>Previous</span>
-          <ChevronRight className="size-5 ml-2" />
         </button>
+
         {loading ? (
           <button
             disabled
             type="button"
             className="inline-flex items-center px-6 py-3 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-slate-900 rounded-lg focus:ring-4 focus:ring-lime-200 dark:focus:ring-lime-900 hover:bg-slate-800 dark:bg-lime-600 dark:hover:bg-lime-700"
           >
-            <span>Processing Please wait...</span>
+            <span>Processing...</span>
             <Loader2 className="inline size-5 ml-2 text-white animate-spin" />
           </button>
         ) : (

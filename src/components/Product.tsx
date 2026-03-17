@@ -24,32 +24,35 @@ function Product({ product }: { product: ProductProp }) {
   }
 
   return (
-    <div className="rounded-lg mr-3 bg-white dark:bg-slate-900 overflow-hidden border shadow">
+    <div className="rounded-lg mr-0.5 lg:mr-3 bg-white dark:bg-slate-900 overflow-hidden shadow">
       <Link href={`/products/${product.slug}`}>
         <Image
-          src={product.imageUrl}
+          src={product.imageUrl ?? ""}
           alt={product.title}
           width={556}
           height={556}
-          className="w-full h-48 object-cover"
+          priority
+          className="w-full h-32 lg:h-48 object-cover"
         />
       </Link>
 
-      <div className="px-4">
-        <Link href={`/products/${product.slug}`}>
-          <h2 className="text-center dark:text-slate-200 text-slate-800 my-2 font-semibold">
+      <div className="w-full px-4">
+        <Link href={`/products/${product.id}`}>
+          <h2 className="my-2 text-xs md:text-sm lg:text-base text-center dark:text-slate-200 text-slate-800 line-clamp-1 truncate font-semibold">
             {product.title}
           </h2>
         </Link>
 
         <div className="flex items-center justify-between gap-2 pb-3 dark:text-slate-200">
-          <p>USD {product.salePrice}</p>
+          <p className="text-nowrap text-xs md:text-sm lg:text-base">
+            USD {product.salePrice}
+          </p>
           <button
             onClick={() => handleAddToCart()}
-            className="flex items-center space-x-2 bg-lime-600 px-4 py-2 rounded-md text-white"
+            className="flex items-center space-x-0.5 sm:space-x-2 bg-lime-600 px-2 lg:px-4 py-1 lg:py-2 rounded-md text-white"
           >
-            <BaggageClaim />
-            <span>Add</span>
+            <BaggageClaim className="size-3 lg:size-6" />
+            <span className="text-xs sm:text-sm lg:text-base">Add</span>
           </button>
         </div>
       </div>

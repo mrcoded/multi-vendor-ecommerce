@@ -9,15 +9,15 @@ import VendorDetailsSummary from "./StepForm/VendorDetailsSummary";
 import BasicInformationForm from "./StepForm/BasicInformationForm";
 import AdditionalInformationForm from "./StepForm/AdditionalInformationForm";
 
-const StepForm = ({ vendorId }: { vendorId: string }) => {
+const StepForm = ({ vendor }: { vendor: any }) => {
   const currentStep = useSelector(
-    (state: RootState) => state.onboarding.currentStep
+    (state: RootState) => state.onboarding.currentStep,
   );
 
   const renderFormByStep = (step: number) => {
-    if (step === 1) return <BasicInformationForm />;
+    if (step === 1) return <BasicInformationForm vendor={vendor} />;
     if (step === 2) return <AdditionalInformationForm />;
-    if (step === 3) return <VendorDetailsSummary vendorId={vendorId} />;
+    if (step === 3) return <VendorDetailsSummary vendorId={vendor.id} />;
   };
   return <div>{renderFormByStep(currentStep)}</div>;
 };

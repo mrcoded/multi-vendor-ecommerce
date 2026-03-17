@@ -10,41 +10,38 @@ function OverViewCards({
   }[];
   products: number[];
 }) {
+  // Get the count of orders
   const salesCount = sales.length.toString().padStart(2, "0");
+  // Get the count of products
   const productsCount = products.length.toString().padStart(2, "0");
-
+  // Get the total sales
   const totalSales =
     sales.reduce(
       (total: number, sale: { total: number }) => total + sale.total,
-      0
+      0,
     ) ?? 0;
 
+  // Analytics data
   const analytics = [
     {
       title: "Products Revenue",
       count: productsCount,
-      unit: "",
       link: "/dashboard/products",
-      icon: "",
     },
     {
       title: "Sales Revenue",
       count: salesCount,
-      unit: "",
       link: "/dashboard/sales",
-      icon: "",
     },
     {
       title: "Total Revenue",
       count: totalSales.toString(),
-      unit: "",
       link: "/dashboard/sales",
-      icon: "",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
       {analytics.map((item, index) => (
         <AnalyticsCard key={index} data={item} />
       ))}

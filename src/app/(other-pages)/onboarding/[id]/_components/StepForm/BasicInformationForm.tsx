@@ -10,15 +10,15 @@ import { FieldValues, useForm } from "react-hook-form";
 import StepFormButton from "../StepFormButton";
 import TextInput from "@/components/inputs/TextInput";
 
-const BasicInformationForm = () => {
+const BasicInformationForm = ({ vendor }: { vendor: any }) => {
   const dispatch = useDispatch();
 
   const currentStep = useSelector(
-    (state: RootState) => state.onboarding.currentStep
+    (state: RootState) => state.onboarding.currentStep,
   );
 
   const existingFormData = useSelector(
-    (store: RootState) => store.onboarding.onboardingFormData
+    (store: RootState) => store.onboarding.onboardingFormData,
   );
 
   const {
@@ -60,13 +60,23 @@ const BasicInformationForm = () => {
         />
 
         <TextInput
+          label="User Name"
+          name="userName"
+          register={register}
+          errors={errors}
+          className="w-full"
+          defaultValue={existingFormData.userName || vendor?.name || ""}
+        />
+
+        <TextInput
           label="Email Address"
           name="email"
           type="email"
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.email}
+          disabled
+          defaultValue={vendor.email}
         />
 
         <TextInput

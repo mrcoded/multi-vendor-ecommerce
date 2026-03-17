@@ -4,12 +4,12 @@ export const priceRanges = [
     max: 300,
   },
   {
-    display: "Between 300 and 500",
+    display: "300 - 500",
     max: 500,
     min: 300,
   },
   {
-    display: "Between 500 and 700",
+    display: "500 - 700",
     max: 700,
     min: 500,
   },

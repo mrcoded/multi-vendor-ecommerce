@@ -13,26 +13,26 @@ async function FilteredProducts({
   productCount: number;
 }) {
   //PAGINATION
-  const pageSize = 3;
+  const pageSize = 9;
   const totalPages = Math.ceil(productCount / pageSize);
 
   return (
-    <>
+    <div className="flex-1">
       {products.length === 0 && (
-        <p className="text-center text-base tracking-wider italic">
+        <p className="dark:text-gray-400 text-center text-base tracking-wider">
           Product Not Found!
         </p>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-4 lg:gap-2 xl:gap-4">
         {products.length > 0 &&
           products.map((product, i: React.Key) => {
             return <Product key={i} product={product} />;
           })}
       </div>
-      <div className="p-8 mx-auto flex items-center justify-center w-full">
-        <Paginate totalPages={totalPages} />
+      <div className="p-8 mx-auto flex items-center justify-center w-full dark:text-gray-400">
+        <Paginate totalPages={totalPages} productCount={productCount} />
       </div>
-    </>
+    </div>
   );
 }
 

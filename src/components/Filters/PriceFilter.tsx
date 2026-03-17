@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { Circle } from "lucide-react";
@@ -25,21 +27,30 @@ function PriceFilter({
   const sort = searchParamsObject.get("sort") || "asc";
   const search = searchParamsObject.get("search") || "";
 
-  const { handleSubmit, reset, register } = useForm();
+  const {
+    handleSubmit,
+    reset,
+    register,
+    formState: { errors },
+  } = useForm();
 
   //submit function handler
   const onSubmit = (data: FieldValues) => {
     const { min, max } = data;
-    console.log(min, max);
+    // console.log(min, max);
+
+    if (!min && !max) {
+      return;
+    }
 
     if (min && max) {
-      router.push(`/category/${slug}?sort=asc&max=${max}&min=${min}`);
+      router.push(`?sort=asc&max=${max}&min=${min}`);
       reset();
     } else if (min) {
-      router.push(`/category/${slug}?sort=asc&min=${min}`);
+      router.push(`?sort=asc&min=${min}`);
       reset();
     } else if (max) {
-      router.push(`/category/${slug}?sort=asc&max=${max}`);
+      router.push(`?sort=asc&max=${max}`);
       reset();
     }
   };
@@ -47,17 +58,19 @@ function PriceFilter({
   return (
     <div>
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-medium">Price</h2>
+        <h2 className="text-sm md:text-xl font-medium dark:text-muted-foreground">
+          Price
+        </h2>
         <Link
           href={`/category/${slug}`}
-          className="text-white bg-lime-700 hover:bg-lime-800 focus:ring:4 focus:ring-lime-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-lime-600 dark:hover:bg-lime-700 focus:outline-none dark:focus:ring-lime-800"
+          className="text-xs sm:text-sm px-2 sm:px-5 py-1.5 sm:py-2.5 me-2 mb-2 text-white bg-lime-700 hover:bg-lime-800 focus:ring:4 focus:ring-lime-300 font-medium rounded-lg dark:bg-lime-600 dark:hover:bg-lime-700 focus:outline-none dark:focus:ring-lime-800"
         >
           Reset Filters
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 sm:flex lg:flex-col lg:justify-normal gap-4 lg:gap-3">
         {priceRanges.map((range, i) => {
           return (
             <Link
@@ -67,52 +80,65 @@ function PriceFilter({
                   ? `?search=${search}&page=${page}&sort=${sort}&min=${range.min || 0}&max=${range.max || ""}`
                   : `?page=${page}&sort=${sort}&min=${range.min || 0}&max=${range.max || ""}`
               }
-              className={`${
+              className={`flex gap-0.5 lg:gap-2 items-center w-fit hover:text-lime-500 dark:hover:text-lime-500 ${
                 (range.min && range.min == Number(minParam)) ||
                 (range.max && range.max == Number(maxParam)) ||
                 (range.min &&
                   range.max &&
                   range.min == Number(minParam) &&
                   range.max == Number(maxParam))
-                  ? "flex gap-2 items-center text-lime-500 peer:bg-lime-500"
-                  : "flex gap-2 items-center"
+                  ? "text-lime-500 peer:bg-lime-500"
+                  : " dark:text-muted-foreground"
               }`}
             >
-              <Circle className="size-4 flex-shrink-0 peer-hover:fill-lime-500 peer-focus:fill-lime-500 peer-active:fill-lime-500" />
+              <Circle className="size-4 flex-shrink-0 peer-hover:fill-lime-500 group-checked:fill-lime-500 peer-active:fill-lime-500" />
               {range.display}
             </Link>
           );
         })}
       </div>
-
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid grid-cols-3 gap-4 my-4"
       >
         <div className="col-span-1">
           <input
-            {...register("min")}
+            {...register("min", { required: "Value required" })}
             type="number"
             id="min-filter"
             placeholder="min"
             aria-describedby="helper-text-explanation"
-            className="bg-gray-50 border border-gray-300 text-gray-300 text-sm rounded-lg focus:ring-lime-500 focus:border-lime-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-lime-500 dark:focus:border-lime-500"
+            className="bg-gray-50 border border-gray-300 text-gray-300 text-sm rounded-lg focus:ring-lime-500 focus:border-lime-500 block w-full p-1.5 sm:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-lime-500 dark:focus:border-lime-500"
           />
+          <>
+            {errors.min && (
+              <p className="text-red-500 text-xs md:text-sm">
+                <>{errors.min.message}</>
+              </p>
+            )}
+          </>
         </div>
         <div className="col-span-1">
           <input
-            {...register("max")}
+            {...register("max", { required: "Value required" })}
             type="number"
             id="max-filter"
             placeholder="max"
             aria-describedby="helper-text-explanation"
-            className="bg-gray-50 border border-gray-300 text-gray-300 text-sm rounded-lg focus:ring-lime-500 focus:border-lime-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-lime-500 dark:focus:border-lime-500"
+            className="bg-gray-50 border border-gray-300 text-gray-300 text-sm rounded-lg focus:ring-lime-500 focus:border-lime-500 block w-full p-1.5 sm:p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-whit dark:focus:ring-lime-500 dark:focus:border-lime-500"
           />
+          <>
+            {errors.max && (
+              <p className="text-red-500 text-xs md:text-sm">
+                <>{errors.max.message}</>
+              </p>
+            )}
+          </>
         </div>
         <div className="col-span-1">
           <button
             type="submit"
-            className="text-white bg-lime-700 hover:bg-lime-500 focus:ring-4 focus:ring-lime-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-lime-600 dark:hover:bg-lime-700 focus:outline-none dark:focus:ring-lime-800"
+            className="text-white bg-lime-700 hover:bg-lime-500 focus:ring-4 focus:ring-lime-300 font-medium rounded-lg text-sm px-3 sm:px-5 py-1.5 sm:py-2.5 me-2 mb-2 dark:bg-lime-600 dark:hover:bg-lime-700 focus:outline-none dark:focus:ring-lime-800"
           >
             Go
           </button>

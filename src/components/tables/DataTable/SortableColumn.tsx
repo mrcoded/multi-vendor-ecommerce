@@ -17,7 +17,7 @@ function SortableColumn({
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
-      {title}
+      <p className="line-clamp-1 truncate">{title}</p>
       <ArrowUpDown className="ml-2 h-4 w-4" />
     </Button>
   );

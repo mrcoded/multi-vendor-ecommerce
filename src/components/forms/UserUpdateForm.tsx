@@ -50,7 +50,7 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
       //PUT request (update)
       makePostRequest({
         setLoading,
-        endpoint: `api/users/${user?.profile.userId}`,
+        endpoint: `api/users/profile`,
         data,
         resourceName: "User Profile",
         method: "PATCH",

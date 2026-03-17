@@ -2,14 +2,9 @@ import React from "react";
 import { CheckCheck, Loader, RefreshCcw, ShoppingCart } from "lucide-react";
 
 import SmallCard from "./SmallCard";
+import { OrderCardProps } from "@/types/order";
 
-function SmallCardGroups({
-  orders,
-}: {
-  orders: {
-    orderStatus: string;
-  }[];
-}) {
+function SmallCardGroups({ orders }: { orders: OrderCardProps[] }) {
   const status = {
     pending: "PENDING",
     processing: "PROCESSING",
@@ -27,7 +22,7 @@ function SmallCardGroups({
   };
 
   // Get the count of orders
-  const totalOrdersCount = orders.length.toString().padStart(2, "0");
+  const totalOrdersCount = orders?.length?.toString().padStart(2, "0");
   const pendingOrders = getOrdersCountByStatus(status.pending);
   // const shippingOrders = getOrdersCountByStatus(status.shipping);
   const processedOrders = getOrdersCountByStatus(status.processing);
@@ -62,7 +57,7 @@ function SmallCardGroups({
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-8">
       {orderStatus.map((data, i) => (
         <SmallCard key={i} data={data} />
       ))}

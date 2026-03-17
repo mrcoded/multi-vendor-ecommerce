@@ -1,23 +1,15 @@
 import React from "react";
 import LargeCard from "./LargeCard";
 
-function LargeCardGroups({
-  sales,
-}: {
-  sales: Array<{
-    period: string;
-    sales: number;
-    color: string;
-    createdAt: Date;
-    total: number;
-  }>;
-}) {
+import { SalesProps } from "@/types/dashboard";
+
+function LargeCardGroups({ sales }: { sales: SalesProps["sales"] }) {
   const today = new Date();
 
   const thisWeekStart = new Date(
     today.getFullYear(),
     today.getMonth(),
-    today.getDate() - today.getDay()
+    today.getDate() - today.getDay(),
   );
 
   const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -76,7 +68,7 @@ function LargeCardGroups({
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-8">
       {salesStats.map((item, i) => (
         <LargeCard key={i} data={item} />
       ))}
