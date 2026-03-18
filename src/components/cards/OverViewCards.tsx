@@ -4,19 +4,30 @@ import AnalyticsCard from "./AnalyticsCard";
 function OverViewCards({
   sales,
   products,
+  stores,
+  vendors,
+  vendorId,
 }: {
-  sales: {
+  vendorId?: string;
+  stores: Array<{ vendorId: string }>;
+  vendors?: number[];
+  sales?: {
     total: number;
   }[];
   products: number[];
 }) {
   // Get the count of orders
-  const salesCount = sales.length.toString().padStart(2, "0");
+  const totalStores = stores
+    .filter((store: { vendorId: string }) => store.vendorId === vendorId)
+    .length.toString()
+    .padStart(2, "0");
+  // Get the count of vendors
+  const totalVendors = vendors?.length.toString().padStart(2, "0") ?? "0";
   // Get the count of products
   const productsCount = products.length.toString().padStart(2, "0");
   // Get the total sales
   const totalSales =
-    sales.reduce(
+    sales?.reduce(
       (total: number, sale: { total: number }) => total + sale.total,
       0,
     ) ?? 0;
@@ -24,24 +35,31 @@ function OverViewCards({
   // Analytics data
   const analytics = [
     {
-      title: "Products Revenue",
+      title: "Total Products",
       count: productsCount,
       link: "/dashboard/products",
     },
     {
-      title: "Sales Revenue",
-      count: salesCount,
-      link: "/dashboard/sales",
+      title: "Total Stores",
+      count: totalStores,
+      link: "/dashboard/stores",
     },
-    {
-      title: "Total Revenue",
-      count: totalSales.toString(),
-      link: "/dashboard/sales",
-    },
+    // If vendors exists, show Revenue. If not, show the fallback object.
+    vendors
+      ? {
+          title: "Total Vendors",
+          count: totalVendors,
+          link: "/dashboard/vendors",
+        }
+      : {
+          title: "Total Revenue",
+          count: totalSales.toString(),
+          link: "/dashboard/sales",
+        },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 md:mb-8">
       {analytics.map((item, index) => (
         <AnalyticsCard key={index} data={item} />
       ))}

@@ -6,6 +6,7 @@ interface OrderItemProps {
   imageUrl: string;
   qty: string;
   salePrice: string;
+  storeId: string;
   title: string;
   vendorId: string;
 }
@@ -39,9 +40,13 @@ export async function POST(request: Request) {
       paymentMethod,
     } = checkoutFormData;
 
-    //create customer profile
-    await db.userProfile.create({
-      data: {
+    // Upsert the customer profile
+    await db.userProfile.upsert({
+      where: {
+        userId: userId,
+      },
+      update: {
+        // What to change if they already have a profile
         firstName,
         lastName,
         phone,
@@ -49,67 +54,90 @@ export async function POST(request: Request) {
         city,
         country,
         district,
+      },
+      create: {
+        // What to set if this is their first time
         userId,
+        firstName,
+        lastName,
+        phone,
+        streetAddress,
+        city,
+        country,
+        district,
       },
     });
 
     //Use the prisma transaction API
-    const result = await db.$transaction(async (prisma) => {
-      //create order and orderitems within the transaction
-      const newOrder = await prisma.order.create({
-        data: {
-          userId,
-          firstName,
-          lastName,
-          emailAddress,
-          phone,
-          streetAddress,
-          city,
-          country,
-          district,
-          shippingCost: parseFloat(shippingCost),
-          paymentMethod,
-          orderNumber: generateOrderNumber(8),
-        },
-      });
+    const result = await db.$transaction(
+      async (prisma) => {
+        // ATOMIC INVENTORY UPDATE if stock is low.
+        // Process inventory one by one - often more stable for transactions
+        for (const item of orderItems) {
+          const quantity = parseInt(item.qty);
 
-      //Create Order Item
-      const newOrderItems = await prisma.orderItem.createMany({
-        data: orderItems.map((item: OrderItemProps) => ({
+          await prisma.product.update({
+            where: { id: item.id, qty: { gte: quantity } },
+            data: { qty: { decrement: quantity } },
+          });
+        }
+
+        //create order and orderitems within the transaction
+        const newOrder = await prisma.order.create({
+          data: {
+            userId,
+            firstName,
+            lastName,
+            emailAddress,
+            phone,
+            streetAddress,
+            city,
+            country,
+            district,
+            shippingCost: parseFloat(shippingCost),
+            paymentMethod,
+            orderNumber: generateOrderNumber(8),
+          },
+        });
+
+        //Create Order Item
+        const newOrderItems = await prisma.orderItem.createMany({
+          data: orderItems.map((item: OrderItemProps) => ({
+            productId: item.id,
+            vendorId: item.vendorId,
+            storeId: item.storeId,
+            quantity: parseInt(item.qty),
+            price: parseFloat(item.salePrice),
+            orderId: newOrder.id, //associate the order with the item
+            imageUrl: item.imageUrl,
+            title: item.title,
+            totalPrice: parseFloat(item.salePrice) * parseInt(item.qty),
+          })),
+        });
+
+        const salesData = orderItems.map((item: OrderItemProps) => ({
+          orderId: newOrder.id,
           productId: item.id,
           vendorId: item.vendorId,
-          quantity: parseInt(item.qty),
-          price: parseFloat(item.salePrice),
-          orderId: newOrder.id, //associate the order with the item
-          imageUrl: item.imageUrl,
-          title: item.title,
-        })),
-      });
+          productQty: parseInt(item.qty),
+          productTitle: item.title,
+          productImageUrl: item.imageUrl,
+          productPrice: parseFloat(item.salePrice),
+          total: parseFloat(item.salePrice) * parseInt(item.qty),
+          storeId: item.storeId,
+        }));
 
-      //Calculate total amount for each product and create a sale for each
-      const sales = await Promise.all(
-        orderItems.map(async (item: OrderItemProps) => {
-          const totalAmount = parseFloat(item.salePrice) * parseInt(item.qty);
+        const sales = await prisma.sale.createMany({
+          data: salesData,
+        });
 
-          const newSale = await prisma.sale.create({
-            data: {
-              orderId: newOrder.id, //associate the order with the item
-              productId: item.id,
-              vendorId: item.vendorId,
-              productQty: parseInt(item.qty),
-              productTitle: item.title,
-              productImageUrl: item.imageUrl,
-              productPrice: parseFloat(item.salePrice),
-              total: totalAmount,
-            },
-          });
-
-          return newSale;
-        })
-      );
-
-      return { newOrder, newOrderItems, sales };
-    });
+        return { newOrder, newOrderItems, sales };
+      },
+      {
+        maxWait: 10000, // 10 seconds to wait for a connection
+        timeout: 30000, // 30 seconds to complete all operations
+      },
+    );
 
     return NextResponse.json(result.newOrder);
   } catch (error) {
@@ -122,7 +150,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -149,7 +177,7 @@ export async function GET(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
