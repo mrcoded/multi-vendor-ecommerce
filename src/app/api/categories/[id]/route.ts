@@ -1,8 +1,25 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+
 import { db } from "@/lib/db";
+import { authOptions } from "@/lib/authOptions";
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    const user = session?.user;
+
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
+
+    //extract data from request
     const { title, slug, imageUrl, description, isActive } =
       await request.json();
 
@@ -87,7 +104,20 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    const session = await getServerSession(authOptions);
+    const user = session?.user;
 
+    if (!user || user.role === "USER") {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
+
+    //check if category exists
     const existingCategory = await db.category.findUnique({
       where: {
         id,
@@ -106,6 +136,7 @@ export async function DELETE(
       );
     }
 
+    //delete category
     const deletedCategory = await db.category.delete({
       where: {
         id,
@@ -138,10 +169,24 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
+    const session = await getServerSession(authOptions);
+    const user = session?.user;
 
+    if (!user || user.role === "USER") {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
+
+    //extract data from request
     const { title, slug, imageUrl, description, isActive } =
       await request.json();
 
+    //check if category exists
     const existingCategory = await db.category.findUnique({
       where: {
         id,
@@ -158,6 +203,7 @@ export async function PUT(
       );
     }
 
+    //update category
     const updatedCategory = await db.category.update({
       where: {
         id,

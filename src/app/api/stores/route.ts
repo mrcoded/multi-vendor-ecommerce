@@ -1,9 +1,25 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+
 import { db } from "@/lib/db";
+import { authOptions } from "@/lib/authOptions";
 
 export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+
   try {
     const storeData = await request.json();
+
+    if (!user || user.role === "USER") {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
 
     //Check if store already exists
     const existingStore = await db.store.findUnique({
@@ -18,7 +34,7 @@ export async function POST(request: Request) {
           data: null,
           message: "Store already exists",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -30,6 +46,12 @@ export async function POST(request: Request) {
         description: storeData.description,
         isActive: storeData.isActive,
         categoryIds: storeData.categoryIds,
+        vendorId: storeData.vendorId,
+        storeEmail: storeData.storeEmail,
+        storePhone: storeData.storePhone,
+        streetAddress: storeData.streetAddress,
+        city: storeData.city,
+        country: storeData.country,
       },
     });
 
@@ -44,7 +66,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -68,7 +90,7 @@ export async function GET(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

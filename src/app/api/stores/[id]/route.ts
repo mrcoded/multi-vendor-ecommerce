@@ -1,4 +1,7 @@
 import { db } from "@/lib/db";
+import { authOptions } from "@/lib/authOptions";
+
+import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -15,6 +18,9 @@ export async function GET(
     const store = await db.store.findUnique({
       where: {
         id,
+      },
+      include: {
+        products: true,
       },
     });
 
@@ -42,9 +48,23 @@ export async function DELETE(
     params: Promise<{ id: string }>;
   },
 ) {
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+
   try {
     const { id } = await params;
 
+    if (!user || user.role === "USER") {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
+
+    //check if store exists
     const existingStore = await db.store.findUnique({
       where: {
         id,
@@ -93,13 +113,37 @@ export async function PUT(
     params: Promise<{ id: string }>;
   },
 ) {
-  
   try {
     const { id } = await params;
+    const session = await getServerSession(authOptions);
+    const user = session?.user;
 
-    const { title, description, categoryIds, imageUrl, isActive } =
-      await request.json();
+    if (!user || user.role === "USER") {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
 
+    //extract data from requests
+    const {
+      title,
+      description,
+      categoryIds,
+      imageUrl,
+      isActive,
+      storeEmail,
+      storePhone,
+      streetAddress,
+      country,
+      vendorId,
+      city,
+    } = await request.json();
+
+    //chec if store exists
     const existingStore = await db.store.findUnique({
       where: {
         id,
@@ -116,11 +160,24 @@ export async function PUT(
       );
     }
 
+    //update store
     const updatedStore = await db.store.update({
       where: {
         id,
       },
-      data: { title, description, categoryIds, imageUrl, isActive },
+      data: {
+        title,
+        description,
+        vendorId,
+        categoryIds,
+        imageUrl,
+        isActive,
+        storeEmail,
+        storePhone,
+        streetAddress,
+        country,
+        city,
+      },
     });
 
     return NextResponse.json(updatedStore);

@@ -1,4 +1,7 @@
 import { db } from "@/lib/db";
+import { authOptions } from "@/lib/authOptions";
+
+import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -7,9 +10,10 @@ export async function GET(
     params,
   }: {
     params: Promise<{ id: string }>;
-  }
+  },
 ) {
-  try {const { id } = await params;
+  try {
+    const { id } = await params;
 
     const vendor = await db.user.findUnique({
       where: {
@@ -31,7 +35,7 @@ export async function GET(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -42,9 +46,23 @@ export async function DELETE(
     params,
   }: {
     params: Promise<{ id: string }>;
-  }
+  },
 ) {
-  try {const { id } = await params;
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+
+  if (!user || user.role === "USER") {
+    return NextResponse.json(
+      {
+        data: null,
+        message: "Unauthorized",
+      },
+      { status: 401 },
+    );
+  }
+
+  try {
+    const { id } = await params;
 
     const existingUser = await db.user.findUnique({
       where: {
@@ -60,7 +78,7 @@ export async function DELETE(
         },
         {
           status: 404,
-        }
+        },
       );
     }
 
@@ -81,7 +99,7 @@ export async function DELETE(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -91,32 +109,45 @@ export async function PUT(
   {
     params,
   }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
+  },
+) {
+  const { id } = await params;
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+
+  if (!user || user.role === "USER") {
+    return NextResponse.json(
+      {
+        data: null,
+        message: "Unauthorized",
+      },
+      { status: 401 },
+    );
   }
-) {const { id } = await params;
 
   try {
     const {
-      // contactPerson,
-      // contactPersonPhone,
-      // email,
-      // firstName,
-      // lastName,
+      contactPerson,
+      contactPersonPhone,
+      email,
+      firstName,
+      lastName,
       status,
       emailVerified,
-      // notes,
-      // phone,
-      // physicalAddress,
-      // terms,
+      notes,
+      phone,
+      physicalAddress,
+      terms,
       // isActive,
-      // imageUrl,
-      // products,
-      // userId,
+      imageUrl,
+      products,
+      userId,
     } = await request.json();
 
     const existingUser = await db.user.findUnique({
       where: {
-        id,
+        id: user.id,
       },
     });
 
@@ -126,34 +157,46 @@ export async function PUT(
           data: null,
           message: "User not found",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    const updatedVendor = await db.user.update({
+    const existingVendor = await db.vendorProfile.findUnique({
+      where: { userId: existingUser.id },
+    });
+
+    if (!existingVendor) {
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Vendor User not found",
+        },
+        { status: 404 },
+      );
+    }
+
+    const updatedVendor = await db.vendorProfile.update({
       where: {
-        id,
+        userId: id,
       },
       // include: {
       //   vendorProfile: true,
       // },
       data: {
-        status,
-        emailVerified,
-        // code: existingVendor.code,
-        // contactPerson,
-        // contactPersonPhone,
-        // email,
-        // firstName,
-        // lastName,
-        // notes,
-        // phone,
-        // physicalAddress,
-        // terms,
+        // code: session?.user?.name,
+        contactPerson,
+        contactPersonPhone,
+        email: email || existingUser.email,
+        firstName,
+        lastName,
+        notes,
+        phone,
+        physicalAddress,
+        terms,
         // isActive,
-        // imageUrl,
-        // products,
-        // userId,
+        imageUrl,
+        products,
+        // userId: existingUser.id,
       },
     });
 
@@ -168,7 +211,7 @@ export async function PUT(
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
