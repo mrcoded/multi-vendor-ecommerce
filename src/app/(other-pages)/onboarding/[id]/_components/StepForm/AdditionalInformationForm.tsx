@@ -3,28 +3,29 @@
 import React, { useState } from "react";
 
 import { RootState } from "@/types/redux";
+import { VendorProps } from "@/types/vendors";
+
 import { actions } from "@/redux/slices/onboardingSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { FieldValues, useForm } from "react-hook-form";
 
 import ImageInput from "@/components/inputs/ImageInput";
-import ToggleInput from "@/components/inputs/ToggleInput";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
 import ArrayItemsInput from "@/components/inputs/ArrayItemsInput";
 import StepFormButton from "@/app/(other-pages)/checkout/_components/StepFormButton";
 
-const AdditionalInformationForm = () => {
+const AdditionalInformationForm = ({ vendor }: { vendor: VendorProps }) => {
   const dispatch = useDispatch();
 
   const [imageUrl, setImageUrl] = useState("");
   const [products, setProducts] = useState<string[]>([]);
 
   const currentStep = useSelector(
-    (state: RootState) => state.onboarding.currentStep
+    (state: RootState) => state.onboarding.currentStep,
   );
 
   const existingFormData = useSelector(
-    (store: RootState) => store.onboarding.onboardingFormData
+    (store: RootState) => store.onboarding.onboardingFormData,
   );
 
   const {
@@ -48,7 +49,7 @@ const AdditionalInformationForm = () => {
         Additional Information
       </h2>
 
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 sm:gap-6">
         {/* Product Tags */}
         <ArrayItemsInput
           setItems={setProducts}
@@ -57,7 +58,7 @@ const AdditionalInformationForm = () => {
         />
 
         <ImageInput
-          imageUrl={imageUrl}
+          imageUrl={imageUrl || vendor.imageUrl || ""}
           setImageUrl={setImageUrl}
           endpoint="vendorProfileImageUploader"
           label="Vendor Profile Image"
@@ -69,7 +70,7 @@ const AdditionalInformationForm = () => {
           register={register}
           errors={errors}
           isRequired={false}
-          defaultValue={existingFormData.terms}
+          defaultValue={existingFormData.terms || vendor.terms}
         />
 
         <TextAreaInput
@@ -78,15 +79,7 @@ const AdditionalInformationForm = () => {
           register={register}
           errors={errors}
           isRequired={false}
-          defaultValue={existingFormData.notes}
-        />
-
-        <ToggleInput
-          label="Vendor Status"
-          name="isActive"
-          truthyValue="Active"
-          falsyValue="Draft"
-          register={register}
+          defaultValue={existingFormData.notes || vendor.notes}
         />
       </div>
       <StepFormButton />

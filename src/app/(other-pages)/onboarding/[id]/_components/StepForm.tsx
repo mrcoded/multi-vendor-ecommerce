@@ -16,7 +16,7 @@ const StepForm = ({ vendor }: { vendor: any }) => {
 
   const renderFormByStep = (step: number) => {
     if (step === 1) return <BasicInformationForm vendor={vendor} />;
-    if (step === 2) return <AdditionalInformationForm />;
+    if (step === 2) return <AdditionalInformationForm vendor={vendor} />;
     if (step === 3) return <VendorDetailsSummary vendorId={vendor.id} />;
   };
   return <div>{renderFormByStep(currentStep)}</div>;

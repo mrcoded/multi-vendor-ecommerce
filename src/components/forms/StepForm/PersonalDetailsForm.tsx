@@ -4,7 +4,7 @@ import React from "react";
 
 import { useSession } from "next-auth/react";
 
-import { RootState } from "@/types/redux";
+import { checkoutInitialStateProps, RootState } from "@/types/redux";
 import { actions } from "@/redux/slices/checkoutSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { FieldValues, useForm } from "react-hook-form";
@@ -12,17 +12,22 @@ import { FieldValues, useForm } from "react-hook-form";
 import TextInput from "@/components/inputs/TextInput";
 import StepFormButton from "@/app/(other-pages)/checkout/_components/StepFormButton";
 
-const PersonalDetailsForm = () => {
+const PersonalDetailsForm = ({
+  order,
+}: {
+  order: checkoutInitialStateProps["checkoutFormData"];
+}) => {
   const dispatch = useDispatch();
   const { data: session } = useSession();
-  const userId = session?.user?.id;
+  const user = session?.user;
+  const userId = user?.id;
 
   const currentStep = useSelector(
-    (state: RootState) => state.checkout.currentStep
+    (state: RootState) => state.checkout.currentStep,
   );
 
   const existingFormData = useSelector(
-    (store: RootState) => store.checkout.checkoutFormData
+    (store: RootState) => store.checkout.checkoutFormData,
   );
 
   const {
@@ -54,7 +59,7 @@ const PersonalDetailsForm = () => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.firstName}
+          defaultValue={existingFormData.firstName || user?.name || ""}
         />
 
         <TextInput
@@ -63,7 +68,7 @@ const PersonalDetailsForm = () => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.lastName}
+          defaultValue={existingFormData.lastName || order?.lastName || ""}
         />
 
         <TextInput
@@ -73,7 +78,7 @@ const PersonalDetailsForm = () => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.emailAddress}
+          defaultValue={existingFormData.emailAddress || user?.email || ""}
         />
 
         <TextInput
@@ -82,7 +87,7 @@ const PersonalDetailsForm = () => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.phone}
+          defaultValue={existingFormData.phone || order?.phone || ""}
         />
 
         <StepFormButton />

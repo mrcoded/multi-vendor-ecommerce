@@ -7,10 +7,11 @@ import { actions } from "@/redux/slices/onboardingSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { FieldValues, useForm } from "react-hook-form";
 
+import { VendorProps } from "@/types/vendors";
 import StepFormButton from "../StepFormButton";
 import TextInput from "@/components/inputs/TextInput";
 
-const BasicInformationForm = ({ vendor }: { vendor: any }) => {
+const BasicInformationForm = ({ vendor }: { vendor: VendorProps }) => {
   const dispatch = useDispatch();
 
   const currentStep = useSelector(
@@ -40,14 +41,14 @@ const BasicInformationForm = ({ vendor }: { vendor: any }) => {
         Personal Details
       </h2>
 
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 sm:gap-6">
         <TextInput
           label="First Name"
           name="firstName"
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.firstName}
+          defaultValue={existingFormData.firstName || vendor.firstName}
         />
 
         <TextInput
@@ -56,16 +57,7 @@ const BasicInformationForm = ({ vendor }: { vendor: any }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.lastName}
-        />
-
-        <TextInput
-          label="User Name"
-          name="userName"
-          register={register}
-          errors={errors}
-          className="w-full"
-          defaultValue={existingFormData.userName || vendor?.name || ""}
+          defaultValue={existingFormData.lastName || vendor.lastName}
         />
 
         <TextInput
@@ -85,7 +77,8 @@ const BasicInformationForm = ({ vendor }: { vendor: any }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.phone}
+          type="number"
+          defaultValue={existingFormData.phone || vendor.phone}
         />
 
         <TextInput
@@ -94,7 +87,9 @@ const BasicInformationForm = ({ vendor }: { vendor: any }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.physicalAddress}
+          defaultValue={
+            existingFormData.physicalAddress || vendor.physicalAddress
+          }
         />
 
         <TextInput
@@ -103,17 +98,19 @@ const BasicInformationForm = ({ vendor }: { vendor: any }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.contactPerson}
+          defaultValue={existingFormData.contactPerson || vendor.contactPerson}
         />
 
         <TextInput
           label="Vendor's Contact Person Phone"
           name="contactPersonPhone"
-          type="tel"
+          type="number"
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.contactPersonPhone}
+          defaultValue={
+            existingFormData.contactPersonPhone || vendor.contactPersonPhone
+          }
         />
       </div>
       <StepFormButton />
