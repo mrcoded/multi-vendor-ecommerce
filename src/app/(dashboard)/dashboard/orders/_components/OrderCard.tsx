@@ -1,154 +1,173 @@
-import React from "react";
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import formatDate from "@/lib/formatDate";
+import { makePostRequest } from "@/lib/apiRequest";
+import generateISOFormatDate from "@/lib/generateISOFormatDate";
 
 import { OrderCardProps } from "@/types/order";
-import { generateSlug } from "@/lib/generateSlug";
-import generateISOFormatDate from "@/lib/generateISOFormatDate";
-import Image from "next/image";
+import { STATUS_OPTIONS } from "@/constants/order-status";
+
+import { OrderStatusManager } from "@/components/OrderStatusManager";
+import { ConfirmModal } from "@/components/modals/ConfirmationModal";
 
 const OrderCard = ({ order }: { order: OrderCardProps }) => {
-  const orderCreationDate = generateISOFormatDate(order.createdAt);
+  const router = useRouter();
 
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
+
+  // Generate ISO Date
+  const orderCreationDate = generateISOFormatDate(order?.createdAt);
+
+  // Calculate Subtotal
   const subTotal = order?.orderItems
     .reduce((total, item) => {
       return total + item.price * item.quantity;
     }, 0)
     .toFixed(2);
 
-  if (order.orderStatus.length === 0) {
+  if (!order.orderStatus || order.orderStatus.length === 0) {
     return null;
   }
 
+  // onStatusChange handler function
+  const onStatusChange = async (newStatus: string) => {
+    setLoading(true);
+    try {
+      await makePostRequest({
+        setLoading,
+        endpoint: `/api/orders/${order.id}/status`,
+        data: { orderStatus: newStatus },
+        resourceName: "Order Status",
+        method: "PATCH",
+      });
+
+      setOpen(false);
+      router.refresh(); // Refresh the page
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // handleStatusChange
+  const handleStatusChange = (status: string) => {
+    if (status === "CANCELLED") {
+      setSelectedStatus(status);
+      setOpen(true); // Open modal for confirmation
+    } else {
+      onStatusChange(status);
+    }
+  };
+
   return (
-    <li className="overflow-hidden bg-white border border-gray-200 rounded-md">
-      <div className="lg:flex">
-        <div className="w-full border-b border-gray-200 lg:max-w-xs lg:border-b-0 lg:border-r bg-gray-50">
-          <div className="px-4 py-6 sm:p-6 lg:p-8">
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-1">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Order ID</p>
-                <p className="text-sm font-bold text-gray-900 mt-0.5">
-                  #{order.orderNumber}
-                </p>
-              </div>
+    <>
+      <ConfirmModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={() => onStatusChange(selectedStatus)}
+        loading={loading}
+      />
 
-              <div>
-                <p className="text-sm font-medium text-gray-500">Date</p>
-                <p className="text-sm font-bold text-gray-900 mt-0.5">
-                  #{orderCreationDate}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Total Amount
-                </p>
-                <p className="text-sm font-bold text-gray-900 mt-0.5">
-                  ${subTotal}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Order Status
-                </p>
-                <div className="mt-0.5 flex items-center">
-                  <div className="inline-flex items-center justify-center flex-shrink-0 w-3 h-3 rounded-full text-white bg-amber-400">
-                    <span className="text-sm font-bold text-gray-900 ml-24">
-                      {" "}
-                      {order.orderStatus}{" "}
-                    </span>
-                  </div>
-                </div>
-              </div>
+      <li className="flex flex-col overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm transition-all hover:border-gray-300 h-[220px] sm:h-[200px]">
+        {/* TOP BAR */}
+        <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 xl:px-5 bg-gray-50/80 border-b border-gray-100 shrink-0">
+          <div className="flex gap-4 md:gap-6 text-xs sm:text-sm">
+            <div>
+              <p className="font-medium text-gray-500 uppercase tracking-tight">
+                Order ID
+              </p>
+              <p className="font-bold text-gray-900">#{order.orderNumber}</p>
             </div>
+            <div className="hidden xs:block">
+              <p className="font-medium text-gray-500 uppercase tracking-tight">
+                Date
+              </p>
+              <p className="font-bold text-gray-900">
+                {formatDate(orderCreationDate)}
+              </p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-500 uppercase tracking-tight">
+                Total
+              </p>
+              <p className="font-bold text-gray-900">${subTotal}</p>
+            </div>
+          </div>
+
+          <div>
+            <OrderStatusManager
+              currentStatus={order.orderStatus}
+              options={STATUS_OPTIONS}
+              onStatusChange={(status) => handleStatusChange(status)}
+              isUpdating={loading}
+            />
           </div>
         </div>
 
-        <div className="flex-1 px-4 py-6 sm:p-6 lg:p-8">
-          <ul className="space-y-7">
-            {order.orderItems.map((item, i: number) => {
-              const slug = generateSlug(item.title);
-
-              return (
-                <li key={i} className="relative flex pb-10 smm:pb-0">
-                  <div className="flex-shrink-0">
+        {/* SCROLLABLE ITEMS LIST */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+          <ul className="divide-y divide-gray-100">
+            {order.orderItems.map((item, i) => (
+              <li key={i} className="py-2 md:py-3 first:pt-0 last:pb-0">
+                <div className="flex group">
+                  <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14">
                     <Image
-                      className="object-cover rounded-lg w-28 h-28"
-                      height={112}
-                      width={112}
+                      className="object-cover rounded-md border border-gray-100"
+                      height={64}
+                      width={64}
                       src={item.imageUrl}
                       alt={item.title}
                     />
                   </div>
 
-                  <div className="flex flex-col justify-between flex-1 ml-5">
-                    <div className="sm:grid sm:grid-cols-2 sm:gap-x-5">
-                      <div>
-                        <p className="text-base font-bold text-gray-900">
-                          {item.title}
-                        </p>
-                        {/* <p className="mt-1.5 text-sm font-medium text-gray-500">
-                            Golden
-                          </p> */}
-                      </div>
-
-                      <div className="mt-4 sm:mt-0 flex items-center justify-between">
-                        <p className="mt-1.5 text-sm font-medium text-gray-500">
-                          {item.quantity}
-                        </p>
-                        <p className="text-base font-bold text-left text-gray-900 sm:text-right">
+                  <div className="flex-1 min-w-0 ml-2 md:ml-4 flex flex-col justify-center">
+                    <h4 className="text-sm font-semibold text-gray-900 truncate max-w-[200px] sm:max-w-xs">
+                      {item.title}
+                    </h4>
+                    <div className="flex items-center space-x-3">
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Qty: {item.quantity}
+                      </p>
+                      <p className="mt-0.5">
+                        <span className="text-xs text-gray-500">Unit:</span>{" "}
+                        <span className="text-xs font-bold text-gray-700">
                           ${item.price.toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="absolute bottom-0 left-0 sm:relative">
-                      <div className="flex space-x-5">
-                        <Link
-                          href={`/products/${slug}`}
-                          title={item.title}
-                          className="p-1 -m-1 text-sm font-medium text-gray-500 transition-all duration-200 rounded hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                        >
-                          {" "}
-                          View Product{" "}
-                        </Link>
-                        <span className="text-gray-200"> | </span>
-                        <Link
-                          href="#"
-                          className="p-1 -m-1 text-sm font-medium text-gray-500 transition-all duration-200 rounded hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                        >
-                          {" "}
-                          Similar Product{" "}
-                        </Link>{" "}
-                      </div>
+                        </span>
+                      </p>
                     </div>
                   </div>
-                </li>
-              );
-            })}
+                </div>
+              </li>
+            ))}
           </ul>
-
-          <hr className="mt-8 border-gray-200" />
-
-          <div className="flex items-center mt-8 space-x-5">
-            <button
-              type="button"
-              className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold text-gray-900 transition-all duration-200 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 hover:bg-gray-50"
-            >
-              View Order
-            </button>
-
-            <Link
-              href={`/dashboard/orders/${order.id}/invoice`}
-              className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold text-gray-900 transition-all duration-200 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 hover:bg-gray-50"
-            >
-              View Invoice
-            </Link>
-          </div>
         </div>
-      </div>
-    </li>
+
+        {/* FOOTER ACTIONS*/}
+        <div className="py-2 px-4 xl:p-4 bg-white border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
+          <Link
+            href={`/dashboard/orders/${order.id}/invoice`}
+            className="px-2.5 xl:px-4 py-1.5 xl:py-2 text-xs font-bold text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Invoice
+          </Link>
+          <Link
+            // href={`/products/${generateSlug(item.title)}`}
+            href={`/dashboard/orders/${order.id}`} // Link to the order detail page
+            className="px-2.5 xl:px-4 py-1.5 xl:py-2 text-xs font-bold text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            View Order
+          </Link>
+        </div>
+      </li>
+    </>
   );
 };
 
