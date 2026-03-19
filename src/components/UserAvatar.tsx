@@ -51,7 +51,7 @@ const UserAvatar = ({ user }: { user: UserAvatarProps }) => {
               className="w-8 h-8 rounded-full"
             />
           ) : (
-            <div className="w-10 h-10 p-4 flex items-center justify-center rounded-full bg-slate-300 dark:bg-slate-800 shadow-md border border-slate-600">
+            <div className="w-8 sm:w-10 h-8 sm:h-10 p-4 flex items-center justify-center rounded-full bg-slate-300 dark:bg-slate-800 shadow-md border border-slate-600">
               {initials}
             </div>
           )}
@@ -68,7 +68,7 @@ const UserAvatar = ({ user }: { user: UserAvatarProps }) => {
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link
-            href="/dashboard/profile"
+            href="/profile-settings"
             className="flex items-center space-x-2"
           >
             <Settings className="mr-2 h-4 w-4" />

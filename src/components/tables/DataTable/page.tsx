@@ -28,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -38,7 +39,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  filterKeys = ["title"],
+  filterKeys = ["title", "name", "productTitle"],
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -48,11 +49,15 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    manualPagination: false,
     state: {
       sorting,
       columnVisibility,
       rowSelection,
       columnFilters,
+    },
+    initialState: {
+      pagination: { pageSize: 10 },
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
@@ -68,7 +73,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="flex-1 flex flex-col space-y-4">
       <DataTableToolbar
         table={table}
         filterKeys={filterKeys}
@@ -76,17 +81,30 @@ export function DataTable<TData, TValue>({
       />
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="text-primary">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      className={cn(
+                        // Hide everything except the first two columns (Checkbox and Title) and the last (Actions)
+                        header.id !== "select" &&
+                          header.id !== "title" &&
+                          header.id !== "productTitle" &&
+                          header.id !== "name" &&
+                          header.id !== "actions"
+                          ? "hidden md:table-cell"
+                          : "",
+                      )}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -102,10 +120,22 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        // Match the logic used in the Header
+                        cell.column.id !== "select" &&
+                          cell.column.id !== "title" &&
+                          cell.column.id !== "name" &&
+                          cell.column.id !== "productTitle" &&
+                          cell.column.id !== "actions"
+                          ? "hidden md:table-cell"
+                          : "",
+                      )}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -115,7 +145,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 text-center text-primary"
                 >
                   No results.
                 </TableCell>

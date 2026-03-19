@@ -8,7 +8,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import DataColumn from "@/components/tables/DataTable/DataColumn";
 import ImageColumn from "@/components/tables/DataTable/ImageColumn";
 import SortableColumn from "@/components/tables/DataTable/SortableColumn";
-import ActiveStatusColumn from "@/components/tables/DataTable/ActiveStatusColumn";
 
 export const columns: ColumnDef<RowDatas>[] = [
   {
@@ -34,15 +33,15 @@ export const columns: ColumnDef<RowDatas>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "productImageUrl",
-    header: "Product Image",
-    cell: ({ row }) => <ImageColumn row={row} accessorKey="productImageUrl" />,
-  },
-  {
     accessorKey: "productTitle",
     header: ({ column }) => (
       <SortableColumn column={column} title="Product Title" />
     ),
+  },
+  {
+    accessorKey: "productImageUrl",
+    header: "Product Image",
+    cell: ({ row }) => <ImageColumn row={row} accessorKey="productImageUrl" />,
   },
   { accessorKey: "productPrice", header: "Price" },
   { accessorKey: "productQty", header: "Qty" },
@@ -51,19 +50,5 @@ export const columns: ColumnDef<RowDatas>[] = [
     accessorKey: "createdAt",
     header: "Date Created",
     cell: ({ row }) => <DataColumn row={row} accessorKey="createdAt" />,
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const vendor = row.original;
-
-      return (
-        <ActiveStatusColumn
-          title="Vendor"
-          endpoint={`customer/${vendor.id}`}
-          editEndpoint={`customer/update/${vendor.id}`}
-        />
-      );
-    },
   },
 ];

@@ -15,7 +15,7 @@ function LargeCard({ data }: LargeCardProps) {
       className={`rounded-lg text-white shadow-md p-4 xl:p-8 flex items-center flex-col gap-2 ${data.color}`}
     >
       <Layers />
-      <h4>{data.period}</h4>
+      <h4 className="font-semibold lg:font-bold text-nowrap">{data.period}</h4>
       <h2 className="font-semibold text-2xl lg:text-3xl">{data.sales}</h2>
     </div>
   );

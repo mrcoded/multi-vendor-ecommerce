@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { sortingLinks } from "@/constants/sortingLinks";
+import { sortingLinks } from "@/constants/sorting-links";
 
 function SortingFilter({
   title,

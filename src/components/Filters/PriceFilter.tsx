@@ -6,7 +6,7 @@ import { Circle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { FieldValues, useForm } from "react-hook-form";
-import { priceRanges } from "@/constants/priceRanges";
+import { priceRanges } from "@/constants/price-ranges";
 
 function PriceFilter({
   slug,

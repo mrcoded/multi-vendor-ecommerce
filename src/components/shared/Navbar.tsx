@@ -1,28 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { User } from "lucide-react";
+import { HelpCircle, User } from "lucide-react";
 
 import { useSession } from "next-auth/react";
 
 import UserAvatar from "../UserAvatar";
 import SearchForm from "../forms/SearchForm";
-import { HelpModal } from "../modals/HelpModal";
 import ThemeSwitcherButton from "../ThemeSwitcherButton";
 import CartCounter from "@/app/(other-pages)/cart/_components/CartCounter";
 
 function Navbar() {
   const { data: session, status } = useSession();
 
-  if (status === "loading") {
-    return <p>Loading...</p>;
-  }
-
   return (
     <div className="bg-white dark:bg-slate-700">
-      <div className="flex items-center justify-between py-3 max-w-7xl mx-auto px-8 gap-8">
+      <div className="flex items-center justify-between py-3 max-w-7xl mx-auto gap-3 px-3 sm:px-8 sm:gap-8">
         {/* Logo */}
         <Link className="" href="/">
           <Image
@@ -30,32 +25,43 @@ function Navbar() {
             alt="MVE logo"
             width={100}
             height={100}
-            className="w-24"
+            className="w-16 xl:w-24 h-auto"
           />
         </Link>
 
-        {/* Search */}
-        <div className="flex-grow">
-          <SearchForm />
+        {/* SEARCHBAR: Wrapped in Suspense if it uses useSearchParams */}
+        <div className="hidden md:flex flex-1 max-w-md">
+          <Suspense
+            fallback={
+              <div className="h-10 w-full bg-slate-100 dark:bg-slate-800 animate-pulse rounded-lg" />
+            }
+          >
+            <SearchForm />
+          </Suspense>
         </div>
 
-        <div className="flex gap-8">
-          {status === "unauthenticated" ? (
-            <Link
-              href="/login"
-              className="flex items-center space-x-1 text-green-950 dark:text-slate-100"
-            >
-              <User />
-              <span>Login</span>
-            </Link>
-          ) : (
-            session?.user && <UserAvatar user={session.user} />
-          )}
-
-          <HelpModal />
+        <div className="flex gap-3 md:gap-8">
+          <button className="md:flex items-center space-x-1 hidden text-green-950 dark:text-slate-100">
+            <HelpCircle />
+            <span>Help</span>
+          </button>
           <CartCounter />
+          <ThemeSwitcherButton />
+
+          <>
+            {status === "unauthenticated" ? (
+              <Link
+                href="/login"
+                className="flex items-center space-x-1 text-green-950 dark:text-slate-100"
+              >
+                <User />
+                <span>Login</span>
+              </Link>
+            ) : (
+              session?.user && <UserAvatar user={session.user} />
+            )}
+          </>
         </div>
-        <ThemeSwitcherButton />
       </div>
     </div>
   );

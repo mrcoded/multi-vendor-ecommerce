@@ -68,7 +68,7 @@ function LargeCardGroups({ sales }: { sales: SalesProps["sales"] }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-3.5 lg:py-8">
       {salesStats.map((item, i) => (
         <LargeCard key={i} data={item} />
       ))}

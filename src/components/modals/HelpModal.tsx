@@ -10,7 +10,13 @@ import {
   Truck,
 } from "lucide-react";
 
-import { Button, Modal } from "flowbite-react";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from "flowbite-react";
 
 export function HelpModal() {
   const [openModal, setOpenModal] = useState(true);
@@ -19,17 +25,17 @@ export function HelpModal() {
     <>
       <button
         onClick={() => setOpenModal(true)}
-        className="flex items-center space-x-1 text-green-950 dark:text-slate-100"
+        className="md:flex items-center space-x-1 hidden text-green-950 dark:text-slate-100"
       >
         <HelpCircle />
         <span>Help</span>
       </button>
 
       <Modal show={openModal} onClose={() => setOpenModal(false)}>
-        <Modal.Header>
+        <ModalHeader>
           Need Help with Shopping? Talk to our Help Desk
-        </Modal.Header>
-        <Modal.Body>
+        </ModalHeader>
+        <ModalBody>
           <div className="grid grid-cols-2 gap-6">
             <Link
               href="tel:0802344****"
@@ -71,13 +77,13 @@ export function HelpModal() {
               <span>Chat with Us</span>
             </Link>
           </div>
-        </Modal.Body>
-        <Modal.Footer>
+        </ModalBody>
+        <ModalFooter>
           <Button onClick={() => setOpenModal(false)}>I accept</Button>
           <Button color="gray" onClick={() => setOpenModal(false)}>
             Decline
           </Button>
-        </Modal.Footer>
+        </ModalFooter>
       </Modal>
     </>
   );

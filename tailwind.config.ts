@@ -1,15 +1,17 @@
 import { withUt } from "uploadthing/tw";
-import flowbite from "flowbite-react/tailwind";
+import flowbite from "flowbite/plugin";
 import tailwindcssAnimate from "tailwindcss-animate";
 import flowbitePlugin from "@tailwindcss/forms";
+import flowbiteReact from "flowbite-react/plugin/tailwindcss";
 
 export default withUt({
   darkMode: ["class"],
   content: [
-    flowbite.content(),
+    // flowbite.content(),
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    ".flowbite-react\\class-list.json",
   ],
   theme: {
     extend: {
@@ -62,5 +64,5 @@ export default withUt({
       },
     },
   },
-  plugins: [tailwindcssAnimate, flowbitePlugin, flowbite.plugin()],
+  plugins: [tailwindcssAnimate, flowbitePlugin, flowbiteReact],
 });

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { SetStateAction } from "react";
+import dynamic from "next/dynamic";
 
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import "react-quill-new/dist/quill.snow.css";
 
 interface QuillEditorProps {
   label: string;
@@ -12,9 +12,14 @@ interface QuillEditorProps {
   onChange: React.Dispatch<SetStateAction<string>>;
 }
 
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+  ssr: false,
+  loading: () => <p>Loading ...</p>,
+});
+
 function QuillEditor({
   label,
-  className = "sm:col-span-2",
+  className = "sm:col-span-2 [&>.ql-container]:min-h-[200px]",
   value,
   onChange,
 }: QuillEditorProps) {
@@ -38,7 +43,6 @@ function QuillEditor({
     "strike",
     "blockquote",
     "list",
-    "bullet",
     "link",
     "indent",
     "image",
