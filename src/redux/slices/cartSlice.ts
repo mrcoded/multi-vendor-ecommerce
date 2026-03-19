@@ -29,7 +29,14 @@ export const cartSlice = createSlice({
         existingItem.qty += 1;
       } else {
         //If the item does not exists, add it to the cart
-        const newItem = { id, title, salePrice, imageUrl, qty: 1, vendorId };
+        const newItem = {
+          id,
+          title,
+          salePrice,
+          imageUrl,
+          qty: 1,
+          vendorId,
+        };
         state.push(newItem);
 
         //Update Localstorage with the new state
@@ -37,6 +44,9 @@ export const cartSlice = createSlice({
           localStorage.setItem("cart", JSON.stringify([...state]));
         }
       }
+    },
+    clearCart: (state) => {
+      return []; // Returns an empty array, clearing the state
     },
     removeFromCart: (state, action) => {
       const cartId = action.payload;
