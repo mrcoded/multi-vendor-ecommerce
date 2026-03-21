@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -14,33 +14,51 @@ import {
 import EditBtn from "@/components/buttons/EditBtn";
 import DeleteBtn from "@/components/buttons/DeleteBtn";
 
+import { useDeleteCategory } from "@/hooks/useCategories";
+import { UseMutationResult } from "@tanstack/react-query";
+
 function ActiveStatusColumn({
+  rowId,
   title,
-  endpoint,
-  editEndpoint,
+  editPageRoute,
+  deleteMutation,
 }: {
+  rowId: string;
   title: string;
-  endpoint?: string;
-  editEndpoint: string;
+  editPageRoute: string;
+  deleteMutation: UseMutationResult<any, any, any, any>;
 }) {
-  // const isActive = row.isActive;
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  // Destructure the passed mutation
+  const { mutate: onDelete, isPending } = deleteMutation;
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <DeleteBtn endpoint={endpoint} title={title} />
+
+        {/* Pass the mutation trigger to the button */}
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          <DeleteBtn
+            title={title}
+            isDeleting={isPending}
+            onDelete={() => {
+              onDelete({ id: rowId });
+              setDropdownOpen(false);
+              setDropdownOpen(false);
+            }}
+            onCancel={() => setDropdownOpen(false)}
+          />
         </DropdownMenuItem>
+
         <DropdownMenuItem>
-          <EditBtn editEndpoint={editEndpoint} title={title} />
+          <EditBtn editPageRoute={editPageRoute} title={title} />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

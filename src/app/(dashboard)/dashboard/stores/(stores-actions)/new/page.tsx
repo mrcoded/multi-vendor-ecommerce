@@ -1,25 +1,23 @@
-import React from "react";
+import React, { Suspense } from "react";
+import { getServerSession } from "next-auth";
 
-import getData from "@/lib/getData";
+import Loading from "@/app/loading";
+import { authOptions } from "@/lib/authOptions";
 
 import StoreForm from "@/components/forms/StoreForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
 const NewStore = async () => {
-  const categoriesData = await getData("categories");
-
-  const categories = categoriesData.map(
-    (category: { id: string; title: string }) => ({
-      id: category.id,
-      title: category.title,
-    }),
-  );
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
 
   return (
-    <div>
+    <>
       <FormHeader title="New Store" />
-      <StoreForm categories={categories} />
-    </div>
+      <Suspense fallback={<Loading />}>
+        <StoreForm user={user} />
+      </Suspense>
+    </>
   );
 };
 

@@ -5,16 +5,14 @@ import { Pencil } from "lucide-react";
 
 function EditBtn({
   title,
-  editEndpoint,
+  editPageRoute,
 }: {
   title: string;
-  editEndpoint: string;
+  editPageRoute: string;
 }) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-
   return (
     <Link
-      href={`${baseUrl}/dashboard/${editEndpoint}`}
+      href={`/dashboard/${editPageRoute}`}
       className="flex items-center text-lime-600"
     >
       <Pencil className="mr-2 w-4 h-4" />

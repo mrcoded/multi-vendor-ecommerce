@@ -1,14 +1,19 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
+import Loading from "@/app/loading";
 
-import { columns } from "./columns";
-import { DataTable } from "@/components/tables/DataTable/page";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 import PageHeader from "../_components/shared/PageHeader";
-import TableActions from "../_components/shared/TableActions";
+import StoresTable from "./(stores-actions)/StoresTable";
+import { fetchAllStoresAction } from "@/lib/actions/store-actions";
 
 const Page = async () => {
-  const stores = await getData("stores");
+  const session = await getServerSession(authOptions);
+  //GET user
+  const user = session?.user;
+
+  const stores = fetchAllStoresAction();
 
   return (
     <div>
@@ -19,9 +24,9 @@ const Page = async () => {
         linkAction="Add Store"
       />
 
-      <div className="py-1">
-        <DataTable data={stores} columns={columns} />
-      </div>
+      <Suspense fallback={<Loading />}>
+        <StoresTable user={user} stores={stores} />
+      </Suspense>
     </div>
   );
 };

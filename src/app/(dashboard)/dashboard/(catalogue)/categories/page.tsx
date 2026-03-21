@@ -1,17 +1,10 @@
-export const dynamic = "force-dynamic";
-
-import React from "react";
-import getData from "@/lib/getData";
-
-import { columns } from "./columns";
-import { DataTable } from "@/components/tables/DataTable/page";
+import React, { Suspense } from "react";
+import Loading from "@/app/loading";
 
 import PageHeader from "../../_components/shared/PageHeader";
-import TableActions from "../../_components/shared/TableActions";
+import CategoriesTable from "./(categories-actions)/CategoriesTable";
 
 const Page = async () => {
-  const categories = await getData("categories");
-
   return (
     <div>
       {/* Header */}
@@ -21,9 +14,9 @@ const Page = async () => {
         linkAction="Add Category"
       />
 
-      <div className="py-1">
-        <DataTable data={categories} columns={columns} />
-      </div>
+      <Suspense fallback={<Loading />}>
+        <CategoriesTable />
+      </Suspense>
     </div>
   );
 };

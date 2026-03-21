@@ -5,22 +5,34 @@ import { useRouter } from "next/navigation";
 
 import { FieldValues, useForm } from "react-hook-form";
 
+import {
+  useCategoryById,
+  useCreateCategory,
+  useUpdateCategory,
+} from "@/hooks/useCategories";
 import { generateSlug } from "@/lib/generateSlug";
-import { makePostRequest } from "@/lib/apiRequest";
-import { CategoryFormProps } from "@/types/category";
 
 import TextInput from "@/components/inputs/TextInput";
 import ImageInput from "@/components/inputs/ImageInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
+import { CategoryFormProps } from "@/types/category";
 
-const CategoryForm = ({ updateData }: { updateData?: CategoryFormProps }) => {
-  const router = useRouter();
-  const id = updateData?.id ?? "";
-  const initialImageUrl = updateData?.imageUrl ?? "";
-
-  const [loading, setLoading] = useState(false);
+const CategoryForm = ({
+  categoryId,
+}: {
+  categoryId?: string;
+  // category?: CategoryFormProps;
+}) => {
+  // Fetch existing category data if editing
+  const {
+    data: category,
+    isLoading: isFetching,
+    error,
+  } = useCategoryById(categoryId ?? "");
+  // const id = category?.id ?? "";
+  const initialImageUrl = category?.imageUrl ?? "";
 
   const [imageUrl, setImageUrl] = useState(initialImageUrl);
 
@@ -31,38 +43,29 @@ const CategoryForm = ({ updateData }: { updateData?: CategoryFormProps }) => {
     formState: { errors },
   } = useForm();
 
-  const redirectUrl = () => {
-    router.push("/dashboard/categories");
-  };
+  console.log(category, error);
+  const { mutate: createCategory, isPending: isCreating } = useCreateCategory();
+  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
+
+  if (categoryId && isFetching) return <p>Loading Category Data...</p>;
 
   const onSubmit = async (data: FieldValues) => {
-    const slug = generateSlug(data.title);
-    data.slug = slug;
-    data.imageUrl = imageUrl;
+    const formData = data as CategoryFormProps;
 
-    if (id) {
-      //PUT request (update)
-      makePostRequest({
-        setLoading,
-        endpoint: `api/categories/${id}`,
-        data,
-        resourceName: "Category",
-        reset,
-        redirectUrl,
-        method: "PUT",
-      });
+    const slug = generateSlug(formData.title);
+    formData.slug = slug;
+    formData.imageUrl = imageUrl;
+
+    if (categoryId) {
+      // UPDATE MUTATION
+      updateCategory({ id: categoryId, formData });
     } else {
-      //POST request (create)
-      makePostRequest({
-        setLoading,
-        endpoint: "api/categories",
-        data,
-        resourceName: "Category",
-        reset,
-        redirectUrl,
+      //CREATE MUTATION
+      createCategory(formData, {
+        onSuccess: () => {
+          setImageUrl("");
+        },
       });
-
-      setImageUrl("");
     }
   };
 
@@ -78,7 +81,7 @@ const CategoryForm = ({ updateData }: { updateData?: CategoryFormProps }) => {
             name="title"
             register={register}
             errors={errors}
-            defaultValue={updateData?.title}
+            defaultValue={category?.title}
           />
 
           <TextAreaInput
@@ -86,7 +89,7 @@ const CategoryForm = ({ updateData }: { updateData?: CategoryFormProps }) => {
             name="description"
             register={register}
             errors={errors}
-            defaultValue={updateData?.description}
+            defaultValue={category?.description}
           />
 
           <ImageInput
@@ -106,10 +109,10 @@ const CategoryForm = ({ updateData }: { updateData?: CategoryFormProps }) => {
         </div>
 
         <SubmitButton
-          isLoading={loading}
-          buttonTitle={id ? "Update Category" : "Create Category"}
+          isLoading={isCreating || isUpdating}
+          buttonTitle={categoryId ? "Update Category" : "Create Category"}
           loadingButtonTitle={`${
-            id ? "Updating" : "Creating"
+            categoryId ? "Updating" : "Creating"
           } Category please wait...`}
         />
       </form>

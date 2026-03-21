@@ -1,28 +1,27 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
+
+import Loading from "@/app/loading";
+import { authOptions } from "@/lib/authOptions";
 
 import StoreForm from "@/components/forms/StoreForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
 const UpdateStore = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params;
+  const { id: storeId } = await params;
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
 
-  const store = await getData(`stores/${id}`);
-
-  const categoriesData = await getData("categories");
-
-  const categories = categoriesData.map(
-    (category: { id: string; title: string }) => ({
-      id: category.id,
-      title: category.title,
-    }),
-  );
+  if (!storeId) notFound();
 
   return (
-    <div>
+    <>
       <FormHeader title="Update Store" />
-      <StoreForm updateData={store} categories={categories} />
-    </div>
+      <Suspense fallback={<Loading />}>
+        <StoreForm user={user} storeId={storeId} />
+      </Suspense>
+    </>
   );
 };
 
