@@ -1,13 +1,17 @@
-import { FieldValues, UseFormRegister, FieldErrors } from "react-hook-form";
+import {
+  FieldValues,
+  UseFormRegister,
+  FieldErrors,
+  Path,
+} from "react-hook-form";
 
-interface SelectInputProps {
+interface SelectInputProps<T extends FieldValues> {
   label: string;
-  name: string;
-  register: UseFormRegister<FieldValues>;
-  errors: FieldErrors<FieldValues>;
-  className: string;
+  name: Path<T>;
+  register: UseFormRegister<T>;
+  errors: FieldErrors<T>;
+  className?: string;
   hasMultipleSelect?: boolean;
-  defaultValue?: string | string[];
   options: {
     id: string;
     title?: string;
@@ -15,16 +19,15 @@ interface SelectInputProps {
   }[];
 }
 
-function SelectInput({
+function SelectInput<T extends FieldValues>({
   label,
   name,
   register,
   errors,
   className = "sm:col-span-2",
-  defaultValue,
   hasMultipleSelect = false,
   options = [],
-}: SelectInputProps) {
+}: SelectInputProps<T>) {
   return (
     <div className={className}>
       <label
@@ -35,13 +38,16 @@ function SelectInput({
       </label>
       <div className="mt-2">
         <select
-          {...register(`${name}`)}
+          {...register(name)}
           id={name}
           name={name}
-          defaultValue={defaultValue}
           multiple={hasMultipleSelect}
           className="block w-full rounded-md border-0 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-lime-700  sm:text-sm sm:leading-6"
         >
+          {/* Add this "Disabled" placeholder option */}
+          <option value="" disabled>
+            Select {label}
+          </option>
           {options.map((option, i) => {
             return (
               <option key={i} value={option.id}>

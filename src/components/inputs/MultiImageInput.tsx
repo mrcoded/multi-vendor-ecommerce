@@ -24,7 +24,7 @@ function MultiImageInput({
 }: MultiImageInputProps) {
   const handleImageRemove = (imageIndex: number) => {
     const updatedImages = imageUrls.filter(
-      (image, index) => index !== imageIndex
+      (image, index) => index !== imageIndex,
     );
     setImageUrls(updatedImages);
   };
@@ -39,7 +39,7 @@ function MultiImageInput({
           {label}
         </label>
       </div>
-      {imageUrls.length > 0 ? (
+      {imageUrls.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {imageUrls.map((imageUrl: string, index: number) => {
             return (
@@ -61,20 +61,29 @@ function MultiImageInput({
             );
           })}
         </div>
-      ) : (
+      )}
+
+      <div className="">
         <UploadDropzone
           endpoint={endpoint}
           onClientUploadComplete={(res: { url: string }[]) => {
             const urls = res.map((item: { url: string }) => item.url);
-            setImageUrls(urls);
+            setImageUrls((prev) => [...prev, ...urls]);
+
             toast.success("Image uploaded successfully");
           }}
           onUploadError={(error: Error) => {
             console.log("Upload failed:", error);
             toast.error("Image Upload failed");
           }}
+          appearance={{
+            container:
+              "border-gray-300 dark:border-gray-600 bg-slate-50 dark:bg-slate-800/50",
+            label: "text-lime-700 dark:text-lime-400",
+            allowedContent: "text-gray-500 dark:text-gray-400",
+          }}
         />
-      )}
+      </div>
     </div>
   );
 }

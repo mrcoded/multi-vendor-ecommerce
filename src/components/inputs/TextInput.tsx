@@ -1,27 +1,32 @@
 import React from "react";
-import { FieldValues, UseFormRegister, FieldErrors } from "react-hook-form";
+import {
+  FieldValues,
+  UseFormRegister,
+  FieldErrors,
+  Path,
+} from "react-hook-form";
 
-interface TextInputProps {
+interface TextInputProps<T extends FieldValues> {
   label: string;
-  name: string;
-  register: UseFormRegister<FieldValues>;
-  errors: FieldErrors<FieldValues>;
+  name: Path<T>;
+  register: UseFormRegister<T>;
+  errors: FieldErrors<T>;
   isRequired?: boolean;
   type?: string;
+  disabled?: boolean;
   className?: string;
-  defaultValue?: string | number;
 }
 
-function TextInput({
+function TextInput<T extends FieldValues>({
   label,
   name,
   register,
   errors,
+  disabled = false,
   isRequired = true,
   type = "text",
   className = "sm:col-span-2",
-  defaultValue = "",
-}: TextInputProps) {
+}: TextInputProps<T>) {
   return (
     <div className={className}>
       <label
@@ -32,11 +37,11 @@ function TextInput({
       </label>
       <div className="mt-2">
         <input
-          {...register(`${name}`, { required: isRequired })}
+          {...register(name, { required: isRequired })}
           type={type}
           name={name}
           id={name}
-          defaultValue={defaultValue}
+          disabled={disabled}
           autoComplete={name}
           className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-slate-500 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-lime-700 dark:focus:ring-slate-500 sm:text-sm sm:leading-6 dark:bg-transparent dark:text-slate-100"
           placeholder={`Type the ${label.toLowerCase()}`}

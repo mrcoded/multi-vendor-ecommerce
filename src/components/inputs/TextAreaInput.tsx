@@ -1,27 +1,32 @@
 "use client";
 
 import React from "react";
-import { FieldValues, UseFormRegister, FieldErrors } from "react-hook-form";
+import {
+  FieldValues,
+  UseFormRegister,
+  FieldErrors,
+  Path,
+} from "react-hook-form";
 
-interface TextAreaInputProps {
+interface TextAreaInputProps<T extends FieldValues> {
   label: string;
-  name: string;
-  register: UseFormRegister<FieldValues>;
-  errors: FieldErrors<FieldValues>;
+  name: Path<T>;
+  register: UseFormRegister<T>;
+  errors: FieldErrors<T>;
   isRequired?: boolean;
-  type?: string;
+  disabled?: boolean;
   className?: string;
-  defaultValue?: string;
+  rows?: number;
 }
-function TextAreaInput({
+
+function TextAreaInput<T extends FieldValues>({
   label,
   name,
   register,
   errors,
   isRequired = true,
   className = "sm:col-span-2",
-  defaultValue = "",
-}: TextAreaInputProps) {
+}: TextAreaInputProps<T>) {
   return (
     <div className={className}>
       <label
@@ -32,11 +37,10 @@ function TextAreaInput({
       </label>
       <div className="mt-2">
         <textarea
-          {...register(`${name}`, { required: isRequired })}
+          {...register(name, { required: isRequired })}
           name={name}
           id={name}
           rows={3}
-          defaultValue={defaultValue}
           className="block w-full rounded-md border-0 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-lime-700 dark:focus:ring-slate-500 sm:text-sm sm:leading-6 dark:bg-transparent dark:text-slate-100"
           placeholder={`Type the ${label.toLowerCase()}`}
         ></textarea>
