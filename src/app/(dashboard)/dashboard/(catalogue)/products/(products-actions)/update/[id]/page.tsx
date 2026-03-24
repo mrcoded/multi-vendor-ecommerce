@@ -1,5 +1,10 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
+
+import Loading from "@/app/loading";
+import { authOptions } from "@/lib/authOptions";
+import { fetchAllStoresAction } from "@/lib/actions/store-actions";
 
 import ProductForm from "@/components/forms/ProductForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
@@ -9,37 +14,25 @@ const UpdateProduct = async ({
 }: {
   params: Promise<{ id: string }>;
 }) => {
-  const { id } = await params;
-  
-  const userData = await getData("users");
-  const product = await getData(`products/${id}`);
-  const categoriesData = await getData("categories");
+  const { id: productId } = await params;
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
 
-  const vendorData = userData.filter(
-    (vendor: { role: string }) => vendor.role === "VENDOR"
-  );
+  if (!productId) return notFound();
+  // const { data: stores } = useStores();
 
-  const vendors = vendorData.map((vendor: { id: string; name: string }) => ({
-    id: vendor.id,
-    name: vendor.name,
-  }));
-
-  const categories = categoriesData.map(
-    (category: { id: string; title: string }) => ({
-      id: category.id,
-      title: category.title,
-    })
-  );
+  const stores = fetchAllStoresAction();
+  // const { data: userData } = useUsers();
+  // const product = await getData(`products/${id}`);
+  // const { data: categoriesData } = useCategories();
 
   return (
-    <div>
+    <>
       <FormHeader title="Update Product" />
-      <ProductForm
-        updateData={product}
-        categories={categories}
-        vendors={vendors}
-      />
-    </div>
+      <Suspense fallback={<Loading />}>
+        <ProductForm user={user} productId={productId} stores={stores} />
+      </Suspense>
+    </>
   );
 };
 
