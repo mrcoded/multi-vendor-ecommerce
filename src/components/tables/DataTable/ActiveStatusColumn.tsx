@@ -49,7 +49,7 @@ function ActiveStatusColumn({
             title={title}
             isDeleting={isPending}
             onDelete={() => {
-              onDelete({ id: rowId });
+              onDelete(rowId);
               setDropdownOpen(false);
               setDropdownOpen(false);
             }}

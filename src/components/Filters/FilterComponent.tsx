@@ -12,13 +12,13 @@ const FilterComponent = ({
   products,
 }: {
   category: ProductsProp;
-  products: ProductsProp["products"];
+  products: ProductsProp["products"] | undefined;
 }) => {
   const { title, slug } = category;
   const productCount = category.products?.length;
 
   return (
-    <div className="space-y-6 text-slate-900">
+    <div className="flex-1 space-y-6 text-slate-900">
       <BreadCrumb title={title} resultCount={productCount} />
       <SortingFilter isSearch={category?.isSearch} title={title} slug={slug} />
 

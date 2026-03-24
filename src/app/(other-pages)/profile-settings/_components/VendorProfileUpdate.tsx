@@ -1,11 +1,15 @@
-import React, { Suspense } from "react";
-import Loading from "@/app/loading";
+"use client";
 
+import React from "react";
+import { User } from "next-auth";
+
+import { useVendor } from "@/hooks/useVendor";
 import Steps from "../../onboarding/[id]/_components/Steps";
 import StepForm from "../../onboarding/[id]/_components/StepForm";
-import { VendorProps } from "@/types/vendors";
 
-const VendorProfileUpdate = ({ vendor }: { vendor: VendorProps }) => {
+const VendorProfileUpdate = ({ user }: { user: User | undefined }) => {
+  const { data: vendor } = useVendor(user?.id);
+
   const steps = [
     { index: 1, title: "Personal Details" },
     { index: 2, title: "Other Details" },
@@ -19,9 +23,7 @@ const VendorProfileUpdate = ({ vendor }: { vendor: VendorProps }) => {
         <Steps steps={steps} />
         <div className="w-full p-3.5 sm:p-6 bg-white border border-gray-200 rounded-lg shadow md:p-8 dark:bg-gray-800 dark:border-gray-700">
           {/* FORM */}
-          <Suspense fallback={<Loading />}>
-            <StepForm vendor={vendor} />
-          </Suspense>
+          <StepForm vendor={vendor?.data} user={user} />
         </div>
       </div>
     </div>

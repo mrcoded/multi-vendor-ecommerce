@@ -1,12 +1,17 @@
+"use client";
+
 import React, { Suspense } from "react";
 import { Info } from "lucide-react";
 
+import { User } from "next-auth";
 import Loading from "@/app/loading";
-import { getServerSession } from "next-auth";
-import getData from "@/lib/getData";
-import { authOptions } from "@/lib/authOptions";
 
+import { StoreProps } from "@/types/store";
+import { SalesProps } from "@/types/sales";
 import { OrderCardProps } from "@/types/order";
+import { ProductFormData } from "@/types/products";
+
+import { useVendor } from "@/hooks/useVendor";
 
 import Heading from "@/components/shared/Heading";
 import DashboardCharts from "../charts/DashboardCharts";
@@ -14,38 +19,43 @@ import OverViewCards from "@/components/cards/OverViewCards";
 import SmallCardGroups from "@/components/cards/SmallCardGroups";
 import LargeCardGroups from "@/components/cards/LargeCardGroups";
 
-async function VendorDashboard() {
-  const session = await getServerSession(authOptions);
-  const user = session?.user;
-
-  const { id, status = false } = user ?? {};
-  const stores = await getData("stores");
-  const orders = await getData("orders");
-  const sales = await getData("orders/sales");
-  const userData = await getData(`users/${id}`);
-  const products = await getData("products/vendor");
+async function VendorDashboard({
+  user,
+  stores,
+  orders,
+  sales,
+  products,
+}: {
+  products: ProductFormData[] | undefined;
+  orders: OrderCardProps[] | undefined;
+  user: User | undefined;
+  stores: StoreProps[];
+  sales: SalesProps[] | undefined;
+}) {
+  const userId = user?.id;
+  const { data: vendor } = useVendor(userId);
 
   //check if user is a vendor
-  const vendorData = user?.role === "VENDOR" ? userData : "";
+  const vendorId = vendor?.data?.id;
 
   //Fetch all the vendor orders
   const vendorOrders = orders?.filter((order: OrderCardProps) =>
     order.orderItems.find(
-      (item: { vendorId: string }) => item.vendorId === vendorData.id,
+      (item: { vendorId: string }) => item.vendorId === vendorId,
     ),
   );
 
-  //Fetch all the sales
+  //filter all the sales
   const salesById = sales?.filter(
-    (sale: { vendorId: string }) => sale.vendorId === id,
+    (sale: { vendorId: string }) => sale.vendorId === userId,
   );
 
-  //Fetch all the products
+  //filter the vendor products
   const productsById = products?.filter(
-    (product: { userId: string }) => product.userId === id,
+    (product: { userId: string }) => product.userId === userId,
   );
 
-  if (!status) {
+  if (!user?.status) {
     return (
       <div className="max-w-2xl mx-auto min-h-screen mt-8">
         <div
@@ -78,7 +88,7 @@ async function VendorDashboard() {
         <SmallCardGroups orders={vendorOrders} />
         {/* Overview Cards */}
         <OverViewCards
-          vendorId={vendorData.id}
+          vendorId={vendorId}
           products={productsById}
           stores={stores}
           sales={salesById}

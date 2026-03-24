@@ -1,5 +1,6 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
+import { notFound } from "next/navigation";
+import Loading from "@/app/loading";
 
 import CategoryForm from "@/components/forms/CategoryForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
@@ -9,14 +10,16 @@ const UpdateCategory = async ({
 }: {
   params: Promise<{ id: string }>;
 }) => {
-  const { id } = await params;
+  const { id: categoryId } = await params;
 
-  const category = await getData(`categories/${id}`);
+  if (!categoryId) return notFound();
 
   return (
     <div>
       <FormHeader title="Update Category" />
-      <CategoryForm updateData={category} />
+      <Suspense fallback={<Loading />}>
+        <CategoryForm categoryId={categoryId} />
+      </Suspense>
     </div>
   );
 };

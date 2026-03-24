@@ -9,10 +9,17 @@ import {
   ChartOptions,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
+import { SalesProps } from "@/types/dashboard";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-function BestSellingProductsChart({ sales = [] }: { sales: any[] }) {
+function BestSellingProductsChart({
+  sales = [],
+}: {
+  sales: SalesProps["sales"] | undefined;
+}) {
+  const allSales = sales ?? [];
+
   const productData = useMemo(() => {
     const counts: Record<string, number> = {};
 

@@ -3,9 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Mail, Phone, MapPin, MessageSquare } from "lucide-react";
 
-import { StoreProps } from "../../types";
+import { StoreProps } from "@/types/store";
 
-const StoreDetails = ({ store }: { store: StoreProps }) => {
+const StoreDetails = ({ store }: { store?: StoreProps }) => {
   return (
     <div className="bg-white border border-gray-200 rounded-2xl dark:bg-gray-800 dark:border-gray-700 overflow-hidden shadow-sm">
       <div className="p-3 sm:p-5 xl:p-8 flex flex-col sm:flex-row gap-3 sm:gap-6 lg:gap-8 xl:gap-10">
@@ -16,7 +16,7 @@ const StoreDetails = ({ store }: { store: StoreProps }) => {
               src={store?.imageUrl || "/placeholder-store.png"}
               width={128}
               height={128}
-              alt={store?.title}
+              alt={store?.title ?? "Store image"}
               className="size-20 md:w-24 md:h-24 xl:w-32 xl:h-32 rounded-2xl object-cover ring-4 ring-slate-50 dark:ring-gray-700 shadow-md"
             />
           </div>

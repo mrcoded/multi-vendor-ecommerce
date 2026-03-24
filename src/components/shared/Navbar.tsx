@@ -1,20 +1,16 @@
-"use client";
-
 import React, { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { HelpCircle, User } from "lucide-react";
+import { HelpCircle, User as UserIcon } from "lucide-react";
 
-import { useSession } from "next-auth/react";
+import { User } from "next-auth";
 
 import UserAvatar from "../UserAvatar";
 import SearchForm from "../forms/SearchForm";
 import ThemeSwitcherButton from "../ThemeSwitcherButton";
 import CartCounter from "@/app/(other-pages)/cart/_components/CartCounter";
 
-function Navbar() {
-  const { data: session, status } = useSession();
-
+function Navbar({ user }: { user: User | undefined }) {
   return (
     <div className="bg-white dark:bg-slate-700">
       <div className="flex items-center justify-between py-3 max-w-7xl mx-auto gap-3 px-3 sm:px-8 sm:gap-8">
@@ -49,16 +45,16 @@ function Navbar() {
           <ThemeSwitcherButton />
 
           <>
-            {status === "unauthenticated" ? (
+            {!user ? (
               <Link
                 href="/login"
                 className="flex items-center space-x-1 text-green-950 dark:text-slate-100"
               >
-                <User />
+                <UserIcon />
                 <span>Login</span>
               </Link>
             ) : (
-              session?.user && <UserAvatar user={session.user} />
+              <UserAvatar user={user} />
             )}
           </>
         </div>

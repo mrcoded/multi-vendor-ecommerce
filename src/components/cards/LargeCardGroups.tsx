@@ -3,8 +3,16 @@ import LargeCard from "./LargeCard";
 
 import { SalesProps } from "@/types/dashboard";
 
-function LargeCardGroups({ sales }: { sales: SalesProps["sales"] }) {
+function LargeCardGroups({
+  sales,
+}: {
+  sales: SalesProps["sales"] | undefined;
+}) {
+  const allSales = sales ?? [];
+
   const today = new Date();
+
+  const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
   const thisWeekStart = new Date(
     today.getFullYear(),
@@ -12,37 +20,33 @@ function LargeCardGroups({ sales }: { sales: SalesProps["sales"] }) {
     today.getDate() - today.getDay(),
   );
 
-  const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-
   //Get today's sales
-  const todaySales = sales
-    .filter((sale: { createdAt: Date }) => {
+  const todaySales = allSales
+    .filter((sale: { createdAt: Date; total: number }) => {
       const saleDate = new Date(sale.createdAt);
       return saleDate.toDateString() === today.toDateString();
     })
-    .reduce((total: number, sale: { total: number }) => total + sale.total, 0);
+    .reduce((acc, sale) => acc + sale.total, 0);
 
   //Get this week's sales
-  const thisWeekSales = sales
-    .filter((sale: { createdAt: Date }) => {
+  const thisWeekSales = allSales
+    .filter((sale: { createdAt: Date; total: number }) => {
       const saleDate = new Date(sale.createdAt);
       return saleDate >= thisWeekStart && saleDate <= today;
     })
-    .reduce((total: number, sale: { total: number }) => total + sale.total, 0);
+    .reduce((acc, sale) => acc + sale.total, 0);
 
   //Get this month's sales
-  const thisMonthSales = sales
-    .filter((sale: { createdAt: Date }) => {
+  const thisMonthSales = allSales
+    .filter((sale: { createdAt: Date; total: number }) => {
       const saleDate = new Date(sale.createdAt);
       return saleDate >= thisMonthStart && saleDate <= today;
     })
-    .reduce((total: number, sale: { total: number }) => total + sale.total, 0);
+    .reduce((acc, sale) => acc + sale.total, 0);
 
   //Get total sales
   const totalSales =
-    sales
-      .reduce((total: number, sale: { total: number }) => total + sale.total, 0)
-      .toFixed(2) ?? 0;
+    allSales.reduce((acc, sale) => acc + sale.total, 0).toFixed(2) ?? 0;
 
   const salesStats = [
     {

@@ -1,10 +1,8 @@
+import { useRouter } from "next/navigation";
+
+import toast from "react-hot-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  getAllProducts,
-  getProductById,
-  getProductBySlug,
-  updateProduct,
-} from "@/services/product-service";
+
 import {
   createProductAction,
   deleteProductAction,
@@ -14,9 +12,7 @@ import {
   getProductBySlugAction,
   updateProductAction,
 } from "@/lib/actions/product-actions";
-import toast from "react-hot-toast";
 import { ProductFormData } from "@/types/products";
-import { useRouter } from "next/navigation";
 
 export function useProducts() {
   return useQuery({
@@ -80,8 +76,6 @@ export function useDeleteProduct() {
     mutationFn: async (productId: string) => {
       const res = await deleteProductAction(productId);
 
-      // 🎯 Your action returns { success, message, error }
-      // There is no res.data, so just check res.success
       if (!res.success || !res.data?.success) {
         throw new Error(res.error || "Failed to delete product");
       }

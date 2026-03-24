@@ -12,7 +12,9 @@ function ThemeSwitcherButton() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return <div className="p-2 w-10 h-10" />;
+  }
 
   return (
     <button

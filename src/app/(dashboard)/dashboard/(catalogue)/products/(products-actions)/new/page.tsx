@@ -1,35 +1,28 @@
-import React from "react";
+import React, { Suspense } from "react";
 
-import getData from "@/lib/getData";
+import { getServerSession } from "next-auth";
+import Loading from "@/app/loading";
+import { authOptions } from "@/lib/authOptions";
 
 import ProductForm from "@/components/forms/ProductForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
+import { fetchAllUsersAction } from "@/lib/actions/user-actions";
+import { fetchAllStoresAction } from "@/lib/actions/store-actions";
 
 const NewProduct = async () => {
-  const userData = await getData("users");
-  const categoriesData = await getData("categories");
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+  const allUsers = fetchAllUsersAction();
 
-  const vendorData = userData.filter(
-    (vendor: { role: string }) => vendor.role === "VENDOR",
-  );
-
-  const vendors = vendorData.map((vendor: { id: string; name: string }) => ({
-    id: vendor.id,
-    name: vendor.name,
-  }));
-
-  const categories = categoriesData.map(
-    (category: { id: string; title: string }) => ({
-      id: category.id,
-      title: category.title,
-    }),
-  );
+  const stores = fetchAllStoresAction();
 
   return (
-    <div>
+    <>
       <FormHeader title="New Product" />
-      <ProductForm categories={categories} vendors={vendors} />
-    </div>
+      <Suspense fallback={<Loading />}>
+        <ProductForm user={user} stores={stores} />
+      </Suspense>
+    </>
   );
 };
 

@@ -1,28 +1,35 @@
-import React, { useState } from "react";
-import { FieldValues, UseFormRegister } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { FieldValues, Path, UseFormRegister } from "react-hook-form";
 
-interface ToggleInputProps {
+interface ToggleInputProps<T extends FieldValues> {
   label: string;
-  name: string;
+  name: Path<T>;
   truthyValue: string;
   falsyValue: string;
   className?: string;
-  register: UseFormRegister<FieldValues>;
+  register: UseFormRegister<T>;
   defaultCheck?: boolean;
   setIsWholesaleCheck?: (value: boolean) => void;
 }
 
-function ToggleInput({
+function ToggleInput<T extends FieldValues>({
   label,
   name,
   truthyValue,
   falsyValue,
   register,
-  defaultCheck,
+  defaultCheck = false,
   setIsWholesaleCheck,
   className = "sm:col-span-2 flex flex-wrap",
-}: ToggleInputProps) {
-  const [value, setValue] = useState(false);
+}: ToggleInputProps<T>) {
+  const [value, setValue] = useState(defaultCheck);
+
+  const { onChange, ...registerProps } = register(name);
+
+  //Handling Initial Values
+  useEffect(() => {
+    setValue(defaultCheck);
+  }, [defaultCheck]);
 
   return (
     <div className={className}>
@@ -34,12 +41,12 @@ function ToggleInput({
       <div className="w-full sm:w-1/2">
         <label className="relative inline-flex items-center cursor-pointer">
           <input
-            {...register(name)}
+            {...registerProps}
             type="checkbox"
-            defaultChecked={defaultCheck}
             checked={value}
             className="sr-only peer"
             onChange={(e) => {
+              onChange(e);
               setValue(e.target.checked);
               setIsWholesaleCheck?.(e.target.checked);
             }}

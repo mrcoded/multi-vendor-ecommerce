@@ -9,7 +9,7 @@ async function FilteredProducts({
   products = [],
   productCount,
 }: {
-  products: ProductsProp["products"];
+  products: ProductsProp["products"] | undefined;
   productCount: number;
 }) {
   //PAGINATION

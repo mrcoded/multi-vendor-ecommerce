@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -5,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { LayoutDashboard, LogOut, Settings } from "lucide-react";
 
+import { User } from "next-auth";
 import { signOut } from "next-auth/react";
 import generateInitials from "@/lib/generateInitials";
 
@@ -24,14 +27,14 @@ interface UserAvatarProps {
   imageUrl?: string;
 }
 
-const UserAvatar = ({ user }: { user: UserAvatarProps }) => {
+const UserAvatar = ({ user }: { user: User }) => {
   const router = useRouter();
 
   //destructure image and name of a user
-  const { imageUrl, name } = user;
+  const { imageUrl, name } = user ?? {};
   const role = user?.role;
 
-  const initials = generateInitials(name);
+  const initials = generateInitials(name ?? "User");
 
   const handleLogout = async () => {
     await signOut();

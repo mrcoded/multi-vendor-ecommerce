@@ -16,19 +16,23 @@ import {
 } from "lucide-react";
 
 import { useForm } from "react-hook-form";
+import { useSelector, useDispatch } from "react-redux";
+
 import { makePostRequest } from "@/lib/apiRequest";
 import generateUserCode from "@/lib/generateUserCode";
 
-import { RootState } from "@/types/redux";
-import { useSelector, useDispatch } from "react-redux";
+import { useUpdateVendor } from "@/hooks/useVendor";
 import { actions } from "@/redux/slices/onboardingSlice";
 
+import { RootState } from "@/types/redux";
 import SummaryItem from "../SummaryItem";
 
 const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+
+  const { mutate: updateVendor, isPending } = useUpdateVendor(vendorId);
 
   const onboardingFormData = useSelector(
     (store: RootState) => store.onboarding.onboardingFormData,
@@ -53,15 +57,7 @@ const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
     data.code = code;
     data.userId = vendorId;
 
-    makePostRequest({
-      setLoading,
-      endpoint: `api/vendors/${vendorId}`,
-      data,
-      resourceName: "Vendor",
-      reset,
-      method: "PUT",
-      redirectUrl,
-    });
+    // updateVendor(data);
   };
 
   return (

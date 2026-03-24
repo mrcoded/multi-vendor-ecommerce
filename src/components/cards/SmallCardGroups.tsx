@@ -4,7 +4,9 @@ import { CheckCheck, Loader, RefreshCcw, ShoppingCart } from "lucide-react";
 import SmallCard from "./SmallCard";
 import { OrderCardProps } from "@/types/order";
 
-function SmallCardGroups({ orders }: { orders: OrderCardProps[] }) {
+function SmallCardGroups({ orders }: { orders: OrderCardProps[] | undefined }) {
+  const allOrders = orders ?? [];
+
   const status = {
     pending: "PENDING",
     processing: "PROCESSING",
@@ -15,14 +17,14 @@ function SmallCardGroups({ orders }: { orders: OrderCardProps[] }) {
 
   //function to get the count of orders
   const getOrdersCountByStatus = (status: string) => {
-    return orders
+    return allOrders
       .filter((order: { orderStatus: string }) => order.orderStatus === status)
       .length.toString()
       .padStart(2, "0");
   };
 
   // Get the count of orders
-  const totalOrdersCount = orders?.length?.toString().padStart(2, "0");
+  const totalOrdersCount = allOrders.length?.toString().padStart(2, "0");
   const pendingOrders = getOrdersCountByStatus(status.pending);
   // const shippingOrders = getOrdersCountByStatus(status.shipping);
   const processedOrders = getOrdersCountByStatus(status.processing);

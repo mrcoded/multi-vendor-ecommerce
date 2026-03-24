@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 function AnalyticsCard({
   data,
 }: {
-  data: { title: string; count: string; link: string };
+  data: { title: string; count: string | undefined; link: string };
 }) {
   return (
     <div className="flex flex-col rounded-xl border border-slate-400 p-4">

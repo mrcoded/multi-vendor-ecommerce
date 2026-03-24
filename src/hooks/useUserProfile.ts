@@ -35,7 +35,6 @@ export function useUpdateProfile() {
         toast.success("Profile updated successfully!");
         router.push("/dashboard");
       } else {
-        // If the server returns a logical error, trigger a rollback via invalidation
         toast.error(res.error || "Profile Update failed");
         queryClient.invalidateQueries({ queryKey: ["profile"] });
       }

@@ -1,23 +1,21 @@
 import React from "react";
-
 import Link from "next/link";
 import Image from "next/image";
-import getData from "@/lib/getData";
+
+import Loading from "@/app/loading";
 import { CategoryProps } from "@/types/category";
 
+import { useCategories } from "@/hooks/useCategories";
+
 async function CategorySidebar() {
-  const categoriesData = await getData("categories");
+  const { data: categoriesData } = useCategories();
+
+  if (!categoriesData) return <Loading />;
+
   //Only categories with Products
   const categories = categoriesData.filter(
     (category: CategoryProps) => category.products.length > 0,
   );
-
-  // const categories = categoriesData.map((category: CategoryProps) => ({
-  //   id: category.id,
-  //   slug: category.slug,
-  //   title: category.title,
-  //   imageUrl: category.imageUrl,
-  // }));
 
   return (
     <div className="col-span-4 lg:col-span-3 sm:block bg-white border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-700 text-slate-800 overflow-hidden hidden">
@@ -38,7 +36,7 @@ async function CategorySidebar() {
                   height={556}
                   priority
                   className="w-10 h-10 rounded-full object-cover border border-lime-300"
-                  src={category.imageUrl}
+                  src={category.imageUrl ?? ""}
                   alt={category.title}
                 />
                 <span className="text-sm truncate line-clamp-1">

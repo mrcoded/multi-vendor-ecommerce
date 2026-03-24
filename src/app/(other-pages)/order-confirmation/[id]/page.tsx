@@ -47,7 +47,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
               </p>
 
               <Link
-                href={`/orders/${id}/invoice`}
+                href={`/dashboard/orders/${id}/invoice`}
                 className="mt-6 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <FileText className="size-4" />

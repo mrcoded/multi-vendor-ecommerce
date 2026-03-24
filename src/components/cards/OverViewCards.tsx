@@ -1,36 +1,42 @@
 import React from "react";
+
 import AnalyticsCard from "./AnalyticsCard";
+
+import { StoreProps } from "@/types/store";
+import { VendorProps } from "@/types/vendors";
+import { ProductFormData } from "@/types/products";
 
 function OverViewCards({
   sales,
-  products,
   stores,
   vendors,
   vendorId,
+  products,
 }: {
+  products: ProductFormData[] | undefined;
   vendorId?: string;
-  stores: Array<{ vendorId: string }>;
-  vendors?: number[];
+  stores: StoreProps[] | undefined;
+  vendors?: VendorProps[];
   sales?: {
     total: number;
   }[];
-  products: number[];
 }) {
+  const allProducts = products ?? [];
+
   // Get the count of orders
   const totalStores = stores
-    .filter((store: { vendorId: string }) => store.vendorId === vendorId)
+    ?.filter((store: { vendorId: string }) => store.vendorId === vendorId)
     .length.toString()
     .padStart(2, "0");
+
   // Get the count of vendors
   const totalVendors = vendors?.length.toString().padStart(2, "0") ?? "0";
+
   // Get the count of products
-  const productsCount = products.length.toString().padStart(2, "0");
+  const productsCount = allProducts.length.toString().padStart(2, "0");
+
   // Get the total sales
-  const totalSales =
-    sales?.reduce(
-      (total: number, sale: { total: number }) => total + sale.total,
-      0,
-    ) ?? 0;
+  const totalSales = sales?.reduce((acc, sale) => acc + sale.total, 0) ?? 0;
 
   // Analytics data
   const analytics = [

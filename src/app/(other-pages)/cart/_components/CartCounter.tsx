@@ -13,7 +13,6 @@ function CartCounter() {
   return (
     <Link
       href="/cart"
-      type="button"
       className="relative inline-flex items-center p-3 text-sm font-medium text-center text-white bg-transparent rounded-lg"
     >
       <ShoppingCart className="text-lime-700 dark:text-lime-500" />
