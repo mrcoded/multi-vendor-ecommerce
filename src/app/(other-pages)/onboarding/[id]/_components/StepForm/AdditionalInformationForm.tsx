@@ -14,7 +14,11 @@ import TextAreaInput from "@/components/inputs/TextAreaInput";
 import ArrayItemsInput from "@/components/inputs/ArrayItemsInput";
 import StepFormButton from "@/app/(other-pages)/checkout/_components/StepFormButton";
 
-const AdditionalInformationForm = ({ vendor }: { vendor: VendorProps }) => {
+const AdditionalInformationForm = ({
+  vendor,
+}: {
+  vendor: VendorProps["vendorProfile"];
+}) => {
   const dispatch = useDispatch();
 
   const [imageUrl, setImageUrl] = useState("");
@@ -32,7 +36,14 @@ const AdditionalInformationForm = ({ vendor }: { vendor: VendorProps }) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      terms: existingFormData.terms || vendor?.terms || "",
+      notes: existingFormData.notes || vendor?.notes || "",
+      products: existingFormData.products || vendor?.products || [],
+      imageUrl: existingFormData.imageUrl || vendor?.imageUrl || "",
+    },
+  });
 
   const processData = (data: FieldValues) => {
     //Update the onboarding Data
@@ -58,7 +69,7 @@ const AdditionalInformationForm = ({ vendor }: { vendor: VendorProps }) => {
         />
 
         <ImageInput
-          imageUrl={imageUrl || vendor.imageUrl || ""}
+          imageUrl={imageUrl || vendor?.imageUrl || ""}
           setImageUrl={setImageUrl}
           endpoint="vendorProfileImageUploader"
           label="Vendor Profile Image"
@@ -70,7 +81,6 @@ const AdditionalInformationForm = ({ vendor }: { vendor: VendorProps }) => {
           register={register}
           errors={errors}
           isRequired={false}
-          defaultValue={existingFormData.terms || vendor.terms}
         />
 
         <TextAreaInput
@@ -79,7 +89,6 @@ const AdditionalInformationForm = ({ vendor }: { vendor: VendorProps }) => {
           register={register}
           errors={errors}
           isRequired={false}
-          defaultValue={existingFormData.notes || vendor.notes}
         />
       </div>
       <StepFormButton />

@@ -14,7 +14,6 @@ import {
 import EditBtn from "@/components/buttons/EditBtn";
 import DeleteBtn from "@/components/buttons/DeleteBtn";
 
-import { useDeleteCategory } from "@/hooks/useCategories";
 import { UseMutationResult } from "@tanstack/react-query";
 
 function ActiveStatusColumn({
@@ -26,11 +25,11 @@ function ActiveStatusColumn({
   rowId: string;
   title: string;
   editPageRoute: string;
-  deleteMutation: UseMutationResult<any, any, any, any>;
+  deleteMutation?: UseMutationResult<any, any, any, any>;
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   // Destructure the passed mutation
-  const { mutate: onDelete, isPending } = deleteMutation;
+  const { mutate: onDelete, isPending } = deleteMutation ?? {};
 
   return (
     <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
@@ -44,18 +43,20 @@ function ActiveStatusColumn({
         <DropdownMenuSeparator />
 
         {/* Pass the mutation trigger to the button */}
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-          <DeleteBtn
-            title={title}
-            isDeleting={isPending}
-            onDelete={() => {
-              onDelete(rowId);
-              setDropdownOpen(false);
-              setDropdownOpen(false);
-            }}
-            onCancel={() => setDropdownOpen(false)}
-          />
-        </DropdownMenuItem>
+        {!deleteMutation && (
+          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+            <DeleteBtn
+              title={title}
+              isDeleting={isPending ?? false}
+              onDelete={() => {
+                onDelete?.(rowId);
+                setDropdownOpen(false);
+                setDropdownOpen(false);
+              }}
+              onCancel={() => setDropdownOpen(false)}
+            />
+          </DropdownMenuItem>
+        )}
 
         <DropdownMenuItem>
           <EditBtn editPageRoute={editPageRoute} title={title} />

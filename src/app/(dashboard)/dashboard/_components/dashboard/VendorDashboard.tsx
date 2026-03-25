@@ -3,16 +3,11 @@
 import React, { Suspense } from "react";
 import { Info } from "lucide-react";
 
-import { User } from "next-auth";
-import Loading from "@/app/loading";
-
-import { StoreProps } from "@/types/store";
-import { SalesProps } from "@/types/sales";
-import { OrderCardProps } from "@/types/order";
-import { ProductFormData } from "@/types/products";
-
 import { useVendor } from "@/hooks/useVendor";
 
+import { DashboardProps } from "@/types/dashboard";
+
+import Loading from "@/app/loading";
 import Heading from "@/components/shared/Heading";
 import DashboardCharts from "../charts/DashboardCharts";
 import OverViewCards from "@/components/cards/OverViewCards";
@@ -25,21 +20,17 @@ async function VendorDashboard({
   orders,
   sales,
   products,
-}: {
-  products: ProductFormData[] | undefined;
-  orders: OrderCardProps[] | undefined;
-  user: User | undefined;
-  stores: StoreProps[];
-  sales: SalesProps[] | undefined;
-}) {
+  vendors,
+}: DashboardProps) {
   const userId = user?.id;
+  const role = user?.role;
   const { data: vendor } = useVendor(userId);
 
   //check if user is a vendor
   const vendorId = vendor?.data?.id;
 
   //Fetch all the vendor orders
-  const vendorOrders = orders?.filter((order: OrderCardProps) =>
+  const vendorOrders = orders?.filter((order) =>
     order.orderItems.find(
       (item: { vendorId: string }) => item.vendorId === vendorId,
     ),
@@ -88,10 +79,12 @@ async function VendorDashboard({
         <SmallCardGroups orders={vendorOrders} />
         {/* Overview Cards */}
         <OverViewCards
+          role={role}
           vendorId={vendorId}
           products={productsById}
           stores={stores}
           sales={salesById}
+          vendors={vendors}
         />
         {/* Charts */}
         <DashboardCharts orders={vendorOrders} sales={salesById} />

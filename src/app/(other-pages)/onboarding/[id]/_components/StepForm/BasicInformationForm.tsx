@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useSession } from "next-auth/react";
 
 import { RootState } from "@/types/redux";
 import { actions } from "@/redux/slices/onboardingSlice";
@@ -11,7 +12,14 @@ import { VendorProps } from "@/types/vendors";
 import StepFormButton from "../StepFormButton";
 import TextInput from "@/components/inputs/TextInput";
 
-const BasicInformationForm = ({ vendor }: { vendor: VendorProps }) => {
+const BasicInformationForm = ({
+  vendor,
+}: {
+  vendor: VendorProps["vendorProfile"];
+}) => {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   const dispatch = useDispatch();
 
   const currentStep = useSelector(
@@ -26,7 +34,20 @@ const BasicInformationForm = ({ vendor }: { vendor: VendorProps }) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<VendorProps["vendorProfile"]>({
+    defaultValues: {
+      firstName: existingFormData.firstName || vendor.firstName || "",
+      lastName: existingFormData.lastName || vendor?.lastName || "",
+      email: existingFormData.email || user?.email || "",
+      phone: existingFormData.phone || vendor?.phone || "",
+      physicalAddress:
+        existingFormData.physicalAddress || vendor?.physicalAddress || "",
+      contactPerson:
+        existingFormData.contactPerson || vendor?.contactPerson || "",
+      contactPersonPhone:
+        existingFormData.contactPersonPhone || vendor?.contactPersonPhone || "",
+    },
+  });
 
   const processData = (data: FieldValues) => {
     //Update the onboarding Data
@@ -48,7 +69,6 @@ const BasicInformationForm = ({ vendor }: { vendor: VendorProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.firstName || vendor.firstName}
         />
 
         <TextInput
@@ -57,7 +77,6 @@ const BasicInformationForm = ({ vendor }: { vendor: VendorProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.lastName || vendor.lastName}
         />
 
         <TextInput
@@ -68,7 +87,6 @@ const BasicInformationForm = ({ vendor }: { vendor: VendorProps }) => {
           errors={errors}
           className="w-full"
           disabled
-          defaultValue={vendor.email}
         />
 
         <TextInput
@@ -78,7 +96,6 @@ const BasicInformationForm = ({ vendor }: { vendor: VendorProps }) => {
           errors={errors}
           className="w-full"
           type="number"
-          defaultValue={existingFormData.phone || vendor.phone}
         />
 
         <TextInput
@@ -87,9 +104,6 @@ const BasicInformationForm = ({ vendor }: { vendor: VendorProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={
-            existingFormData.physicalAddress || vendor.physicalAddress
-          }
         />
 
         <TextInput
@@ -98,7 +112,6 @@ const BasicInformationForm = ({ vendor }: { vendor: VendorProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.contactPerson || vendor.contactPerson}
         />
 
         <TextInput
@@ -108,9 +121,6 @@ const BasicInformationForm = ({ vendor }: { vendor: VendorProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={
-            existingFormData.contactPersonPhone || vendor.contactPersonPhone
-          }
         />
       </div>
       <StepFormButton />

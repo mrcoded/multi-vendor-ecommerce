@@ -19,7 +19,7 @@ export function StoreFilter({ stores, onStoreChange }: StoreFilterProps) {
           <SelectItem value="all" className="bg-muted">
             Remove Filter
           </SelectItem>
-          {stores.map((store) => (
+          {stores?.map((store) => (
             <SelectItem key={store.id} value={store.id}>
               {store.title}
             </SelectItem>

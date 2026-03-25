@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronRight,
@@ -15,10 +15,8 @@ import {
   FileText,
 } from "lucide-react";
 
-import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 
-import { makePostRequest } from "@/lib/apiRequest";
 import generateUserCode from "@/lib/generateUserCode";
 
 import { useUpdateVendor } from "@/hooks/useVendor";
@@ -30,8 +28,7 @@ import SummaryItem from "../SummaryItem";
 const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
-
+  //update vendor mutation
   const { mutate: updateVendor, isPending } = useUpdateVendor(vendorId);
 
   const onboardingFormData = useSelector(
@@ -46,10 +43,6 @@ const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
     dispatch(actions.setCurrentStep(currentStep - 1));
   };
 
-  const { reset } = useForm();
-
-  const redirectUrl = () => router.push(`/dashboard`);
-
   const onSubmit = () => {
     const data = { ...onboardingFormData };
     const fullName = `${data.firstName} ${data.lastName}`;
@@ -57,7 +50,8 @@ const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
     data.code = code;
     data.userId = vendorId;
 
-    // updateVendor(data);
+    //Update the vendor
+    updateVendor(data);
   };
 
   return (
@@ -173,7 +167,7 @@ const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
           <span>Edit Details</span>
         </button>
 
-        {loading ? (
+        {isPending ? (
           <button
             disabled
             className="inline-flex items-center gap-2 px-8 py-3 text-sm font-bold text-white bg-slate-400 dark:bg-slate-700 rounded-xl cursor-not-allowed"

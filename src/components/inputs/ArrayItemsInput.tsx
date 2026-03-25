@@ -23,9 +23,8 @@ function ArrayItemsInput({
   };
 
   const removeItems = (index: number) => {
-    // Remove from `items` if it's a newly added item
-    const newItems = [...items];
-    newItems.splice(index, 1);
+    // Better: Filter by index to ensure a new array reference is created
+    const newItems = items.filter((_, i) => i !== index);
     setItems(newItems);
   };
 

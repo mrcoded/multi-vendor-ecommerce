@@ -3,13 +3,7 @@ import LargeCard from "./LargeCard";
 
 import { SalesProps } from "@/types/dashboard";
 
-function LargeCardGroups({
-  sales,
-}: {
-  sales: SalesProps["sales"] | undefined;
-}) {
-  const allSales = sales ?? [];
-
+function LargeCardGroups({ sales }: { sales: SalesProps["sales"] }) {
   const today = new Date();
 
   const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -21,32 +15,38 @@ function LargeCardGroups({
   );
 
   //Get today's sales
-  const todaySales = allSales
-    .filter((sale: { createdAt: Date; total: number }) => {
-      const saleDate = new Date(sale.createdAt);
-      return saleDate.toDateString() === today.toDateString();
-    })
-    .reduce((acc, sale) => acc + sale.total, 0);
+  const todaySales =
+    sales
+      .filter((sale: { createdAt: Date; total: number }) => {
+        const saleDate = new Date(sale.createdAt);
+        return saleDate.toDateString() === today.toDateString();
+      })
+      .reduce((acc, sale) => acc + sale.total, 0)
+      .toFixed(2) ?? "0";
 
   //Get this week's sales
-  const thisWeekSales = allSales
-    .filter((sale: { createdAt: Date; total: number }) => {
-      const saleDate = new Date(sale.createdAt);
-      return saleDate >= thisWeekStart && saleDate <= today;
-    })
-    .reduce((acc, sale) => acc + sale.total, 0);
+  const thisWeekSales =
+    sales
+      .filter((sale: { createdAt: Date; total: number }) => {
+        const saleDate = new Date(sale.createdAt);
+        return saleDate >= thisWeekStart && saleDate <= today;
+      })
+      .reduce((acc, sale) => acc + sale.total, 0)
+      .toFixed(2) ?? "0";
 
   //Get this month's sales
-  const thisMonthSales = allSales
-    .filter((sale: { createdAt: Date; total: number }) => {
-      const saleDate = new Date(sale.createdAt);
-      return saleDate >= thisMonthStart && saleDate <= today;
-    })
-    .reduce((acc, sale) => acc + sale.total, 0);
+  const thisMonthSales =
+    sales
+      .filter((sale: { createdAt: Date; total: number }) => {
+        const saleDate = new Date(sale.createdAt);
+        return saleDate >= thisMonthStart && saleDate <= today;
+      })
+      .reduce((acc, sale) => acc + sale.total, 0)
+      .toFixed(2) ?? "0";
 
   //Get total sales
   const totalSales =
-    allSales.reduce((acc, sale) => acc + sale.total, 0).toFixed(2) ?? 0;
+    sales.reduce((acc, sale) => acc + sale.total, 0).toFixed(2) ?? 0;
 
   const salesStats = [
     {
@@ -66,7 +66,7 @@ function LargeCardGroups({
     },
     {
       period: "All-Time Sales",
-      sales: parseFloat(totalSales),
+      sales: totalSales,
       color: "bg-purple-600",
     },
   ];

@@ -4,7 +4,7 @@ import { Layers } from "lucide-react";
 interface LargeCardProps {
   data: {
     period: string;
-    sales: number;
+    sales: string;
     color: string;
   };
 }

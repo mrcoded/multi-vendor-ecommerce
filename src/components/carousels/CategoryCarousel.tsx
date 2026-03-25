@@ -10,7 +10,7 @@ function CategoryCarousel({
   isStorePage = false,
 }: {
   isStorePage?: boolean;
-  products: ProductsProp["products"];
+  products: ProductsProp["products"] | undefined;
 }) {
   const responsive = {
     desktop: {
@@ -53,7 +53,7 @@ function CategoryCarousel({
       itemClass="px-1.5 lg:px-4" // Padding between items
       centerMode={false}
     >
-      {products.map((product, i) => {
+      {products?.map((product, i) => {
         return <Product key={i} product={product} />;
       })}
     </Carousel>

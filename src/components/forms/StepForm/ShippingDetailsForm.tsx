@@ -3,20 +3,17 @@
 import React, { useState } from "react";
 import { Circle, Truck } from "lucide-react";
 
-import { checkoutInitialStateProps, RootState } from "@/types/redux";
+import { RootState } from "@/types/redux";
 import { FieldValues, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { actions } from "@/redux/slices/checkoutSlice";
 
+import { CheckoutProps } from "@/types/order";
+
 import TextInput from "@/components/inputs/TextInput";
 import StepFormButton from "@/app/(other-pages)/checkout/_components/StepFormButton";
-import { User } from "next-auth";
 
-const ShippingDetailsForm = ({
-  order,
-}: {
-  order: checkoutInitialStateProps["checkoutFormData"];
-}) => {
+const ShippingDetailsForm = ({ order }: { order: CheckoutProps | null }) => {
   const dispatch = useDispatch();
 
   const currentStep = useSelector(
@@ -34,7 +31,15 @@ const ShippingDetailsForm = ({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      streetAddress:
+        existingFormData.streetAddress || order?.streetAddress || "",
+      city: existingFormData.city || order?.city || "",
+      country: existingFormData.country || order?.country || "",
+      district: existingFormData.district || order?.district || "",
+    },
+  });
 
   const processData = (data: FieldValues) => {
     data.shippingCost = shippingCost;
@@ -57,9 +62,6 @@ const ShippingDetailsForm = ({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={
-            existingFormData.streetAddress || order?.streetAddress || ""
-          }
         />
 
         <TextInput
@@ -68,7 +70,6 @@ const ShippingDetailsForm = ({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.city || order?.city || ""}
         />
 
         <TextInput
@@ -77,7 +78,6 @@ const ShippingDetailsForm = ({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.country || order?.country || ""}
         />
 
         <TextInput
@@ -86,7 +86,6 @@ const ShippingDetailsForm = ({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={existingFormData.district || order?.district || ""}
         />
 
         {/* Shipping Cost */}

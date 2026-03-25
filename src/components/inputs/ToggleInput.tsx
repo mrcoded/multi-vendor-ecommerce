@@ -8,7 +8,7 @@ interface ToggleInputProps<T extends FieldValues> {
   falsyValue: string;
   className?: string;
   register: UseFormRegister<T>;
-  defaultCheck?: boolean;
+  defaultCheck: boolean | undefined;
   setIsWholesaleCheck?: (value: boolean) => void;
 }
 
@@ -25,11 +25,6 @@ function ToggleInput<T extends FieldValues>({
   const [value, setValue] = useState(defaultCheck);
 
   const { onChange, ...registerProps } = register(name);
-
-  //Handling Initial Values
-  useEffect(() => {
-    setValue(defaultCheck);
-  }, [defaultCheck]);
 
   return (
     <div className={className}>

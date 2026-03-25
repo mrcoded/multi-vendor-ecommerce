@@ -1,23 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
+import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
-import { makePostRequest } from "@/lib/apiRequest";
 
+import { useCreateOrder } from "@/hooks/useOrders";
 import { RootState } from "@/types/redux";
 
 import { useSelector, useDispatch } from "react-redux";
-import { actions as checkoutActions } from "@/redux/slices/checkoutSlice";
 import { actions as cartActions } from "@/redux/slices/cartSlice";
+import { actions as checkoutActions } from "@/redux/slices/checkoutSlice";
 
-const OrderSummary = () => {
+const OrderSummary = ({ userId }: { userId: string }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
+  //create order mutation
+  const { mutate: createOrder, isPending } = useCreateOrder();
 
   const { checkoutFormData, currentStep } = useSelector(
     (store: RootState) => store.checkout,
@@ -40,22 +42,21 @@ const OrderSummary = () => {
     dispatch(checkoutActions.setCurrentStep(currentStep - 1));
   };
 
+  //on submit handler
   const onSubmit = () => {
-    const data = { orderItems: cartItems, checkoutFormData };
-    makePostRequest({
-      setLoading,
-      endpoint: "api/orders",
-      data,
-      resourceName: "Order",
-      reset,
-      redirectUrl: (id: string) => {
-        // 1. Dispatch the clear cart action to Redux
-        dispatch(cartActions.clearCart());
-
-        // 2. Redirect the user to the confirmation page
-        router.push(`/order-confirmation/${id}`);
+    createOrder(
+      {
+        checkoutFormData: { ...checkoutFormData, userId },
+        orderItems: cartItems,
       },
-    });
+      {
+        onSuccess: ({ data }) => {
+          dispatch(cartActions.clearCart());
+          toast.success("Order Successfully Placed!");
+          router.push(`/order-confirmation/${data?.data?.id}`);
+        },
+      },
+    );
   };
 
   return (
@@ -121,16 +122,16 @@ const OrderSummary = () => {
         <button
           onClick={handlePrevious}
           type="button"
-          className="w-full sm:w-auto flex items-center justify-center px-3.5 sm:px-6 py-2 sm:py-3 text-[12px] font-bold text-gray-500 dark:text-zinc-400 hover:text-gray-900 transition-colors"
+          className="w-full sm:w-auto flex items-center justify-center px-3.5 sm:px-6 py-2 sm:py-3 text-sm font-bold text-gray-500 dark:text-zinc-400 hover:text-gray-900 transition-colors"
         >
           <ChevronLeft className="size-4 mr-1" />
           Back
         </button>
 
-        {loading ? (
+        {isPending ? (
           <button
             disabled
-            className="w-full sm:w-auto flex items-center justify-center px-8 py-3.5 text-[12px] font-black text-white bg-gray-900 dark:bg-lime-600 rounded-xl opacity-70"
+            className="w-full sm:w-auto flex items-center justify-center px-3 lg:px-8 py-2.5 text-sm font-black text-white bg-gray-900 dark:bg-lime-600 rounded-xl opacity-70"
           >
             Processing...
             <Loader2 className="size-4 ml-2 animate-spin" />
@@ -138,9 +139,9 @@ const OrderSummary = () => {
         ) : (
           <button
             onClick={onSubmit}
-            className="w-full sm:w-auto flex items-center justify-center px-3 sm:px-8 py-3 text-xs font-bold lg:font-black text-white bg-gray-900 dark:bg-lime-600 hover:bg-black dark:hover:bg-lime-700 rounded-xl transition-all active:scale-[0.98] shadow-md dark:shadow-none"
+            className="w-full sm:w-auto flex items-center justify-center px-3 lg:px-8 py-2.5 text-sm font-bold xl:font-black text-white bg-gray-900 dark:bg-lime-600 hover:bg-black dark:hover:bg-lime-700 rounded-xl transition-all active:scale-[0.98] shadow-md dark:shadow-none"
           >
-            <span>Proceed to checkout</span>
+            <span>Proceed to Checkout</span>
             <ChevronRight className="size-4 ml-1" />
           </button>
         )}
