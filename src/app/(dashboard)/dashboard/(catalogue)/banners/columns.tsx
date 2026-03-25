@@ -3,8 +3,9 @@
 import { RowDatas } from "@/types/table";
 import { ColumnDef } from "@tanstack/react-table";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { useDeleteBanner } from "@/hooks/useBanner";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import DataColumn from "@/components/tables/DataTable/DataColumn";
 import ImageColumn from "@/components/tables/DataTable/ImageColumn";
 import SortableColumn from "@/components/tables/DataTable/SortableColumn";
@@ -55,12 +56,14 @@ export const columns: ColumnDef<RowDatas>[] = [
     id: "actions",
     cell: ({ row }) => {
       const banner = row.original;
+      const deleteMutation = useDeleteBanner();
 
       return (
         <ActiveStatusColumn
           title="Banner"
-          endpoint={`banners/${banner.id}`}
-          editEndpoint={`banners/update/${banner.id}`}
+          rowId={banner.id}
+          deleteMutation={deleteMutation}
+          editPageRoute={`banners/update/${banner.id}`}
         />
       );
     },

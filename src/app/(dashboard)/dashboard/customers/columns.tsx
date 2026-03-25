@@ -4,7 +4,6 @@ import { RowDatas } from "@/types/table";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Checkbox } from "@/components/ui/checkbox";
-
 import DataColumn from "@/components/tables/DataTable/DataColumn";
 import SortableColumn from "@/components/tables/DataTable/SortableColumn";
 import ActiveStatusColumn from "@/components/tables/DataTable/ActiveStatusColumn";
@@ -51,8 +50,8 @@ export const columns: ColumnDef<RowDatas>[] = [
       return (
         <ActiveStatusColumn
           title="Customer"
-          endpoint={`customers/${customer.id}`}
-          editEndpoint={`customers/update/${customer.id}`}
+          rowId={customer.id}
+          editPageRoute={`customers/update/${customer.id}`}
         />
       );
     },

@@ -3,8 +3,9 @@
 import { RowDatas } from "@/types/table";
 import { ColumnDef } from "@tanstack/react-table";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { useDeleteCategory } from "@/hooks/useCategories";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import DataColumn from "@/components/tables/DataTable/DataColumn";
 import ImageColumn from "@/components/tables/DataTable/ImageColumn";
 import SortableColumn from "@/components/tables/DataTable/SortableColumn";
@@ -55,12 +56,14 @@ export const columns: ColumnDef<RowDatas>[] = [
     id: "actions",
     cell: ({ row }) => {
       const category = row.original;
+      const deleteMutation = useDeleteCategory();
 
       return (
         <ActiveStatusColumn
           title="Category"
-          endpoint={`categories/${category.id}`}
-          editEndpoint={`categories/update/${category.id}`}
+          rowId={category.id}
+          deleteMutation={deleteMutation}
+          editPageRoute={`categories/update/${category.id}`}
         />
       );
     },

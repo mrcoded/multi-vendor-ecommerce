@@ -3,8 +3,9 @@
 import { RowDatas } from "@/types/table";
 import { ColumnDef } from "@tanstack/react-table";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { useDeleteVendor } from "@/hooks/useVendor";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import DataColumn from "@/components/tables/DataTable/DataColumn";
 import StatusColumn from "@/components/tables/DataTable/StatusColumn";
 import SortableColumn from "@/components/tables/DataTable/SortableColumn";
@@ -42,14 +43,6 @@ export const columns: ColumnDef<RowDatas>[] = [
     header: "Email",
   },
   {
-    accessorKey: "role",
-    header: "Role",
-  },
-  {
-    accessorKey: "plan",
-    header: "Plan",
-  },
-  {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => <StatusColumn row={row} accessorKey="status" />,
@@ -63,12 +56,14 @@ export const columns: ColumnDef<RowDatas>[] = [
     id: "actions",
     cell: ({ row }) => {
       const vendor = row.original;
+      const deleteMutation = useDeleteVendor();
 
       return (
         <ActiveStatusColumn
           title="Vendor"
-          endpoint={`vendors/${vendor.id}`}
-          editEndpoint={`vendors/update/${vendor.id}`}
+          rowId={vendor.id}
+          deleteMutation={deleteMutation}
+          editPageRoute={`vendors/update/${vendor.id}`}
         />
       );
     },

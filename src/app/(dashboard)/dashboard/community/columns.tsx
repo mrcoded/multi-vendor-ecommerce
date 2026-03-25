@@ -3,8 +3,9 @@
 import { RowDatas } from "@/types/table";
 import { ColumnDef } from "@tanstack/react-table";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { useDeleteCommunityPost } from "@/hooks/useCommunity";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import DataColumn from "@/components/tables/DataTable/DataColumn";
 import ImageColumn from "@/components/tables/DataTable/ImageColumn";
 import SortableColumn from "@/components/tables/DataTable/SortableColumn";
@@ -55,12 +56,14 @@ export const columns: ColumnDef<RowDatas>[] = [
     id: "actions",
     cell: ({ row }) => {
       const communityPost = row.original;
+      const deleteMutation = useDeleteCommunityPost();
 
       return (
         <ActiveStatusColumn
           title="Community Post"
-          endpoint={`communityPosts/${communityPost.id}`}
-          editEndpoint={`community/update/${communityPost.id}`}
+          rowId={communityPost.id}
+          deleteMutation={deleteMutation}
+          editPageRoute={`community/update/${communityPost.id}`}
         />
       );
     },

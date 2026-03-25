@@ -2,6 +2,7 @@
 
 import { RowDatas } from "@/types/table";
 import { ColumnDef } from "@tanstack/react-table";
+import { useDeleteStore } from "@/hooks/useStores";
 
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -55,12 +56,14 @@ export const columns: ColumnDef<RowDatas>[] = [
     id: "actions",
     cell: ({ row }) => {
       const store = row.original;
+      const deleteMutation = useDeleteStore();
 
       return (
         <ActiveStatusColumn
           title="store"
-          endpoint={`stores/${store.id}`}
-          editEndpoint={`stores/update/${store.id}`}
+          rowId={store.id}
+          deleteMutation={deleteMutation}
+          editPageRoute={`stores/update/${store.id}`}
         />
       );
     },

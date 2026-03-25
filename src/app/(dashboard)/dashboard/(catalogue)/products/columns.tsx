@@ -3,8 +3,9 @@
 import { RowDatas } from "@/types/table";
 import { ColumnDef } from "@tanstack/react-table";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { useDeleteProduct } from "@/hooks/useProducts";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import DataColumn from "@/components/tables/DataTable/DataColumn";
 import ImageColumn from "@/components/tables/DataTable/ImageColumn";
 import SortableColumn from "@/components/tables/DataTable/SortableColumn";
@@ -42,6 +43,7 @@ export const columns: ColumnDef<RowDatas>[] = [
     header: "Product Image",
     cell: ({ row }) => <ImageColumn row={row} accessorKey="imageUrl" />,
   },
+  { accessorKey: "qty", header: "Quantity" },
   {
     accessorKey: "isActive",
     header: "Active",
@@ -55,12 +57,14 @@ export const columns: ColumnDef<RowDatas>[] = [
     id: "actions",
     cell: ({ row }) => {
       const product = row.original;
+      const deleteMutation = useDeleteProduct();
 
       return (
         <ActiveStatusColumn
           title="Product"
-          endpoint={`products/${product.id}`}
-          editEndpoint={`products/update/${product.id}`}
+          rowId={product.id}
+          deleteMutation={deleteMutation}
+          editPageRoute={`products/update/${product.id}`}
         />
       );
     },
