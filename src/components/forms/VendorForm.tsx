@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { User } from "next-auth";
 import { FieldValues, useForm } from "react-hook-form";
 
-import { makePostRequest } from "@/lib/apiRequest";
 import generateUserCode from "@/lib/generateUserCode";
+import { useCreateVendor, useUpdateVendor, useVendor } from "@/hooks/useVendor";
 
 import { VendorProps } from "@/types/vendors";
 
@@ -17,69 +17,94 @@ import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
 
 function VendorForm({
-  updateData,
+  vendorId,
   user,
 }: {
-  updateData?: VendorProps;
-  user?: VendorProps;
+  vendorId?: string;
+  user: User | undefined;
 }) {
-  const router = useRouter();
-  const id = updateData?.id ?? "";
+  const { data: vendorData } = useVendor(vendorId);
+  const vendor = vendorData?.data;
+  const vendorProfile = vendor?.vendorProfile;
 
-  const initialImageUrl = updateData?.imageUrl ?? "";
-  const initialProducts = updateData?.products ?? [];
+  //mutations
+  const { mutate: createVendor, isPending: isCreating } = useCreateVendor();
+  const { mutate: updateVendor, isPending: isUpdating } = useUpdateVendor(
+    vendorId ?? "",
+  );
 
-  const [loading, setLoading] = useState(false);
-  const [products, setProducts] = useState<string[]>(initialProducts);
-
-  const [imageUrl, setImageUrl] = useState(initialImageUrl);
+  const [imageUrl, setImageUrl] = useState("");
+  const [products, setProducts] = useState<string[]>([]);
 
   const {
     register,
     reset,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<VendorProps["vendorProfile"]>({
+    defaultValues: {
+      firstName: (vendorProfile?.firstName ?? user?.name) || "",
+      lastName: vendorProfile?.lastName ?? "",
+      email: vendor?.email ?? user?.email ?? "",
+      phone: vendorProfile?.phone ?? "",
+      physicalAddress: vendorProfile?.physicalAddress ?? "",
+      notes: vendorProfile?.notes ?? "",
+      isActive: vendorProfile?.isActive ?? false,
+      terms: vendorProfile?.terms ?? "",
+      contactPerson: vendorProfile?.contactPerson ?? "",
+      contactPersonPhone: vendorProfile?.contactPersonPhone ?? "",
+      userId: vendor?.id ?? user?.id ?? "",
+      code: vendorProfile?.code ?? "",
+      imageUrl: vendorProfile?.imageUrl ?? "",
+      products: vendorProfile?.products ?? [],
+    },
+  });
 
-  const redirectUrl = () => {
-    router.push("/login");
-  };
+  useEffect(() => {
+    if (vendorProfile) {
+      reset({
+        firstName: (vendorProfile?.firstName ?? user?.name) || "",
+        lastName: vendorProfile?.lastName ?? "",
+        email: vendor?.email ?? user?.email ?? "",
+        phone: vendorProfile?.phone ?? "",
+        physicalAddress: vendorProfile?.physicalAddress ?? "",
+        notes: vendorProfile?.notes ?? "",
+        isActive: vendorProfile?.isActive ?? false,
+        terms: vendorProfile?.terms ?? "",
+        contactPerson: vendorProfile?.contactPerson ?? "",
+        contactPersonPhone: vendorProfile?.contactPersonPhone ?? "",
+        userId: vendor?.id ?? user?.id ?? "",
+        code: vendorProfile?.code ?? "",
+        imageUrl: vendorProfile?.imageUrl ?? "",
+        products: vendorProfile?.products ?? [],
+      });
+    }
 
+    setImageUrl(vendorProfile?.imageUrl ?? "");
+    setProducts(vendorProfile?.products ?? []);
+  }, [vendorProfile, reset]);
+
+  //onSubmit function
   const onSubmit = async (data: FieldValues) => {
-    const code = generateUserCode("MVE", data.name);
-    data.code = code;
-    data.products = products;
-    data.imageUrl = imageUrl;
-    data.userId = updateData?.id ?? user?.id;
+    const formData = data as VendorProps["vendorProfile"];
 
-    if (id) {
-      //PUT request (update)
-      makePostRequest({
-        setLoading,
-        endpoint: `api/vendors/${id}`,
-        data,
-        resourceName: "Vendor",
-        reset,
-        method: "PUT",
-        redirectUrl,
-      });
+    const code = generateUserCode("MVE", user?.name ?? "");
+    formData.code = code;
+    formData.products = products;
+    formData.imageUrl = imageUrl;
+    formData.userId = vendor?.id ?? user?.id ?? "";
+
+    if (vendorId) {
+      updateVendor(formData);
     } else {
-      //POST request (create)
-      makePostRequest({
-        setLoading,
-        endpoint: "api/vendors",
-        data,
-        resourceName: "Vendor",
-        reset,
-        redirectUrl,
-      });
+      createVendor(formData);
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
+      className="w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
     >
       <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
         <TextInput
@@ -88,7 +113,6 @@ function VendorForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.name ?? user?.name}
         />
 
         <TextInput
@@ -97,7 +121,6 @@ function VendorForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.name ?? user?.name}
         />
 
         <TextInput
@@ -107,7 +130,6 @@ function VendorForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.phone}
         />
 
         <TextInput
@@ -117,7 +139,6 @@ function VendorForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.email ?? user?.email}
         />
 
         <TextInput
@@ -126,7 +147,6 @@ function VendorForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.physicalAddress}
         />
 
         <TextInput
@@ -135,7 +155,6 @@ function VendorForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.contactPerson}
         />
 
         <TextInput
@@ -145,7 +164,6 @@ function VendorForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.contactPersonPhone}
         />
 
         {/* Product Tags */}
@@ -168,7 +186,6 @@ function VendorForm({
           register={register}
           errors={errors}
           isRequired={false}
-          defaultValue={updateData?.terms}
         />
 
         <TextAreaInput
@@ -177,23 +194,23 @@ function VendorForm({
           register={register}
           errors={errors}
           isRequired={false}
-          defaultValue={updateData?.notes}
         />
 
         <ToggleInput
           label="Vendor Status"
           name="isActive"
           truthyValue="Active"
-          falsyValue="Draft"
+          falsyValue="Inactive"
           register={register}
+          defaultCheck={vendorProfile?.isActive}
         />
       </div>
 
       <SubmitButton
-        isLoading={loading}
-        buttonTitle={id ? "Update Vendor" : "Create Vendor"}
+        isLoading={isUpdating || isCreating}
+        buttonTitle={vendorId ? "Update Vendor" : "Create Vendor"}
         loadingButtonTitle={`${
-          id ? "Updating" : "Creating"
+          vendorId ? "Updating" : "Creating"
         } Vendor please wait...`}
       />
     </form>

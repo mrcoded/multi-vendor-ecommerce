@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 import { FieldValues, useForm } from "react-hook-form";
 
@@ -12,43 +11,48 @@ import {
 } from "@/hooks/useCategories";
 import { generateSlug } from "@/lib/generateSlug";
 
+import { CategoryFormProps } from "@/types/category";
 import TextInput from "@/components/inputs/TextInput";
 import ImageInput from "@/components/inputs/ImageInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
-import { CategoryFormProps } from "@/types/category";
 
-const CategoryForm = ({
-  categoryId,
-}: {
-  categoryId?: string;
-  // category?: CategoryFormProps;
-}) => {
+const CategoryForm = ({ categoryId }: { categoryId?: string }) => {
   // Fetch existing category data if editing
-  const {
-    data: category,
-    isLoading: isFetching,
-    error,
-  } = useCategoryById(categoryId ?? "");
-  // const id = category?.id ?? "";
-  const initialImageUrl = category?.imageUrl ?? "";
+  const { data: category } = useCategoryById(categoryId ?? "");
 
-  const [imageUrl, setImageUrl] = useState(initialImageUrl);
+  const [imageUrl, setImageUrl] = useState("");
+  //mutations
+  const { mutate: createCategory, isPending: isCreating } = useCreateCategory();
+  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
 
   const {
     register,
     reset,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      title: category?.title ?? "",
+      description: category?.description ?? "",
+      isActive: category?.isActive ?? false,
+    },
+  });
 
-  console.log(category, error);
-  const { mutate: createCategory, isPending: isCreating } = useCreateCategory();
-  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
+  useEffect(() => {
+    if (category) {
+      reset({
+        title: category.title,
+        description: category.description,
+        isActive: category.isActive,
+      });
 
-  if (categoryId && isFetching) return <p>Loading Category Data...</p>;
+      setImageUrl(category.imageUrl);
+    }
+  }, [category, reset]);
 
+  //onSubmit function
   const onSubmit = async (data: FieldValues) => {
     const formData = data as CategoryFormProps;
 
@@ -81,7 +85,6 @@ const CategoryForm = ({
             name="title"
             register={register}
             errors={errors}
-            defaultValue={category?.title}
           />
 
           <TextAreaInput
@@ -89,7 +92,6 @@ const CategoryForm = ({
             name="description"
             register={register}
             errors={errors}
-            defaultValue={category?.description}
           />
 
           <ImageInput
@@ -105,6 +107,7 @@ const CategoryForm = ({
             truthyValue="Active"
             falsyValue="Draft"
             register={register}
+            defaultCheck={category?.isActive}
           />
         </div>
 

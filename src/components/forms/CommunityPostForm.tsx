@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import { FieldValues, useForm } from "react-hook-form";
 
 import { generateSlug } from "@/lib/generateSlug";
-import { makePostRequest } from "@/lib/apiRequest";
 import { CommunityPostFormProps } from "@/types/communityPost";
 
 import TextInput from "@/components/inputs/TextInput";
@@ -16,68 +14,80 @@ import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
 
+import {
+  useCommunityPostById,
+  useCreateCommunityPost,
+  useUpdateCommunityPost,
+} from "@/hooks/useCommunity";
+import { useCategories } from "@/hooks/useCategories";
+
 const QuillEditor = dynamic(() => import("@/components/QuillEditor"), {
   ssr: false,
 });
 
-const CommunityPostForm = ({
-  updateData,
-  categories,
-}: {
-  updateData?: CommunityPostFormProps;
-  categories: { id: string; title: string }[];
-}) => {
-  const router = useRouter();
-  const id = updateData?.id ?? "";
-  const initialImageUrl = updateData?.imageUrl ?? "";
-  const initialContent = updateData?.content ?? "";
+const CommunityPostForm = ({ postId }: { postId?: string }) => {
+  const { data: categories } = useCategories();
+  const categoriesData = categories ?? [];
 
-  const [loading, setLoading] = useState(false);
+  const { data: community } = useCommunityPostById(postId ?? "");
 
-  const [content, setContent] = useState(initialContent);
-  const [imageUrl, setImageUrl] = useState(initialImageUrl);
+  const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  //mutation
+  const { mutate: createCommunityPost, isPending: isCreating } =
+    useCreateCommunityPost();
+  const { mutate: updateCommunityPost, isPending: isUpdating } =
+    useUpdateCommunityPost();
 
   const {
     register,
     reset,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<CommunityPostFormProps>({
+    defaultValues: {
+      title: community?.title ?? "",
+      categoryId: community?.categoryId ?? "",
+      isActive: community?.isActive,
+      slug: community?.slug ?? "",
+      description: community?.description ?? "",
+      imageUrl: community?.imageUrl ?? "",
+      content: community?.content ?? "",
+    },
+  });
 
-  const redirectUrl = () => {
-    router.push("/dashboard/community");
-  };
+  useEffect(() => {
+    if (community) {
+      reset({
+        title: community?.title ?? "",
+        categoryId: community?.categoryId ?? "",
+        isActive: community?.isActive,
+        slug: community?.slug ?? "",
+        description: community?.description ?? "",
+        imageUrl: community?.imageUrl ?? "",
+        content: community?.content ?? "",
+      });
+    }
+
+    setContent(community?.content ?? "");
+    setImageUrl(community?.imageUrl ?? "");
+  }, [community, reset]);
 
   const onSubmit = async (data: FieldValues) => {
-    const slug = generateSlug(data.title);
-    data.slug = slug;
-    data.imageUrl = imageUrl;
-    data.content = content;
+    const formData = data as CommunityPostFormProps;
+    if (!formData || !content) return;
 
-    if (id) {
+    const slug = generateSlug(formData.title);
+    formData.slug = slug;
+    formData.imageUrl = imageUrl;
+    formData.content = content;
+
+    if (postId) {
       //PUT request (update)
-      makePostRequest({
-        setLoading,
-        endpoint: `api/communityPosts/${id}`,
-        data,
-        resourceName: "Community Post",
-        reset,
-        redirectUrl,
-        method: "PUT",
-      });
+      updateCommunityPost({ id: postId, data: formData });
     } else {
       //POST request (create)
-      makePostRequest({
-        setLoading,
-        endpoint: "api/communityPosts",
-        data,
-        resourceName: "Community Posts",
-        reset,
-        redirectUrl,
-      });
-
-      setImageUrl("");
-      setContent("");
+      createCommunityPost(formData);
     }
   };
 
@@ -85,7 +95,7 @@ const CommunityPostForm = ({
     <div>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
+        className="w-full max-w-4xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
       >
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
           <TextInput
@@ -94,7 +104,6 @@ const CommunityPostForm = ({
             register={register}
             className="w-full"
             errors={errors}
-            defaultValue={updateData?.title ?? ""}
           />
 
           <SelectInput
@@ -103,8 +112,7 @@ const CommunityPostForm = ({
             register={register}
             errors={errors}
             className="w-full"
-            options={categories}
-            defaultValue={updateData?.categoryId ?? ""}
+            options={categoriesData}
           />
 
           <TextAreaInput
@@ -112,7 +120,6 @@ const CommunityPostForm = ({
             name="description"
             register={register}
             errors={errors}
-            defaultValue={updateData?.description ?? ""}
           />
 
           <ImageInput
@@ -135,14 +142,17 @@ const CommunityPostForm = ({
             truthyValue="Active"
             falsyValue="Draft"
             register={register}
+            defaultCheck={community?.isActive}
           />
         </div>
 
         <SubmitButton
-          isLoading={loading}
-          buttonTitle={id ? "Update Community Post" : "Create Community Post"}
+          isLoading={isCreating || isUpdating}
+          buttonTitle={
+            postId ? "Update Community Post" : "Create Community Post"
+          }
           loadingButtonTitle={`${
-            id ? "Updating" : "Creating"
+            postId ? "Updating" : "Creating"
           } Community Post please wait...`}
         />
       </form>

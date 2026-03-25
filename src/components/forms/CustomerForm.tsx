@@ -1,80 +1,79 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FieldValues, useForm } from "react-hook-form";
-
-import { makePostRequest } from "@/lib/apiRequest";
-import generateISOFormatDate from "@/lib/generateISOFormatDate";
 
 import TextInput from "@/components/inputs/TextInput";
 import ImageInput from "@/components/inputs/ImageInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
+import { useUserDetail } from "@/hooks/useUsers";
+import { UserProfileProps } from "@/types/user";
+import { useUpdateProfile } from "@/hooks/useUserProfile";
 
-type CustomerProps = {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  profileImage?: string;
-  streetAddress: string;
-  city: string;
-  district: string;
-  firstName: string;
-  lastName: string;
-  userName: string;
-  dateOfBirth: string;
-  country: string;
-};
-
-function CustomerForm({
-  updateData,
-  profileData,
-}: {
-  updateData?: CustomerProps;
-  profileData?: CustomerProps;
-}) {
-  const router = useRouter();
-  const id = profileData?.id ?? "";
+function UsersForm({ userId }: { userId: string }) {
+  const { data: user } = useUserDetail(userId);
+  const profile = user?.profile;
 
   const [imageUrl, setImageUrl] = useState("");
-  const [loading, setLoading] = useState(false);
+  //mutation
+  const { mutate: updateMutation, isPending } = useUpdateProfile();
 
-  //Convert updateData to required ISO date for display
-  const isoDate = updateData?.dateOfBirth ?? "";
-  const formattedDate = isoDate.split("T")[0];
+  //Convert customer to required ISO date for display
+  // const isoDate = profile?.dateOfBirth ?? "";
+  // const formattedDate = isoDate.split("T")[0];
 
   const {
     register,
     reset,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<UserProfileProps["profile"]>({
+    defaultValues: {
+      city: profile?.city || "",
+      phone: profile?.phone || "",
+      email: profile?.email || user?.email || "",
+      country: profile?.country || "",
+      district: profile?.district || "",
+      lastName: profile?.lastName || "",
+      userName: profile?.userName || "",
+      // dateOfBirth: profile?.dateOfBirth || Date.now(),
+      streetAddress: profile?.streetAddress || "",
+      firstName: profile?.firstName || user?.name || "",
+    },
+  });
 
-  const redirectUrl = () => {
-    router.push("/dashboard/customers");
-  };
+  useEffect(() => {
+    if (user) {
+      reset({
+        city: profile?.city || "",
+        phone: profile?.phone || "",
+        email: profile?.email || user?.email || "",
+        country: profile?.country || "",
+        district: profile?.district || "",
+        lastName: profile?.lastName || "",
+        userName: profile?.userName || "",
+        dateOfBirth: profile?.dateOfBirth || new Date(),
+        streetAddress: profile?.streetAddress || "",
+        firstName: profile?.firstName || user?.name || "",
+      });
+    }
+    setImageUrl(profile?.profileImage || "");
+  }, [profile, user]);
 
+  //onSubmit function
   const onSubmit = async (data: FieldValues) => {
+    const formData = data as UserProfileProps["profile"];
     if (!data.name || !data.email) return;
 
-    data.profileImage = imageUrl;
-    data.userId = updateData?.id ?? "";
+    formData.profileImage = imageUrl;
+    formData.userId = user?.id ?? "";
 
-    const formattedDate = generateISOFormatDate(data.dateOfBirth);
-    data.dateOfBirth = formattedDate;
+    // const formattedDate = generateISOFormatDate(formData.dateOfBirth);
+    // formData.dateOfBirth = formattedDate;
 
     //PUT request (update)
-    makePostRequest({
-      setLoading,
-      endpoint: `api/customers/${id}`,
-      data,
-      method: "PUT",
-      resourceName: "Customer Profile",
-      reset,
-      redirectUrl,
-      successMsg: "Customer Profile Updated Successfully!",
-    });
+    updateMutation(formData);
   };
 
   return (
@@ -88,12 +87,19 @@ function CustomerForm({
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 sm:gap-6 border-b border-gray-700 pb-10">
         <TextInput
-          label="Full Name"
-          name="name"
+          label="First Name"
+          name="firstName"
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.name}
+        />
+
+        <TextInput
+          label="Last Name"
+          name="lastName"
+          register={register}
+          errors={errors}
+          className="w-full"
         />
 
         <TextInput
@@ -102,7 +108,6 @@ function CustomerForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={profileData?.userName}
         />
 
         <TextInput
@@ -112,17 +117,16 @@ function CustomerForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={formattedDate}
         />
 
         <TextInput
           label="Email Address"
           name="email"
           type="email"
+          disabled={true}
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.email}
         />
 
         <TextInput
@@ -131,7 +135,6 @@ function CustomerForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={profileData?.phone}
         />
 
         <ImageInput
@@ -153,7 +156,6 @@ function CustomerForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={profileData?.streetAddress}
         />
 
         <TextInput
@@ -162,7 +164,6 @@ function CustomerForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={profileData?.city}
         />
 
         <TextInput
@@ -171,7 +172,6 @@ function CustomerForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={profileData?.country}
         />
 
         <TextInput
@@ -180,19 +180,18 @@ function CustomerForm({
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={profileData?.district}
         />
       </div>
 
       <SubmitButton
-        isLoading={loading}
-        buttonTitle={id ? "Update Customer" : "Create Customer"}
+        isLoading={isPending}
+        buttonTitle={userId ? "Update User" : "Create User"}
         loadingButtonTitle={`${
-          id ? "Updating" : "Creating"
-        } Customer please wait...`}
+          userId ? "Updating" : "Creating"
+        } User please wait...`}
       />
     </form>
   );
 }
 
-export default CustomerForm;
+export default UsersForm;

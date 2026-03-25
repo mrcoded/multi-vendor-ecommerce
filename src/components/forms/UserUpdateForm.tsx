@@ -1,67 +1,59 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Loader2, Home } from "lucide-react";
 
+import { User } from "next-auth";
 import toast from "react-hot-toast";
 import { FieldValues, useForm } from "react-hook-form";
 
+import { useUserDetail } from "@/hooks/useUsers";
+import { useUpdateProfile } from "@/hooks/useUserProfile";
+
 import { UploadButton } from "@/lib/uploadthing";
-import { makePostRequest } from "@/lib/apiRequest";
 import generateInitials from "@/lib/generateInitials";
 
+import { UserProfileProps } from "@/types/user";
 import TextInput from "@/components/inputs/TextInput";
 
-interface UserProfileProps {
-  name: string;
-  email: string;
-  profile: {
-    userId: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    userName: string;
-    phone: string;
-    streetAddress: string;
-    city: string;
-    district: string;
-    country: string;
-    dateOfBirth: string;
-    profileImage: string;
-  };
-}
+const UserUpdateForm = ({ user }: { user: User | undefined }) => {
+  const { data: userData } = useUserDetail(user?.id);
+  const [imageUrl, setImageUrl] = useState("");
+  //mutation
+  const { mutate: updateMutation, isPending } = useUpdateProfile();
 
-const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState(user?.profile.profileImage || "");
+  const userProfile = userData?.profile;
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm();
+  } = useForm<UserProfileProps["profile"]>({
+    defaultValues: {
+      city: userProfile?.city || "",
+      phone: userProfile?.phone || "",
+      email: userProfile?.email || user?.email || "",
+      country: userProfile?.country || "",
+      district: userProfile?.district || "",
+      lastName: userProfile?.lastName || "",
+      userName: userProfile?.userName || "",
+      dateOfBirth: userProfile?.dateOfBirth || new Date(),
+      streetAddress: userProfile?.streetAddress || "",
+      firstName: userProfile?.firstName || user?.name || "",
+    },
+  });
 
-  async function onSubmit(data: FieldValues) {
-    if (user?.profile.userId) {
-      console.log(data);
-      //PUT request (update)
-      makePostRequest({
-        setLoading,
-        endpoint: `api/users/profile`,
-        data,
-        resourceName: "User Profile",
-        method: "PATCH",
-        reset,
-        redirectUrl: () => router.refresh(),
-      });
-    }
-  }
+  // if (!userData) return <>Loading...</>;
+
+  const onSubmit = (data: FieldValues) => {
+    const formData = data as UserProfileProps["profile"];
+
+    updateMutation(formData);
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="p-2 sm:p-6 space-y-8">
       {/* Avatar Upload */}
       <div className="flex flex-col sm:flex-row items-center gap-6 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-lg">
         <div className="relative">
@@ -73,7 +65,7 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
             />
           ) : (
             <div className="size-24 rounded-full dark:bg-lime-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white">
-              {generateInitials(user?.name)}
+              {generateInitials(user?.name || "User")}
             </div>
           )}
         </div>
@@ -85,7 +77,7 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
               setImageUrl(res[0].ufsUrl);
               toast.success("Image uploaded!");
             }}
-            className="ut-button:bg-lime-600 ut-button:ut-readying:bg-lime-500/50"
+            className="px-2 ut-button:bg-lime-600 ut-button:ut-readying:bg-lime-500/50"
           />
         </div>
       </div>
@@ -98,7 +90,6 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.profile.userName}
         />
 
         <TextInput
@@ -108,7 +99,6 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
           errors={errors}
           className="w-full"
           disabled={true}
-          defaultValue={user?.email || user?.profile.email || ""}
         />
 
         <TextInput
@@ -117,7 +107,6 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.profile.firstName || ""}
         />
 
         <TextInput
@@ -126,7 +115,6 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.profile.lastName || ""}
         />
 
         <TextInput
@@ -136,7 +124,6 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.profile.dateOfBirth || ""}
         />
 
         <TextInput
@@ -145,7 +132,6 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.profile.phone || ""}
         />
       </div>
       <hr className="border-slate-100 dark:border-slate-800" />
@@ -161,7 +147,6 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.profile.streetAddress || ""}
         />
 
         <TextInput
@@ -170,7 +155,6 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.profile.city || ""}
         />
 
         <TextInput
@@ -179,7 +163,6 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.profile.district || ""}
         />
 
         <TextInput
@@ -188,17 +171,16 @@ const UserUpdateForm = ({ user }: { user: UserProfileProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={user?.profile.country || ""}
         />
       </div>
 
       <div className="flex justify-end pt-4">
         <button
           type="submit"
-          disabled={loading}
+          disabled={isPending}
           className="bg-lime-600 hover:bg-lime-700 text-white px-8 py-2.5 rounded-lg font-bold flex items-center gap-2"
         >
-          {loading && <Loader2 className="animate-spin size-4" />}
+          {isPending && <Loader2 className="animate-spin size-4" />}
           Save Profile
         </button>
       </div>
