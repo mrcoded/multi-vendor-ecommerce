@@ -23,7 +23,7 @@ export type checkoutInitialStateProps = {
     city: string;
     country: string;
     district: string;
-    shippingCost: number;
+    shippingCost: string;
     //Payment Method
     paymentMethod: string;
     paymentToken: string;

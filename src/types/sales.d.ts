@@ -8,13 +8,28 @@ export interface SalesInvoiceProps {
       price: number;
     }>;
     orderNumber: string;
-    createdAt: string;
+    createdAt: Date;
     firstName: string;
     lastName: string;
-    email: string;
+    emailAddress: string;
     streetAddress: string;
     city: string;
     district: string;
     country: string;
   };
+}
+
+export interface SalesProps {
+  id: string;
+  vendorId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  productPrice: number;
+  storeId: string;
+  orderId: string;
+  productId: string;
+  productImageUrl: string;
+  productTitle: string;
+  productQty: number;
+  total: number;
 }

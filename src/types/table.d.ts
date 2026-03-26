@@ -3,12 +3,13 @@
 export type RowDatas = {
   id: string;
   name?: string;
-  isActive: boolean;
+  isActive?: boolean;
   role?: string;
   email?: string;
   title?: string;
-  createdAt: string;
-  imageUrl: string;
-  expiryDate: string;
-  couponCode: string;
+  createdAt?: Date | string;
+  imageUrl?: string | null;
+  productImageUrl?: string;
+  expiryDate?: string;
+  couponCode?: string;
 };
