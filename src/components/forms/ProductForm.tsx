@@ -1,86 +1,112 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { User } from "next-auth";
 import { FieldValues, useForm } from "react-hook-form";
 
 import { generateSlug } from "@/lib/generateSlug";
-import { makePostRequest } from "@/lib/apiRequest";
 import generateUserCode from "@/lib/generateUserCode";
-import { ProductFormData, ProductFormProps } from "@/types/products";
 
-import TextInput from "@/components/inputs/TextInput";
-import MultiImageInput from "@/components/inputs/MultiImageInput";
-import ToggleInput from "@/components/inputs/ToggleInput";
-import SelectInput from "@/components/inputs/SelectInput";
+import {
+  useProductById,
+  useCreateProduct,
+  useUpdateProduct,
+} from "@/hooks/useProducts";
+import { useVendor } from "@/hooks/useVendor";
+
+import { StoreProps } from "@/types/store";
+import { ProductFormData } from "@/types/products";
+
+import ProductInputForm from "./ProductInputForm";
 import SubmitButton from "@/components/buttons/SubmitButton";
-import TextAreaInput from "@/components/inputs/TextAreaInput";
-import ArrayItemsInput from "@/components/inputs/ArrayItemsInput";
+import { useUsers } from "@/hooks/useUsers";
+import { useCategories } from "@/hooks/useCategories";
 
 const ProductForm = ({
-  categories,
-  vendors,
-  updateData,
+  user,
+  stores,
+  productId,
 }: {
-  updateData?: ProductFormData;
-  categories: ProductFormProps["categories"];
-  vendors: ProductFormProps["vendors"];
+  productId?: string;
+  user: User | undefined;
+  stores: StoreProps[] | undefined;
 }) => {
-  const router = useRouter();
-  const id = updateData?.id ?? "";
-  const initialTags = updateData?.tags ?? [];
-  const initialProductImages = updateData?.productImages ?? [];
-  const isWholeSale = updateData?.isWholesale ?? false;
+  const userId = user?.id;
+  const { data: vendor } = useVendor(userId);
+  const { data: users } = useUsers();
+  const { data: categories } = useCategories();
+  const { data: product } = useProductById(productId ?? "");
 
-  const [loading, setLoading] = useState(false);
-  const [productImages, setProductImages] = useState(initialProductImages);
-  const [isWholesaleCheck, setIsWholesaleCheck] = useState(false);
+  const role = user?.role;
+  const allStores = stores ?? [];
+  const allUsers = users ?? [];
+  const categoriesData = categories ?? [];
+  const vendorId = vendor?.data?.id;
 
+  const initialTags = product?.tags ?? [];
+  const isWholeSale = product?.isWholesale ?? false;
+  const initialProductImages = product?.productImages ?? [];
+
+  // const [mounted, setMounted] = useState(false);
   const [tags, setTags] = useState<string[]>(initialTags);
+  const [isWholesaleCheck, setIsWholesaleCheck] = useState(false);
+  const [productImages, setProductImages] = useState(initialProductImages);
+  //mutations
+  const { mutate: createProduct, isPending: isCreating } = useCreateProduct();
+  const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
   const {
     register,
     reset,
+    setValue, // 👈 It comes from here!
+    watch,
     handleSubmit,
     formState: { errors },
-  } = useForm();
-
-  const redirectUrl = () => {
-    router.push("/dashboard/products");
-  };
+  } = useForm<ProductFormData>({
+    defaultValues: {
+      sku: product?.sku,
+      qty: product?.qty,
+      title: product?.title,
+      barcode: product?.barcode,
+      salePrice: product?.salePrice,
+      categoryId: product?.categoryId,
+      // storeIds: product?.storeIds,
+      description: product?.description,
+      productPrice: product?.productPrice,
+      wholesalePrice: product?.wholesalePrice,
+      wholesaleQuantity: product?.wholesaleQuantity,
+    },
+    // Optional: Trigger validation only on change or blur
+    mode: "onChange",
+  });
 
   const onSubmit = async (data: FieldValues) => {
-    const slug = generateSlug(data.title);
-    const productCode = generateUserCode("MVEP", data.title);
-    data.slug = slug;
-    data.productImages = productImages;
-    data.tags = tags;
-    data.productCode = productCode;
+    const formData = data as ProductFormData;
 
-    if (id) {
-      //PUT request (update)
-      makePostRequest({
-        setLoading,
-        endpoint: `api/products/${id}`,
-        data,
-        resourceName: "Product",
-        method: "PUT",
-        reset,
-        redirectUrl,
+    //Validation Guard
+    if (!productImages || productImages.length === 0) {
+      toast.error("Please upload at least one product image.");
+      return;
+    }
+
+    const slug = generateSlug(formData.title);
+    const productCode = generateUserCode("MVEP", formData.title);
+    formData.slug = slug;
+    formData.productImages = productImages ?? productImages[0];
+    formData.tags = tags;
+    formData.productCode = productCode;
+    console.log(formData);
+    if (productId) {
+      // UPDATE MUTATION
+      // Call your server action with the cleaned data
+      updateProduct({
+        productId,
+        formData,
       });
     } else {
-      //POST request (create)
-      makePostRequest({
-        setLoading,
-        endpoint: "api/products",
-        data,
-        resourceName: "Product",
-        reset,
-        redirectUrl,
-      });
-
-      setTags([]);
-      setProductImages([]);
+      //CREATE MUTATION
+      createProduct(formData);
     }
   };
 
@@ -90,151 +116,32 @@ const ProductForm = ({
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-4xl p-4 sm:p-6 md:p-8 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
       >
-        <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
-          <TextInput
-            label="Product Title"
-            name="title"
-            register={register}
-            errors={errors}
-            defaultValue={updateData?.title}
-          />
-
-          <TextInput
-            label="Product SKU"
-            name="sku"
-            register={register}
-            errors={errors}
-            className="w-full"
-            defaultValue={updateData?.sku}
-          />
-
-          <TextInput
-            label="Product Barcode"
-            name="barcode"
-            register={register}
-            errors={errors}
-            className="w-full"
-            defaultValue={updateData?.barcode}
-          />
-
-          <TextInput
-            label="Product Price (Before Discount)"
-            name="productPrice"
-            type="number"
-            register={register}
-            errors={errors}
-            className="w-full"
-            defaultValue={updateData?.productPrice}
-          />
-
-          <TextInput
-            label="Product Sale Price(Discounted)"
-            name="salePrice"
-            type="number"
-            register={register}
-            errors={errors}
-            className="w-full"
-            defaultValue={updateData?.salePrice}
-          />
-
-          <SelectInput
-            label="Select Category"
-            name="categoryId"
-            register={register}
-            errors={errors}
-            className="w-full"
-            options={categories}
-            hasMultipleSelect={false}
-            defaultValue={updateData?.categoryId ?? ""}
-          />
-
-          <SelectInput
-            label="Select Vendor"
-            name="vendorId"
-            register={register}
-            errors={errors}
-            className="w-full"
-            options={vendors}
-            hasMultipleSelect={false}
-            defaultValue={updateData?.userId}
-          />
-
-          <ToggleInput
-            label="Supports Wholesales"
-            name="isWholesale"
-            truthyValue="Supported"
-            falsyValue="Not Supported"
-            register={register}
-            setIsWholesaleCheck={setIsWholesaleCheck}
-            defaultCheck={isWholeSale}
-          />
-
-          {isWholesaleCheck && (
-            <>
-              <TextInput
-                label="WholeSale Price"
-                name="wholesalePrice"
-                type="number"
-                register={register}
-                errors={errors}
-                className="w-full"
-                defaultValue={updateData?.wholesalePrice}
-              />
-
-              <TextInput
-                label="WholeSale Available Quantity"
-                name="wholesaleQuantity"
-                type="number"
-                register={register}
-                errors={errors}
-                className="w-full"
-                defaultValue={updateData?.wholesaleQuantity}
-              />
-            </>
-          )}
-
-          <TextInput
-            label="Available Quantity"
-            name="qty"
-            type="number"
-            register={register}
-            errors={errors}
-            className="w-full"
-            defaultValue={updateData?.wholesaleQuantity}
-          />
-
-          <MultiImageInput
-            imageUrls={productImages}
-            setImageUrls={setProductImages}
-            endpoint="multipleProductsUploader"
-            label="Product Images"
-          />
-
-          {/* Tags */}
-          <ArrayItemsInput setItems={setTags} items={tags} itemTitle="Tag" />
-
-          <TextAreaInput
-            label="Product Description"
-            name="description"
-            register={register}
-            errors={errors}
-            defaultValue={updateData?.description}
-          />
-
-          <ToggleInput
-            label="Publish your Product"
-            name="isActive"
-            truthyValue="Active"
-            falsyValue="Draft"
-            register={register}
-          />
-        </div>
+        <ProductInputForm
+          register={register}
+          errors={errors}
+          reset={reset}
+          watch={watch}
+          product={product}
+          isWholeSale={isWholeSale}
+          isWholesaleCheck={isWholesaleCheck}
+          setIsWholesaleCheck={setIsWholesaleCheck}
+          tags={tags}
+          setTags={setTags}
+          productImages={productImages}
+          setProductImages={setProductImages}
+          categoriesData={categoriesData}
+          vendorId={vendorId}
+          role={role}
+          productId={productId}
+          allStores={allStores}
+          users={allUsers}
+        />
 
         <SubmitButton
-          isLoading={loading}
-          buttonTitle={id ? "Update Product" : "Create Product"}
+          isLoading={isCreating || isUpdating}
+          buttonTitle={productId ? "Update Product" : "Create Product"}
           loadingButtonTitle={`${
-            id ? "Updating" : "Creating"
+            productId ? "Updating" : "Creating"
           } Product please wait...`}
         />
       </form>

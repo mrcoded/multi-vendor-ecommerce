@@ -1,6 +1,7 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
+import { notFound } from "next/navigation";
 
+import Loading from "@/app/loading";
 import CommunityPostForm from "@/components/forms/CommunityPostForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
@@ -9,23 +10,17 @@ const UpdateCommunityPost = async ({
 }: {
   params: Promise<{ id: string }>;
 }) => {
-  const { id } = await params;
+  const { id: communityPostId } = await params;
 
-  const communityPost = await getData(`communityPosts/${id}`);
-  const categoriesData = await getData("categories");
-
-  const categories = categoriesData.map(
-    (category: { id: string; title: string }) => ({
-      id: category.id,
-      title: category.title,
-    }),
-  );
+  if (!communityPostId) return notFound();
 
   return (
-    <div>
+    <>
       <FormHeader title="Update Community Post" />
-      <CommunityPostForm updateData={communityPost} categories={categories} />
-    </div>
+      <Suspense fallback={<Loading />}>
+        <CommunityPostForm postId={communityPostId} />
+      </Suspense>
+    </>
   );
 };
 

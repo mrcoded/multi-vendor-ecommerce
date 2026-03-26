@@ -1,39 +1,46 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-
-import { FieldValues, useForm } from "react-hook-form";
+import React, { useEffect } from "react";
 
 import { useSession } from "next-auth/react";
-import { makePostRequest } from "@/lib/apiRequest";
+import { FieldValues, useForm } from "react-hook-form";
+
+import {
+  useCouponById,
+  useCreateCoupon,
+  useUpdateCoupon,
+} from "@/hooks/useCoupon";
+import { useVendor } from "@/hooks/useVendor";
 import { generateCouponCode } from "@/lib/generateCouponCode";
+import generateISOFormatDate from "@/lib/generateISOFormatDate";
 
 import TextInput from "@/components/inputs/TextInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
-import generateISOFormatDate from "@/lib/generateISOFormatDate";
 
-interface CouponFormProps {
+export interface CouponFormProps {
   id: string;
   title: string;
   couponCode: string;
   expiryDate: string;
+  vendorId: string | undefined;
   isActive: boolean;
 }
 
-const CouponForm = ({ updateData }: { updateData?: CouponFormProps }) => {
-  const router = useRouter();
-  const id = updateData?.id ?? "";
-
-  const [loading, setLoading] = useState(false);
-
+const CouponForm = ({ couponId }: { couponId?: string }) => {
   const { data: session } = useSession();
+  const userId = session?.user?.id;
+  const { data: coupon } = useCouponById(couponId);
+  const { data: vendor } = useVendor(userId);
 
-  const vendorId = session?.user?.id;
+  //mutations
+  const { mutate: createCoupon, isPending: isCreating } = useCreateCoupon();
+  const { mutate: updateCoupon, isPending: isUpdating } = useUpdateCoupon();
 
-  //Convert updateData to required ISO date for display
-  const isoDate = updateData?.expiryDate ?? "";
+  //Convert coupon to required ISO date for display
+  const isoDate = coupon?.expiryDate
+    ? new Date(coupon.expiryDate).toISOString()
+    : "";
   const formattedDate = isoDate.split("T")[0];
 
   const {
@@ -41,47 +48,46 @@ const CouponForm = ({ updateData }: { updateData?: CouponFormProps }) => {
     reset,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      title: coupon?.title ?? "",
+      expiryDate: formattedDate,
+      isActive: coupon?.isActive ?? false,
+    },
+  });
 
-  const redirectUrl = () => {
-    router.push("/dashboard/coupons");
-  };
+  useEffect(() => {
+    if (coupon) {
+      reset({
+        title: coupon.title,
+        expiryDate: formattedDate,
+        isActive: coupon.isActive,
+      });
+    }
+  }, [coupon, reset]);
 
   const onSubmit = async (data: FieldValues) => {
+    const formData = data as CouponFormProps;
+
     if (!data.title || !data.expiryDate) return;
 
     const couponCode = generateCouponCode({
-      title: data.title,
-      expiryDate: data.expiryDate,
+      title: formData.title,
+      expiryDate: formData.expiryDate,
     });
 
-    const formattedDate = generateISOFormatDate(data.expiryDate);
-    data.expiryDate = formattedDate;
+    const formattedDate = generateISOFormatDate(new Date(formData.expiryDate));
+    formData.expiryDate = formattedDate;
 
-    data.couponCode = couponCode;
-    data.vendorId = vendorId;
+    formData.couponCode = couponCode;
+    formData.vendorId = vendor?.data?.id;
 
-    if (id) {
+    if (couponId) {
       //PUT request (update)
-      makePostRequest({
-        setLoading,
-        endpoint: `api/coupons/${id}`,
-        data,
-        resourceName: "Coupon",
-        reset,
-        redirectUrl,
-        method: "PUT",
-      });
+      updateCoupon({ id: couponId, data: formData });
     } else {
       //POST request (create)
-      makePostRequest({
-        setLoading,
-        endpoint: "api/coupons",
-        data,
-        resourceName: "Coupon",
-        reset,
-        redirectUrl,
-      });
+      createCoupon(formData);
     }
   };
 
@@ -97,7 +103,6 @@ const CouponForm = ({ updateData }: { updateData?: CouponFormProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={updateData?.title}
         />
 
         <TextInput
@@ -107,7 +112,6 @@ const CouponForm = ({ updateData }: { updateData?: CouponFormProps }) => {
           register={register}
           errors={errors}
           className="w-full"
-          defaultValue={formattedDate}
         />
 
         <ToggleInput
@@ -116,14 +120,15 @@ const CouponForm = ({ updateData }: { updateData?: CouponFormProps }) => {
           truthyValue="Active"
           falsyValue="Draft"
           register={register}
+          defaultCheck={coupon?.isActive}
         />
       </div>
 
       <SubmitButton
-        isLoading={loading}
-        buttonTitle={id ? "Update Coupon" : "Create Coupon"}
+        isLoading={isCreating || isUpdating}
+        buttonTitle={couponId ? "Update Coupon" : "Create Coupon"}
         loadingButtonTitle={`${
-          id ? "Updating" : "Creating"
+          couponId ? "Updating" : "Creating"
         } Coupon please wait...`}
       />
     </form>

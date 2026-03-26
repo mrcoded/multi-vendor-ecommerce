@@ -1,34 +1,27 @@
-export const dynamic = "force-dynamic";
-
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
+import Loading from "@/app/loading";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { fetchAllProductsAction } from "@/lib/actions/product-actions";
+import { fetchAllStoresAction } from "@/lib/actions/store-actions";
 
-import { columns } from "./columns";
-import { DataTable } from "@/components/tables/DataTable/page";
-
+import ProductsTable from "./_components/ProductsTable";
 import PageHeader from "../../_components/shared/PageHeader";
 
 const Page = async () => {
-  const products = await getData("products");
   const session = await getServerSession(authOptions);
+  //GET user data
+  const user = session?.user;
 
-  //GET userID and Role
-  const id = session?.user?.id;
-  const role = session?.user?.role;
+  const { data: stores } = await fetchAllStoresAction();
+  const { data: allProducts } = await fetchAllProductsAction();
 
-  if (!session) {
-    return null;
-  }
-
-  const vendorProducts = products.filter(
-    (product: { userId: string }) => product.userId === id,
-  );
+  const allStoresData = stores ?? [];
+  const allProductsData = allProducts ?? [];
 
   return (
-    <div>
+    <>
       {/* Header */}
       <PageHeader
         heading="Products"
@@ -36,14 +29,15 @@ const Page = async () => {
         linkAction="Add Product"
       />
 
-      <div className="py-1">
-        {role === "ADMIN" ? (
-          <DataTable data={products} columns={columns} />
-        ) : (
-          <DataTable data={vendorProducts} columns={columns} />
-        )}
-      </div>
-    </div>
+      <Suspense fallback={<Loading />}>
+        {/* ProductsTable Component */}
+        <ProductsTable
+          products={allProductsData}
+          stores={allStoresData}
+          user={user}
+        />
+      </Suspense>
+    </>
   );
 };
 

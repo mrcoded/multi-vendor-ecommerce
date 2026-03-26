@@ -1,75 +1,63 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 import { FieldValues, useForm } from "react-hook-form";
+import { useBanner, useCreateBanner, useUpdateBanner } from "@/hooks/useBanner";
 
-import { generateSlug } from "@/lib/generateSlug";
-import { makePostRequest } from "@/lib/apiRequest";
-
+import { BannerFormProps } from "@/types/banner";
 import TextInput from "@/components/inputs/TextInput";
 import ImageInput from "@/components/inputs/ImageInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 
-interface BannerFormProps {
-  id: string;
-  title: string;
-  link: string;
-  imageUrl: string;
-  isActive: boolean;
-}
-
-const BannerForm = ({ updateData }: { updateData?: BannerFormProps }) => {
-  const router = useRouter();
-  const id = updateData?.id ?? "";
-  const initialImageUrl = updateData?.imageUrl ?? "";
-
-  const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState(initialImageUrl);
+const BannerForm = ({ bannerId }: { bannerId?: string }) => {
+  const { data: bannerData, error } = useBanner(bannerId ?? "");
+  console.log(bannerData, error);
+  const banner = bannerData?.data;
+  const id = banner?.id;
+  const [imageUrl, setImageUrl] = useState("");
+  //mutation
+  const { mutate: createBanner, isPending: isCreating } = useCreateBanner();
+  const { mutate: updateBanner, isPending: isUpdating } = useUpdateBanner();
 
   const {
     register,
     reset,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      title: banner?.title ?? "",
+      link: banner?.link ?? "",
+      isActive: banner?.isActive,
+      imageUrl: banner?.imageUrl ?? "",
+    },
+  });
 
-  const redirectUrl = () => {
-    router.push("/dashboard/banners");
-  };
+  useEffect(() => {
+    if (banner) {
+      reset(banner);
+      setImageUrl(banner.imageUrl);
+    }
+  }, [banner, reset]);
 
+  //onSubmit function
   const onSubmit = async (data: FieldValues) => {
-    if (!data.title || !data.link) return;
+    const formData = data as BannerFormProps;
+    if (!formData.title || !formData.link) return;
 
-    const slug = generateSlug(data.title);
-    data.slug = slug;
-    data.imageUrl = imageUrl;
+    formData.imageUrl = imageUrl;
+    console.log(formData);
 
     if (id) {
       //PUT request (update)
-      makePostRequest({
-        setLoading,
-        endpoint: `api/banners/${id}`,
-        data,
-        resourceName: "Banner",
-        reset,
-        redirectUrl,
-        method: "PUT",
-      });
+      updateBanner({ id, data: formData });
     } else {
       //POST request (create)
-      makePostRequest({
-        setLoading,
-        endpoint: "api/banners",
-        data,
-        resourceName: "Banner",
-        reset,
-        redirectUrl,
-      });
+      createBanner(formData);
 
-      setImageUrl("");
+      // setImageUrl("");
     }
   };
 
@@ -84,7 +72,6 @@ const BannerForm = ({ updateData }: { updateData?: BannerFormProps }) => {
           name="title"
           register={register}
           errors={errors}
-          defaultValue={updateData?.title}
         />
 
         <TextInput
@@ -93,7 +80,6 @@ const BannerForm = ({ updateData }: { updateData?: BannerFormProps }) => {
           type="url"
           register={register}
           errors={errors}
-          defaultValue={updateData?.link}
         />
 
         <ImageInput
@@ -109,14 +95,15 @@ const BannerForm = ({ updateData }: { updateData?: BannerFormProps }) => {
           truthyValue="Active"
           falsyValue="Draft"
           register={register}
+          defaultCheck={banner?.isActive}
         />
       </div>
 
       <SubmitButton
-        isLoading={loading}
+        isLoading={isCreating || isUpdating}
         buttonTitle={id ? "Update Banner" : "Create Banner"}
         loadingButtonTitle={`${
-          id ? "Updating" : "Creating"
+          bannerId ? "Updating" : "Creating"
         } Banner please wait...`}
       />
     </form>

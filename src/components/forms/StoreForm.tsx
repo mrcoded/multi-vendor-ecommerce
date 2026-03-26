@@ -10,8 +10,8 @@ import {
   useStoreById,
   useUpdateStore,
 } from "@/hooks/useStores";
-import { useUsers } from "@/hooks/useUsers";
 import { useCategories } from "@/hooks/useCategories";
+import { useVendor, useVendors } from "@/hooks/useVendor";
 
 import { StoreProps } from "@/types/store";
 
@@ -31,15 +31,20 @@ const StoreForm = ({
 }) => {
   const role = user?.role;
 
-  const { data: userData } = useUsers();
   const { data: categoriesData } = useCategories();
+
   // Fetch existing category data if editing
   const {
     data: store,
     isLoading: isFetching,
     error,
   } = useStoreById(storeId ?? "");
-
+  const { data: vendor } = useVendor(user?.id);
+  const { data: vendors } = useVendors();
+  //Get vendor ID
+  const vendorId = vendor?.data?.id;
+  const alVendors = vendors?.data ?? [];
+  console.log(store);
   // const id = store?.id ?? "";
   const initialImageUrl = store?.imageUrl ?? "";
 
@@ -54,18 +59,50 @@ const StoreForm = ({
     reset,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<StoreProps>({
+    defaultValues: {
+      title: store?.title ?? "",
+      description: store?.description ?? "",
+      isActive: store?.isActive,
+      categoryIds: store?.categoryIds ?? [],
+      vendorId: store?.vendorId ?? "",
+      storeEmail: store?.storeEmail ?? "",
+      storePhone: store?.storePhone ?? "",
+      streetAddress: store?.streetAddress ?? "",
+      city: store?.city ?? "",
+      country: store?.country ?? "",
+    },
+  });
+
+  // Sync the state when the product data finally arrives
+  useEffect(() => {
+    if (store) {
+      // Reset React Hook Form fields
+      reset({
+        title: store?.title ?? "",
+        description: store?.description ?? "",
+        isActive: store?.isActive,
+        categoryIds: store?.categoryIds ?? [],
+        vendorId: store?.vendorId ?? "",
+        storeEmail: store?.storeEmail ?? "",
+        storePhone: store?.storePhone ?? "",
+        streetAddress: store?.streetAddress ?? "",
+        city: store?.city ?? "",
+        country: store?.country ?? "",
+      });
+
+      // Sync Local UI States
+      setImageUrl(store.imageUrl ?? "");
+    }
+  }, [store, reset]);
 
   // Trigger mount after first render
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // useEffect(() => {
+  //   setMounted(true);
+  // }, []);
 
   // Wait for mount to avoid hydration mismatch
-  if (!mounted) return null;
-
-  //Get vendor ID
-  const vendorId = user?.role === "VENDOR" ? user?.id : "";
+  // if (!mounted) return null;
 
   //map on all store categories
   const categories = categoriesData?.map(
@@ -74,20 +111,6 @@ const StoreForm = ({
       title: category.title,
     }),
   );
-
-  //check all users that are vendors
-  const vendorData = (userData ?? [])?.filter(
-    (vendor: { role: string }) => vendor.role === "VENDOR",
-  );
-
-  //map on all vendors Data
-  const vendors = vendorData?.map((vendor: { id: string; name: string }) => ({
-    id: vendor.id,
-    name: vendor.name,
-  }));
-
-  console.log("vendors", vendors, vendorData, userData);
-  // if (storeId && isFetching) return <p>Loading Store Data...</p>;
 
   const onSubmit = async (data: FieldValues) => {
     const formData = data as StoreProps;
@@ -118,7 +141,6 @@ const StoreForm = ({
             register={register}
             errors={errors}
             className="w-full"
-            defaultValue={store?.title}
           />
 
           <TextInput
@@ -128,7 +150,6 @@ const StoreForm = ({
             register={register}
             errors={errors}
             className="w-full"
-            defaultValue={store?.storeEmail}
           />
 
           <TextInput
@@ -137,7 +158,6 @@ const StoreForm = ({
             register={register}
             errors={errors}
             className="w-full"
-            defaultValue={store?.storePhone}
           />
 
           <TextInput
@@ -146,7 +166,6 @@ const StoreForm = ({
             register={register}
             errors={errors}
             className="w-full"
-            defaultValue={store?.streetAddress}
           />
 
           <TextInput
@@ -155,7 +174,6 @@ const StoreForm = ({
             register={register}
             errors={errors}
             className="w-full"
-            defaultValue={store?.city}
           />
 
           <TextInput
@@ -164,7 +182,6 @@ const StoreForm = ({
             register={register}
             errors={errors}
             className="w-full"
-            defaultValue={store?.country}
           />
 
           <SelectInput
@@ -175,7 +192,6 @@ const StoreForm = ({
             className="w-full"
             options={categories ?? []}
             hasMultipleSelect={true}
-            defaultValue={store?.categoryIds ?? []}
           />
 
           {/* //Set vendorId */}
@@ -186,7 +202,7 @@ const StoreForm = ({
               register={register}
               errors={errors}
               className="w-full"
-              options={vendors}
+              options={alVendors}
               hasMultipleSelect={false}
             />
           ) : (
@@ -205,7 +221,6 @@ const StoreForm = ({
             name="description"
             register={register}
             errors={errors}
-            defaultValue={store?.description ?? ""}
           />
 
           <ToggleInput
@@ -214,6 +229,7 @@ const StoreForm = ({
             truthyValue="Active"
             falsyValue="Draft"
             register={register}
+            defaultCheck={store?.isActive}
           />
         </div>
 

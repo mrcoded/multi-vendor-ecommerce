@@ -1,10 +1,15 @@
-import React from "react";
+import React, { Suspense } from "react";
+import { notFound } from "next/navigation";
+
+import Loading from "@/app/loading";
 
 import Steps from "./_components/Steps";
 import StepForm from "./_components/StepForm";
 
 async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  if (!id) return notFound();
 
   const steps = [
     { index: 1, title: "Personal Details" },
@@ -14,12 +19,14 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <div className="bg-slate-200 dark:bg-slate-950 min-h-screen">
-      <div className="max-w-3xl my-6 mx-auto p-6 border border-slate-700 rounded-lg">
+      <div className="max-w-3xl my-4 sm:my-6 mx-auto p-3.5 sm:p-6 border border-slate-700 rounded-lg">
         {/* STEPS */}
         <Steps steps={steps} />
-        <div className="w-full p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
+        <div className="w-full p-3.5 sm:p-6 bg-white border border-gray-200 rounded-lg shadow md:p-8 dark:bg-gray-800 dark:border-gray-700">
           {/* FORM */}
-          <StepForm vendorId={id} />
+          <Suspense fallback={<Loading />}>
+            <StepForm vendorId={id} />
+          </Suspense>
         </div>
       </div>
     </div>

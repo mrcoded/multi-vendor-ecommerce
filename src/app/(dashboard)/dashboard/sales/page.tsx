@@ -1,48 +1,39 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import {
+  fetchAllSalesAction,
+  fetchVendorSalesAction,
+} from "@/lib/actions/order-actions";
+import { fetchVendorByIdAction } from "@/lib/actions/vendor-actions";
 
 import { columns } from "./columns";
+import Heading from "@/components/shared/Heading";
 import { DataTable } from "@/components/tables/DataTable/page";
 
 const Page = async () => {
-  const sales = await getData("orders/sales");
   const session = await getServerSession(authOptions);
-
-  //GET userID and Role
-  const id = session?.user?.id;
+  //GET user
+  const userId = session?.user?.id;
   const role = session?.user?.role;
 
-  //Fetch all the sales
-  //Filter by vendorId => to get sales for this vendor
-  //Fetch Order by Id
-  //Customer Name, Email, Phone, OrderNumber
+  const { data: vendor } = await fetchVendorByIdAction(userId);
+  const { data: sales } = await fetchAllSalesAction();
+  const { data: vendorSales } = await fetchVendorSalesAction(vendor?.data?.id);
 
-  const vendorSales = sales?.filter(
-    (sale: { userId: string }) => sale.userId === id,
-  );
+  const allSales = sales?.data ?? [];
+  const allVendorSales = vendorSales?.data ?? [];
+
+  const allSalesByRole = role === "ADMIN" ? allSales : allVendorSales;
 
   return (
     <div>
       {/* Header */}
-      {/* <PageHeader
-        heading="Coupons"
-        href="/dashboard/coupons/new"
-        linkAction="Add Coupon"
-      /> */}
-
-      {/* Table Actions */}
-      {/* <TableActions /> */}
-
-      <div className="py-8">
-        {role === "ADMIN" ? (
-          <DataTable data={sales} columns={columns} />
-        ) : (
-          <DataTable data={vendorSales} columns={columns} />
-        )}
-      </div>
+      <Heading title="Sales" />
+      <Suspense>
+        <DataTable data={allSalesByRole} columns={columns} />
+      </Suspense>
     </div>
   );
 };
