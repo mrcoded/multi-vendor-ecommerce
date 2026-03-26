@@ -43,7 +43,7 @@ function ActiveStatusColumn({
         <DropdownMenuSeparator />
 
         {/* Pass the mutation trigger to the button */}
-        {!deleteMutation && (
+        {deleteMutation && (
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
             <DeleteBtn
               title={title}
