@@ -37,7 +37,7 @@ function Product({ product }: { product: ProductProp }) {
       </Link>
 
       <div className="w-full px-4">
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug}`}>
           <h2 className="my-2 text-xs md:text-sm lg:text-base text-center dark:text-slate-200 text-slate-800 line-clamp-1 truncate font-semibold">
             {product.title}
           </h2>

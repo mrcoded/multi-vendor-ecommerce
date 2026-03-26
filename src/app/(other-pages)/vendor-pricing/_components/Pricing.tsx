@@ -4,7 +4,7 @@ import React from "react";
 import { CheckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { plans } from "@/constants/pricingPlan";
+import { plans } from "@/constants/pricing-plan";
 
 function Pricing() {
   const router = useRouter();

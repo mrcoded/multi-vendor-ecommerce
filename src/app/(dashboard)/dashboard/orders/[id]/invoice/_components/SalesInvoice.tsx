@@ -10,7 +10,9 @@ import InvoiceDownloadButton from "./InvoiceDownloadButton";
 import formatDate from "@/lib/formatDate";
 import generateISOFormatDate from "@/lib/generateISOFormatDate";
 
-function SalesInvoice({ order }: SalesInvoiceProps) {
+function SalesInvoice({ order }: { order?: SalesInvoiceProps["order"] }) {
+  if (!order) return <>Loading...</>;
+
   const contentRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
     contentRef,
@@ -52,7 +54,7 @@ function SalesInvoice({ order }: SalesInvoiceProps) {
               />
               <div className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                 <p className="font-bold text-slate-900 dark:text-white">
-                  Store Store Ltd.
+                  Belstore Multi Vendor.
                 </p>
                 <p>123 Shop Street, Somolu</p>
                 <p>Lagos, Nigeria</p>
@@ -91,7 +93,7 @@ function SalesInvoice({ order }: SalesInvoiceProps) {
                 <p className="text-slate-600 dark:text-slate-400">
                   {order.district}, {order.country}
                 </p>
-                <p className="mt-2 font-medium">{order.email}</p>
+                <p className="mt-2 font-medium">{order.emailAddress}</p>
               </div>
             </div>
 

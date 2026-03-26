@@ -1,5 +1,4 @@
 import React from "react";
-import getData from "@/lib/getData";
 
 import CustomerForm from "@/components/forms/CustomerForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
@@ -9,15 +8,12 @@ const UpdateCustomer = async ({
 }: {
   params: Promise<{ id: string }>;
 }) => {
-  const { id } = await params;
-
-  const customer = await getData(`users/${id}`);
-  const { profile } = customer;
+  const { id: userId } = await params;
 
   return (
     <div>
-      <FormHeader title="Update Customer" />
-      <CustomerForm updateData={customer} profileData={profile} />
+      <FormHeader title="Update All Users" />
+      <CustomerForm userId={userId} />
     </div>
   );
 };

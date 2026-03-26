@@ -6,11 +6,11 @@ import CommunityBlogCard from "./CommunityBlogCard";
 import { CommunityPostProps } from "@/types/communityPost";
 
 async function CommunityPost({
-  posts,
   title,
+  posts,
 }: {
-  posts: CommunityPostProps[];
   title: string;
+  posts: CommunityPostProps[] | null;
 }) {
   return (
     <section className="py-7 sm:py-12 bg-white rounded-md shadow-lg md:py-16 dark:bg-gray-700">
@@ -35,13 +35,11 @@ async function CommunityPost({
         </div>
 
         <div className="grid max-w-md grid-cols-1 mx-auto mt-8 lg:mt-16 md:grid-cols-3 gap-9 sm:gap-12 md:max-w-none">
-          {posts
-            .slice(0, 3)
-            .map((communityPost: CommunityPostProps, index: React.Key) => {
-              return (
-                <CommunityBlogCard key={index} communityPost={communityPost} />
-              );
-            })}
+          {posts?.slice(0, 6).map((communityPost, index: React.Key) => {
+            return (
+              <CommunityBlogCard key={index} communityPost={communityPost} />
+            );
+          })}
         </div>
       </div>
     </section>

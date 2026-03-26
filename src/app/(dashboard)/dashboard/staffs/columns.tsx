@@ -59,8 +59,8 @@ export const columns: ColumnDef<RowDatas>[] = [
       return (
         <ActiveStatusColumn
           title="store"
-          endpoint={`stores/${store.id}`}
-          editEndpoint={`stores/update/${store.id}`}
+          rowId={store.id}
+          editPageRoute={`stores/update/${store.id}`}
         />
       );
     },

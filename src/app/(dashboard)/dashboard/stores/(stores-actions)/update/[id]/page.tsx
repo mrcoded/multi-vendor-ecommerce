@@ -13,7 +13,7 @@ const UpdateStore = async ({ params }: { params: Promise<{ id: string }> }) => {
   const session = await getServerSession(authOptions);
   const user = session?.user;
 
-  if (!storeId) notFound();
+  if (!storeId) return notFound();
 
   return (
     <>

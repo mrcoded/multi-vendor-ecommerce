@@ -1,17 +1,22 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
+import { notFound } from "next/navigation";
 
+import { fetchOrderByIdAction } from "@/lib/actions/order-actions";
+
+import Loading from "@/app/loading";
 import SalesInvoice from "@/app/(dashboard)/dashboard/orders/[id]/invoice/_components/SalesInvoice";
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
 
-  const order = await getData(`orders/${id}`);
+  if (!id) return notFound();
+
+  const { data: order } = await fetchOrderByIdAction(id);
 
   return (
-    <div className="flex flex-col">
+    <Suspense fallback={<Loading />}>
       <SalesInvoice order={order} />
-    </div>
+    </Suspense>
   );
 };
 

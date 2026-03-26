@@ -1,13 +1,15 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
+
+import Loading from "@/app/loading";
 
 import { columns } from "./columns";
-import { DataTable } from "@/components/tables/DataTable/page";
-
 import PageHeader from "../_components/shared/PageHeader";
+import { DataTable } from "@/components/tables/DataTable/page";
+import { fetchAllVendorsAction } from "@/lib/actions/vendor-actions";
 
 const Page = async () => {
-  const vendorProfile = await getData("vendors");
+  const { data: vendorProfile } = await fetchAllVendorsAction();
+  const vendors = vendorProfile?.data ?? [];
 
   return (
     <div>
@@ -17,14 +19,11 @@ const Page = async () => {
         href="/dashboard/vendors/new"
         linkAction="Add Vendor"
       />
-
-      <div className="py-1">
-        <DataTable
-          data={vendorProfile}
-          columns={columns}
-          filterKeys={["name"]}
-        />
-      </div>
+      <Suspense fallback={<Loading />}>
+        <div className="py-1">
+          <DataTable data={vendors} columns={columns} filterKeys={["name"]} />
+        </div>
+      </Suspense>
     </div>
   );
 };

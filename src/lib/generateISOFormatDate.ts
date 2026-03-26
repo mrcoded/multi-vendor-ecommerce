@@ -1,4 +1,4 @@
-function generateISOFormatDate(dateString: string): string {
+function generateISOFormatDate(dateString: Date): string {
   const date = new Date(dateString);
 
   if (isNaN(date.getTime())) {

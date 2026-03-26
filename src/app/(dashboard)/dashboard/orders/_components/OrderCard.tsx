@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
+import { OrderStatus } from "@prisma/client";
 
 import formatDate from "@/lib/formatDate";
-import { makePostRequest } from "@/lib/apiRequest";
+import { generateSlug } from "@/lib/generateSlug";
+import { useUpdateOrderStatus } from "@/hooks/useOrders";
 import generateISOFormatDate from "@/lib/generateISOFormatDate";
 
 import { OrderCardProps } from "@/types/order";
@@ -16,11 +18,13 @@ import { OrderStatusManager } from "@/components/OrderStatusManager";
 import { ConfirmModal } from "@/components/modals/ConfirmationModal";
 
 const OrderCard = ({ order }: { order: OrderCardProps }) => {
-  const router = useRouter();
+  const { mutate: updateOrderStatus, isPending } = useUpdateOrderStatus();
 
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<string>("");
+  const [slug, setSlug] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(
+    order?.orderStatus as OrderStatus,
+  );
 
   // Generate ISO Date
   const orderCreationDate = generateISOFormatDate(order?.createdAt);
@@ -37,28 +41,14 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
   }
 
   // onStatusChange handler function
-  const onStatusChange = async (newStatus: string) => {
-    setLoading(true);
-    try {
-      await makePostRequest({
-        setLoading,
-        endpoint: `/api/orders/${order.id}/status`,
-        data: { orderStatus: newStatus },
-        resourceName: "Order Status",
-        method: "PATCH",
-      });
-
-      setOpen(false);
-      router.refresh(); // Refresh the page
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  const onStatusChange = (newStatus: OrderStatus) => {
+    // setLoading(true);
+    updateOrderStatus({ id: order?.id, status: newStatus });
+    setOpen(false);
   };
 
   // handleStatusChange
-  const handleStatusChange = (status: string) => {
+  const handleStatusChange = (status: OrderStatus) => {
     if (status === "CANCELLED") {
       setSelectedStatus(status);
       setOpen(true); // Open modal for confirmation
@@ -73,7 +63,7 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
         isOpen={open}
         onClose={() => setOpen(false)}
         onConfirm={() => onStatusChange(selectedStatus)}
-        loading={loading}
+        loading={isPending}
       />
 
       <li className="flex flex-col overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm transition-all hover:border-gray-300 h-[220px] sm:h-[200px]">
@@ -106,8 +96,10 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
             <OrderStatusManager
               currentStatus={order.orderStatus}
               options={STATUS_OPTIONS}
-              onStatusChange={(status) => handleStatusChange(status)}
-              isUpdating={loading}
+              onStatusChange={(status: OrderStatus) =>
+                handleStatusChange(status)
+              }
+              isUpdating={isPending}
             />
           </div>
         </div>
@@ -159,8 +151,8 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
             Invoice
           </Link>
           <Link
-            // href={`/products/${generateSlug(item.title)}`}
-            href={`/dashboard/orders/${order.id}`} // Link to the order detail page
+            href={`/products/${generateSlug(slug)}`}
+            // href={`/dashboard/orders/${order.id}`} // Link to the order detail page
             className="px-2.5 xl:px-4 py-1.5 xl:py-2 text-xs font-bold text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
           >
             View Order

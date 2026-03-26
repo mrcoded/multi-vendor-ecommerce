@@ -59,7 +59,8 @@ export const columns: ColumnDef<RowDatas>[] = [
       return (
         <ActiveStatusColumn
           title="Payment"
-          editEndpoint={`payments/update/${payment.id}`}
+          rowId=""
+          editPageRoute={`payments/update/${payment.id}`}
         />
       );
     },

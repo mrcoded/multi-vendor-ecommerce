@@ -1,5 +1,9 @@
 import React from "react";
-import getData from "@/lib/getData";
+import { notFound } from "next/navigation";
+
+import { getServerSession } from "next-auth";
+
+import { authOptions } from "@/lib/authOptions";
 
 import VendorForm from "@/components/forms/VendorForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
@@ -9,14 +13,17 @@ const UpdateVendor = async ({
 }: {
   params: Promise<{ id: string }>;
 }) => {
-  const { id } = await params;
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
 
-  const vendor = await getData(`vendors/${id}`);
+  const { id: vendorId } = await params;
+
+  if (!vendorId) return notFound();
 
   return (
     <div>
       <FormHeader title="Update Vendor" />
-      <VendorForm updateData={vendor} />
+      <VendorForm vendorId={vendorId} user={user} />
     </div>
   );
 };

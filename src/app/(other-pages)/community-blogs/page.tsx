@@ -1,20 +1,19 @@
-export const dynamic = "force-dynamic";
+import React, { Suspense } from "react";
 
-import React from "react";
-import getData from "@/lib/getData";
-
+import Loading from "@/app/loading";
 import CommunityPost from "@/components/community/CommunityPost";
+import { getAllCommunityPostsAction } from "@/lib/actions/community-actions";
 
 async function Page() {
-  const communityPosts = await getData("communityPosts");
+  const { data: communityPosts } = await getAllCommunityPostsAction();
 
   return (
-    <div>
+    <Suspense fallback={<Loading />}>
       <CommunityPost
         posts={communityPosts}
         title="Read All Our Community Posts"
       />
-    </div>
+    </Suspense>
   );
 }
 

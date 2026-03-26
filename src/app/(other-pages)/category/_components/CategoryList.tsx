@@ -10,7 +10,7 @@ function CategoryList({
   isStorePage,
 }: {
   storeId?: string;
-  category?: CategoryProps;
+  category?: CategoryProps | null;
   isStorePage?: boolean;
 }) {
   const categoryProducts = isStorePage
