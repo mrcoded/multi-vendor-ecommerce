@@ -39,6 +39,32 @@ export interface ProductFormProps {
   vendors: { id: string; name: string }[];
 }
 
+export interface ProductServicesProps {
+  id: string;
+  title: string;
+  slug: string;
+  productImages: Array<string>;
+  isActive: boolean;
+  categoryId: string;
+  storeIds: string[];
+  storeId: string;
+  imageUrl: string;
+  description: string | null;
+  isWholesale: boolean;
+  sku: string | null;
+  barcode: string | null;
+  productPrice: number;
+  productCode: string | null;
+  salePrice: number;
+  qty: number;
+  tags: string[];
+  wholesaleQuantity: number | null;
+  wholesalePrice: number | null;
+  userId: string;
+  store?: { id: string; title: string } | null;
+  createdAt: Date | string;
+}
+
 export interface ProductFormData {
   id: string;
   title: string;
@@ -46,7 +72,6 @@ export interface ProductFormData {
   productImages: Array<string>;
   isActive: boolean;
   categoryId: string;
-  storeIds?: string[];
   storeId: string;
   imageUrl: string;
   description: string | null;

@@ -33,8 +33,8 @@ export type checkoutInitialStateProps = {
 export type OnboardingInitialStateProps = {
   currentStep: number;
   onboardingFormData: {
-    userId?: string;
-    code?: string;
+    userId: string;
+    code: string;
     // Personal Details
     firstName: string;
     lastName: string;

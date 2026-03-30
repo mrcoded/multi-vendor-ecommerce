@@ -37,3 +37,13 @@ export interface CheckoutProps {
   paymentMethod: string;
   paymentToken: string;
 }
+
+export interface OrderItemProps {
+  id: string;
+  imageUrl: string;
+  qty: string;
+  salePrice: string;
+  storeId: string;
+  title: string;
+  vendorId: string;
+}

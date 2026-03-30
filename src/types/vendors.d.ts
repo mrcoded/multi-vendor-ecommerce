@@ -10,7 +10,7 @@ export interface VendorProps {
     terms: string | null;
     firstName: string;
     lastName: string;
-    isActive: boolean;
+    // isActive: boolean | null;
     imageUrl: string | null;
     physicalAddress: string | null;
     contactPerson: string | null;
@@ -19,4 +19,11 @@ export interface VendorProps {
     notes: string | null;
     products: string[];
   };
+}
+
+export interface VendorUIProps {
+  id: string;
+  name: string;
+  email: string;
+  vendorProfile: VendorProps["vendorProfile"] | null;
 }

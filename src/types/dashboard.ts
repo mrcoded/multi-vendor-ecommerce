@@ -2,7 +2,7 @@ import { User } from "next-auth";
 import { OrderCardProps } from "./order";
 import { ProductFormData } from "./products";
 import { StoreProps } from "./store";
-import { VendorProps } from "./vendors";
+import { VendorUIProps } from "./vendors";
 import { SalesProps as SalesType } from "./sales";
 
 export interface SalesProps {
@@ -27,6 +27,6 @@ export interface DashboardProps {
   user: User | undefined;
   stores: StoreProps[];
   sales: SalesType[];
-  vendors: VendorProps[];
+  vendors: VendorUIProps[];
   vendorId?: string;
 }
