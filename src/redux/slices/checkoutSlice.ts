@@ -13,7 +13,7 @@ const initialState: checkoutInitialStateProps = {
     city: "",
     country: "",
     district: "",
-    shippingCost: 0,
+    shippingCost: "0",
     //Payment Method
     paymentMethod: "",
     paymentToken: "",

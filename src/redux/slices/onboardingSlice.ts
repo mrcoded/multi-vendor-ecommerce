@@ -4,6 +4,8 @@ import { OnboardingInitialStateProps } from "../../types/redux";
 const initialState: OnboardingInitialStateProps = {
   currentStep: 1,
   onboardingFormData: {
+    userId: "",
+    code: "",
     firstName: "",
     lastName: "",
     email: "",

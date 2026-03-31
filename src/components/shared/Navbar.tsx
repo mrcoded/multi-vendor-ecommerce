@@ -1,4 +1,6 @@
-import React, { Suspense } from "react";
+"use client";
+
+import React, { Suspense, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { HelpCircle, User as UserIcon } from "lucide-react";
@@ -10,18 +12,18 @@ import SearchForm from "../forms/SearchForm";
 import ThemeSwitcherButton from "../ThemeSwitcherButton";
 import CartCounter from "@/app/(other-pages)/cart/_components/CartCounter";
 
-function Navbar({ user }: { user: User | undefined }) {
+function Navbar({ user }: { user?: User | undefined }) {
   return (
     <div className="bg-white dark:bg-slate-700">
       <div className="flex items-center justify-between py-3 max-w-7xl mx-auto gap-3 px-3 sm:px-8 sm:gap-8">
         {/* Logo */}
         <Link className="" href="/">
           <Image
-            src={"/assets/logo.png"}
-            alt="MVE logo"
+            src={"/assets/icon.png"}
+            alt="Belstore logo"
             width={100}
             height={100}
-            className="w-16 xl:w-24 h-auto"
+            className="w-10 xl:w-24 h-10 xl:h-auto"
           />
         </Link>
 

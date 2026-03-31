@@ -11,8 +11,8 @@ interface PostRequestProps {
   resourceName: string;
   successMsg?: string;
   method?: string;
-  reset: UseFormReset<FieldValues>;
-  redirectUrl: (id: string) => void;
+  reset?: UseFormReset<FieldValues>;
+  redirectUrl?: (id: string) => void;
 }
 
 export const makePostRequest = async ({
@@ -36,35 +36,45 @@ export const makePostRequest = async ({
       },
       body: JSON.stringify(data),
     });
-
-    // Consume and parse the response body
-    const responseData = await response.json();
-    console.log(responseData);
-
-    // Handle server error
-    if (!response.ok) {
-      setLoading(false);
-
-      const errorMessage =
-        response.status === 500
-          ? "Internal Server Error"
-          : `Error ${response.status}: ${response.statusText}`;
-      toast.error(errorMessage);
+    //Handle cases where the response might be empty (204 No Content)
+    let responseData = null;
+    if (response.status !== 204) {
+      responseData = await response.json();
     }
 
+    setLoading(false);
+
+    //Handle Success (200, 201, etc.)
     if (response.ok) {
-      setLoading(false);
-      toast.success(successMsg ?? `New ${resourceName} created succesfully`);
-      reset();
+      toast.success(successMsg ?? `${resourceName} updated successfully`);
+      reset?.();
 
-      redirectUrl(responseData.data?.id ?? responseData?.id);
+      // Extract ID safely from top level or a nested 'data' object
+      const extractedId = responseData?.id ?? responseData?.data?.id;
+
+      if (redirectUrl) {
+        redirectUrl(extractedId);
+      }
+      return responseData;
     }
 
+    //Handle Specific Error Codes
     if (response.status === 409) {
-      setLoading(false);
       toast.error(`${resourceName} already exists!`);
-      reset();
+      return responseData;
     }
+
+    if (response.status === 403) {
+      toast.error("Unauthorized");
+      return responseData;
+    }
+
+    //Handle Generic Server Errors (500, etc.)
+    const errorMessage =
+      responseData?.message ||
+      `Error ${response.status}: ${response.statusText}`;
+    toast.error(errorMessage);
+    return responseData;
 
     //return the response body
     return responseData;

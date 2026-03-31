@@ -1,7 +1,6 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { notFound } from "next/navigation";
 
-import Loading from "@/app/loading";
 import OrderConfirmation from "../_components/OrderConfirmation";
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -9,24 +8,22 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   if (!id) return notFound();
 
   return (
-    <Suspense fallback={<Loading />}>
-      <section className="min-h-screen py-4 sm:py-8 bg-gray-50 lg:py-12">
-        <div className="px-2 mx-auto max-w-3xl sm:px-6 lg:px-8">
-          <OrderConfirmation id={id} />
+    <section className="min-h-screen py-4 sm:py-8 bg-gray-50 lg:py-12">
+      <div className="px-2 mx-auto max-w-3xl sm:px-6 lg:px-8">
+        <OrderConfirmation id={id} />
 
-          {/* Support Footer */}
-          <p className="mt-8 text-center text-sm text-gray-400">
-            Need help with your order?{" "}
-            <a
-              href="#"
-              className="text-muted-foreground hover:underline underline-offset-4"
-            >
-              Contact our support team
-            </a>
-          </p>
-        </div>
-      </section>
-    </Suspense>
+        {/* Support Footer */}
+        <p className="mt-8 text-center text-sm text-gray-400">
+          Need help with your order?{" "}
+          <a
+            href="#"
+            className="text-muted-foreground hover:underline underline-offset-4"
+          >
+            Contact our support team
+          </a>
+        </p>
+      </div>
+    </section>
   );
 };
 
