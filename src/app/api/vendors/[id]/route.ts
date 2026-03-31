@@ -139,7 +139,7 @@ export async function PUT(
       phone,
       physicalAddress,
       terms,
-      // isActive,
+      isActive,
       imageUrl,
       products,
       userId,
@@ -147,7 +147,7 @@ export async function PUT(
 
     const existingUser = await db.user.findUnique({
       where: {
-        id: user.id,
+        id,
       },
     });
 
@@ -161,6 +161,16 @@ export async function PUT(
       );
     }
 
+    const updatedUser = await db.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        emailVerified: true,
+        status: isActive,
+      },
+    });
+    console.log(updatedUser);
     const existingVendor = await db.vendorProfile.findUnique({
       where: { userId: existingUser.id },
     });

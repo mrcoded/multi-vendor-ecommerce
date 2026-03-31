@@ -41,32 +41,33 @@ export async function POST(request: Request) {
     } = checkoutFormData;
 
     // Upsert the customer profile
-    await db.userProfile.upsert({
-      where: {
-        userId: userId,
-      },
-      update: {
-        // What to change if they already have a profile
-        firstName,
-        lastName,
-        phone,
-        streetAddress,
-        city,
-        country,
-        district,
-      },
-      create: {
-        // What to set if this is their first time
-        userId,
-        firstName,
-        lastName,
-        phone,
-        streetAddress,
-        city,
-        country,
-        district,
-      },
-    });
+    // await db.userProfile.upsert({
+    //   where: {
+    //     userId: userId,
+    //   },
+    //   update: {
+    //     // What to change if they already have a profile
+    //     firstName,
+    //     lastName,
+    //     phone,
+    //     streetAddress,
+    //     city,
+    //     country,
+    //     district,
+    //   },
+    //   // create: {
+    //   //   // What to set if this is their first time
+    //   //   userId,
+    //   //   emailAddress,
+    //   //   firstName,
+    //   //   lastName,
+    //   //   phone,
+    //   //   streetAddress,
+    //   //   city,
+    //   //   country,
+    //   //   district,
+    //   // },
+    // });
 
     //Use the prisma transaction API
     const result = await db.$transaction(
@@ -96,7 +97,7 @@ export async function POST(request: Request) {
             district,
             shippingCost: parseFloat(shippingCost),
             paymentMethod,
-            orderNumber: generateOrderNumber(8),
+            orderNumber: generateOrderNumber(7),
           },
         });
 

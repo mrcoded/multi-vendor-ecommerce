@@ -16,7 +16,7 @@ export async function POST(request: Request) {
           data: null,
           message: `No User Found`,
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
         phone: data.phone,
         physicalAddress: data.physicalAddress,
         terms: data.terms,
-        isActive: data.isActive,
+        // isActive: data.isActive,
         imageUrl: data.imageUrl,
         products: data.products,
         userId: data.userId,
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { data: updatedUser, message: "Vendor created successfully!" },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.log(error);
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -92,7 +92,7 @@ export async function GET() {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

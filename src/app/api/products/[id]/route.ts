@@ -16,6 +16,9 @@ export async function GET(
       where: {
         id,
       },
+      include: {
+        store: true,
+      },
     });
 
     return NextResponse.json(product);
@@ -109,11 +112,13 @@ export async function PUT(
       barcode,
       productPrice,
       productCode,
+      productImages,
       salePrice,
       tags,
       wholesaleQuantity,
       wholesalePrice,
       vendorId,
+      storeIds,
     } = await request.json();
 
     const existingProducts = await db.product.findUnique({
@@ -140,10 +145,19 @@ export async function PUT(
         title,
         slug,
         imageUrl,
-        categoryId,
+        category: {
+          connect: { id: categoryId },
+        },
+        user: {
+          connect: { id: vendorId },
+        },
+        store: {
+          connect: { id: id },
+        },
         description,
         isActive,
         isWholesale,
+        productImages,
         qty: parseFloat(qty),
         sku,
         barcode,
@@ -153,7 +167,6 @@ export async function PUT(
         tags,
         wholesaleQuantity: parseFloat(wholesaleQuantity),
         wholesalePrice: parseFloat(wholesalePrice),
-        userId: vendorId,
       },
     });
 

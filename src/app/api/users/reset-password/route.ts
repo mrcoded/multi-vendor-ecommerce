@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
@@ -18,7 +18,7 @@ export async function PUT(request: Request) {
           data: null,
           message: "User Not Found",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
     //Encrypt password with bcrypt
@@ -36,7 +36,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json(
       { data: null, message: "Password Reset Successful" },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.log(error);
@@ -48,7 +48,7 @@ export async function PUT(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
