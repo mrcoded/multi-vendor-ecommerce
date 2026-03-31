@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 import {
@@ -12,53 +13,72 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { cn } from "@/lib/utils";
 
-function Paginate({ totalPages }: { totalPages: number }) {
+function Paginate({
+  totalPages,
+  productCount,
+}: {
+  totalPages: number;
+  productCount: number;
+}) {
   const searchParams = useSearchParams();
-  const currentPage = searchParams.get("page") || "1";
+  const currentPage = parseInt(searchParams.get("page") || "1");
+
+  // Helper to keep existing URL filters when changing pages
+  const createPageURL = (pageNumber: number | string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", pageNumber.toString());
+    return `?${params.toString()}`;
+  };
+
+  // Logic for the disabled states
+  const isFirstPage = currentPage <= 1;
+  const isLastPage = currentPage >= totalPages;
 
   return (
-    <Pagination>
+    <Pagination className="my-10">
       <PaginationContent>
+        {/* Previous Button */}
         <PaginationItem>
           <PaginationPrevious
-            href={`${parseInt(currentPage) == 1 ? `?${new URLSearchParams({ page: "1" })}` : `?${new URLSearchParams({ page: (parseInt(currentPage) - 1).toString() })}`}`}
+            href={isFirstPage ? "#" : createPageURL(currentPage - 1)}
+            className={cn(
+              isFirstPage &&
+                "pointer-events-none text-foreground opacity-50 grayscale cursor-not-allowed",
+            )}
           />
         </PaginationItem>
-        {totalPages <= 3 ? (
-          Array.from({ length: 3 }, (_, index) => {
-            return (
-              <PaginationItem key={index}>
-                <PaginationLink
-                  isActive={index + 1 === parseInt(currentPage)}
-                  href={`?${new URLSearchParams({ page: (index + 1).toString() })}`}
-                  className={cn(
-                    index + 1 === parseInt(currentPage) && "dark:text-slate-200"
-                  )}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            );
-          })
-        ) : (
-          <>
-            {Array.from({ length: 3 }, (_, index) => {
-              return (
-                <PaginationItem key={index}>
-                  <PaginationLink href="#">{index + 1}</PaginationLink>
-                </PaginationItem>
-              );
-            })}
-            <PaginationItem>
-              <PaginationEllipsis />
+
+        {/* Page Numbers */}
+        {Array.from({ length: totalPages }, (_, index) => {
+          const pageNum = index + 1;
+
+          // Simple logic: Only show numbers if they are relevant
+          // You can expand this with ellipsis logic if you have many pages
+          return (
+            <PaginationItem key={pageNum}>
+              <PaginationLink
+                isActive={pageNum === currentPage}
+                href={createPageURL(pageNum)}
+                className={cn(
+                  pageNum === currentPage &&
+                    "text-foreground dark:text-slate-200",
+                )}
+              >
+                {pageNum}
+              </PaginationLink>
             </PaginationItem>
-          </>
-        )}
+          );
+        })}
+
+        {/* Next Button */}
         <PaginationItem>
           <PaginationNext
-            href={`${parseInt(currentPage) == totalPages ? `?${new URLSearchParams({ page: `${totalPages}` })}` : `?${new URLSearchParams({ page: `${parseInt(currentPage) + 1}` })}`}`}
+            href={isLastPage ? "#" : createPageURL(currentPage + 1)}
+            className={cn(
+              isLastPage &&
+                "pointer-events-none text-foreground opacity-50 grayscale cursor-not-allowed",
+            )}
           />
         </PaginationItem>
       </PaginationContent>

@@ -1,15 +1,30 @@
 import React from "react";
-import getData from "@/lib/getData";
-
 import FilterComponent from "@/components/Filters/FilterComponent";
+import { fetchFilteredProductsAction } from "@/lib/actions/product-actions";
 
-async function Page({ searchParams }: { searchParams: string }) {
-  const searchParamsObject = new URLSearchParams(searchParams);
-  const sort = searchParamsObject.get("sort") || "asc";
-  const min = searchParamsObject.get("min") || 0;
-  const max = searchParamsObject.get("max") || "";
-  const search = searchParamsObject.get("search") || "";
-  const page = searchParamsObject.get("page") || 1;
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+async function Page({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+
+  //Extract values with fallbacks
+  const sort = (params.sort as "asc" | "desc") || "asc";
+  const min = (params.min as string) || "0";
+  const max = (params.max as string) || "";
+  const page = (params.page as string) || "1";
+  const search = (params.search as string) || "";
+
+  // We pass all filters. If 'search' is empty, the action should handle it.
+  const { data: productsData } = await fetchFilteredProductsAction({
+    search,
+    page,
+    sort,
+    min,
+    max,
+  });
+
+  // Handle the nested structure of your action response
+  const products = productsData ?? [];
 
   const category = {
     title: search,
@@ -18,18 +33,8 @@ async function Page({ searchParams }: { searchParams: string }) {
     isSearch: true,
   };
 
-  let products = await getData(
-    `products?search=${search}&page=${page}&sort=${sort}&min=${min}&max=${max}`,
-  );
-
-  if (search) {
-    products = await getData(`products?search=${search}`);
-  } else {
-    products = await getData(`products?search=`);
-  }
-
   return (
-    <div>
+    <div className="container mx-auto py-8">
       <FilterComponent category={category} products={products} />
     </div>
   );
