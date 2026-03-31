@@ -6,13 +6,12 @@ import { Share2 } from "lucide-react";
 import { ShareSocial } from "react-share-social";
 
 function ProductShareButton({ urlToShare }: { urlToShare: string }) {
-  // 1. Set initial state to false
   const [openModal, setOpenModal] = useState(false);
 
   return (
-    <>
+    <div className="hidden sm:flex">
       <button
-        type="button" // Always good practice to define button type
+        type="button"
         onClick={() => setOpenModal(true)}
         className="flex items-center gap-2"
       >
@@ -55,7 +54,7 @@ function ProductShareButton({ urlToShare }: { urlToShare: string }) {
           </div>
         </ModalBody>
       </Modal>
-    </>
+    </div>
   );
 }
 

@@ -2,10 +2,10 @@ import { Suspense } from "react";
 
 import Loading from "../loading";
 
-import getData from "@/lib/getData";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { fetchAllCategoriesAction } from "@/lib/actions/category-actions";
+import { getAllCommunityPostsAction } from "@/lib/actions/community-actions";
 
 import HeroPage from "@/components/HeroPage";
 import StoreList from "@/components/StoreList";
@@ -13,9 +13,9 @@ import CommunityPost from "@/components/community/CommunityPost";
 import CategoryList from "./category/_components/CategoryList";
 
 export default async function Home() {
-  const communityPosts = await getData("communityPosts");
+  const { data: communityPosts } = await getAllCommunityPostsAction();
   //if no community posts
-  if (!communityPosts) return null;
+  // if (!communityPosts) return null;
 
   const { data: categoriesData } = await fetchAllCategoriesAction();
 

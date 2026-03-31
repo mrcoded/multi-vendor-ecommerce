@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import toast from "react-hot-toast";
 import { signIn } from "next-auth/react";
@@ -12,8 +14,13 @@ import PasswordVisibility from "@/components/PasswordVisibility";
 
 function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  // Get the intent from the URL
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   const {
     register,
@@ -47,23 +54,26 @@ function LoginForm() {
 
     if (loginData?.ok) {
       toast.success("Login successful! Redirecting...");
-      //Redirect
-      router.push("/");
+      // If we have a callbackUrl path
+      router.push(decodeURIComponent(callbackUrl));
+      router.refresh();
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="px-6">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4 px-4 sm:px-6 pb-8"
+    >
       <TextInput
         label="Email Address"
         name="email"
         type="email"
         register={register}
         errors={errors}
-        className="sm:col-span-2 mb-3"
       />
 
-      <div className="relative flex flex-col space-y-1.5">
+      <div className="relative">
         <TextInput
           label="Password"
           name="password"
@@ -78,28 +88,28 @@ function LoginForm() {
         />
       </div>
 
-      <div className="flex gap-4 items-center justify-between">
+      <div className="flex items-center justify-between text-sm">
         <Link
           href="/forgot-password"
-          className="shrink-0 font-medium text-blue-600 hover:underline dark:text-blue-500"
+          className="font-medium text-blue-600 hover:text-blue-500 hover:underline transition-colors"
         >
           Forgot password?
         </Link>
-
-        <SubmitButton
-          isLoading={loading}
-          buttonTitle="Sign in"
-          loadingButtonTitle="Signing in..."
-        />
       </div>
 
-      <p className="text-sm font-light text-gray-500 dark:text-gray-400 py-4">
-        Don&apos;t have an account?{" "}
+      <SubmitButton
+        isLoading={loading}
+        buttonTitle="Sign in to your account"
+        loadingButtonTitle="Authenticating..."
+      />
+
+      <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+        New to the platform?{" "}
         <Link
           href="/register"
-          className="font-medium text-lime-600 hover:underline dark:text-lime-500"
+          className="font-semibold text-lime-600 hover:text-lime-500 transition-colors"
         >
-          Sign Up
+          Create an account
         </Link>
       </p>
     </form>

@@ -96,7 +96,7 @@ export function DataTable<TData, TValue>({
                           header.id !== "productTitle" &&
                           header.id !== "name" &&
                           header.id !== "actions"
-                          ? "hidden md:table-cell"
+                          ? "hidden sm:table-cell"
                           : "",
                       )}
                     >
@@ -129,7 +129,7 @@ export function DataTable<TData, TValue>({
                           cell.column.id !== "name" &&
                           cell.column.id !== "productTitle" &&
                           cell.column.id !== "actions"
-                          ? "hidden md:table-cell"
+                          ? "hidden sm:table-cell"
                           : "",
                       )}
                     >

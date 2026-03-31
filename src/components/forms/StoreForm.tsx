@@ -15,6 +15,7 @@ import { useVendor, useVendors } from "@/hooks/useVendor";
 
 import { StoreProps } from "@/types/store";
 
+import Loading from "@/app/loading";
 import TextInput from "@/components/inputs/TextInput";
 import ImageInput from "@/components/inputs/ImageInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
@@ -31,25 +32,16 @@ const StoreForm = ({
 }) => {
   const role = user?.role;
 
-  const { data: categoriesData } = useCategories();
-
-  // Fetch existing category data if editing
-  const {
-    data: store,
-    isLoading: isFetching,
-    error,
-  } = useStoreById(storeId ?? "");
-  const { data: vendor } = useVendor(user?.id);
+  const vendor = useVendor(user?.id);
   const { data: vendors } = useVendors();
-  //Get vendor ID
+  const { data: categoriesData } = useCategories();
+  const { data: storeData } = useStoreById(storeId ?? "");
+  //Get datas
   const vendorId = vendor?.data?.id;
   const alVendors = vendors?.data ?? [];
-  console.log(store);
-  // const id = store?.id ?? "";
-  const initialImageUrl = store?.imageUrl ?? "";
+  const store = storeData?.data;
 
-  const [mounted, setMounted] = useState(false);
-  const [imageUrl, setImageUrl] = useState(initialImageUrl);
+  const [imageUrl, setImageUrl] = useState("");
   //mutations
   const { mutate: createStore, isPending: isCreating } = useCreateStore();
   const { mutate: updateStore, isPending: isUpdating } = useUpdateStore();
@@ -102,15 +94,15 @@ const StoreForm = ({
   // }, []);
 
   // Wait for mount to avoid hydration mismatch
-  // if (!mounted) return null;
+  // if (!mounted) return <Loading />;
 
   //map on all store categories
-  const categories = categoriesData?.map(
-    (category: { id: string; title: string }) => ({
-      id: category.id,
-      title: category.title,
-    }),
-  );
+  // const categories = categoriesData?.map(
+  //   (category: { id: string; title: string }) => ({
+  //     id: category.id,
+  //     title: category.title,
+  //   }),
+  // );
 
   const onSubmit = async (data: FieldValues) => {
     const formData = data as StoreProps;
@@ -190,7 +182,7 @@ const StoreForm = ({
             register={register}
             errors={errors}
             className="w-full"
-            options={categories ?? []}
+            options={categoriesData ?? []}
             hasMultipleSelect={true}
           />
 

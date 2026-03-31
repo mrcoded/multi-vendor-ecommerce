@@ -33,7 +33,7 @@ function MultiImageInput({
     <div className={className}>
       <div className="flex justify-between items-center mb-4">
         <label
-          htmlFor="course-image"
+          htmlFor="product-image"
           className="block mb-2 text-sm font-medium text-gray-900 dark:text-slate-50 leading-6"
         >
           {label}
@@ -55,6 +55,7 @@ function MultiImageInput({
                   alt="Item image"
                   width={1000}
                   height={667}
+                  unoptimized
                   className="w-full h-32 object-contain"
                 />
               </div>

@@ -19,8 +19,8 @@ const Footer = () => {
                 height={40}
                 width={120}
                 className="w-auto h-10"
-                src="/assets/logo.png"
-                alt="Multi Vendor Logo"
+                src="/assets/icon.png"
+                alt="Belstore Vendor Logo"
               />
             </Link>
 
@@ -40,17 +40,16 @@ const Footer = () => {
 
           {/* Nav Groups */}
           <FooterGroup title="Platform">
-            <FooterLink href="/browse">Browse Products</FooterLink>
+            <FooterLink href="#">Browse Products</FooterLink>
             <FooterLink href="/vendor-pricing">Sell with Us</FooterLink>
-            <FooterLink href="/courses">LMS Features</FooterLink>
-            <FooterLink href="/affiliates">Affiliate Program</FooterLink>
+            <FooterLink href="#">Affiliate Program</FooterLink>
           </FooterGroup>
 
           <FooterGroup title="Support">
-            <FooterLink href="/help">Help Center</FooterLink>
-            <FooterLink href="/contact">Contact Sales</FooterLink>
-            <FooterLink href="/terms">Terms of Service</FooterLink>
-            <FooterLink href="/privacy">Privacy Policy</FooterLink>
+            <FooterLink href="#">Help Center</FooterLink>
+            <FooterLink href="#">Contact Sales</FooterLink>
+            <FooterLink href="#">Terms of Service</FooterLink>
+            <FooterLink href="#">Privacy Policy</FooterLink>
           </FooterGroup>
 
           {/* Newsletter Section */}
@@ -62,11 +61,11 @@ const Footer = () => {
               Subscribe for the latest product releases and seller tips.
             </p>
 
-            <form className="mt-4 flex flex-col sm:flex-row gap-2">
+            <form className="mt-4 flex flex-col sm:flex-row gap-2 w-auto">
               <input
                 type="email"
                 placeholder="Your email address"
-                className="flex-1 px-4 py-2.5 text-sm text-slate-900 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg focus:ring-2 focus:ring-lime-500 outline-none transition-all"
+                className="w-auto px-4 py-2.5 text-sm text-slate-900 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg focus:ring-2 focus:ring-lime-500 outline-none transition-all"
               />
               <button
                 type="submit"
@@ -83,20 +82,9 @@ const Footer = () => {
             © {currentYear} Belstore Marketplace. Built by{" "}
             <span className="text-lime-600 font-medium">mrcoded</span>.
           </p>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/status"
-              className="text-xs text-slate-500 hover:text-lime-600"
-            >
-              System Status
-            </Link>
-            <Link
-              href="/sitemap"
-              className="text-xs text-slate-500 hover:text-lime-600"
-            >
-              Sitemap
-            </Link>
-          </div>
+          <span className="text-xs text-slate-500 hover:text-lime-600">
+            System Status
+          </span>
         </div>
       </div>
     </footer>

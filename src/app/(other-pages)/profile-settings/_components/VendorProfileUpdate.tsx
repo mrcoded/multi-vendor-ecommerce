@@ -8,7 +8,7 @@ import Steps from "../../onboarding/[id]/_components/Steps";
 import StepForm from "../../onboarding/[id]/_components/StepForm";
 
 const VendorProfileUpdate = ({ user }: { user: User | undefined }) => {
-  const { data: vendor } = useVendor(user?.id);
+  const vendor = useVendor(user?.id);
 
   const steps = [
     { index: 1, title: "Personal Details" },
@@ -23,7 +23,7 @@ const VendorProfileUpdate = ({ user }: { user: User | undefined }) => {
         <Steps steps={steps} />
         <div className="w-full p-3.5 sm:p-6 bg-white border border-gray-200 rounded-lg shadow md:p-8 dark:bg-gray-800 dark:border-gray-700">
           {/* FORM */}
-          <StepForm vendor={vendor?.data} user={user} />
+          <StepForm vendorId={vendor?.data?.id} />
         </div>
       </div>
     </div>

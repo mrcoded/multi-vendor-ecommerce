@@ -1,4 +1,4 @@
-export const sortingLinks = (slug: string) => [
+export const sortingLinks = (slug: string | undefined) => [
   {
     title: "Relevance",
     href: `/category/${slug}`,

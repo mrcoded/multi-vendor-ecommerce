@@ -33,6 +33,8 @@ const ProductInputForm = ({
 }: ProductInputFormProps) => {
   // Watch the userId field
   const selectedVendorId = watch("userId");
+  const activeVendorId = role === "ADMIN" ? selectedVendorId : vendorId;
+
   const userData = users ?? [];
   const storesData = allStores ?? [];
 
@@ -45,6 +47,7 @@ const ProductInputForm = ({
         qty: product.qty ?? 0,
         title: product.title ?? "",
         barcode: product.barcode ?? "",
+        userId: selectedVendorId ?? "",
         salePrice: product.salePrice ?? 0,
         categoryId: product.categoryId ?? "",
         description: product.description ?? "",
@@ -53,8 +56,6 @@ const ProductInputForm = ({
         wholesaleQuantity: product.wholesaleQuantity ?? 0,
         isWholesale: product.isWholesale ?? false,
         isActive: product.isActive ?? false,
-        // storeIds: product.storeIds ?? [],
-        userId: product.userId ?? "",
       });
 
       // Sync Local UI States
@@ -79,13 +80,13 @@ const ProductInputForm = ({
 
   // Memoize the filtered stores so they only recalculate when vendor or stores change
   const filteredStores = useMemo(() => {
-    if (!selectedVendorId) return [];
+    if (!activeVendorId) return [];
 
     // Filter the original stores list by the vendor ID
     return storesDataByRole.filter(
-      (store) => store.vendorId === selectedVendorId,
+      (store) => store.vendorId === activeVendorId,
     );
-  }, [selectedVendorId, storesDataByRole]);
+  }, [activeVendorId, storesDataByRole]);
 
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 sm:gap-6">
@@ -154,7 +155,7 @@ const ProductInputForm = ({
           hasMultipleSelect={false}
         />
       ) : (
-        <input type="hidden" {...register("userId")} value={selectedVendorId} />
+        <input type="hidden" {...register("userId")} value={vendorId ?? ""} />
       )}
 
       <ToggleInput

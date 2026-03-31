@@ -6,14 +6,13 @@ export const PROTECTED_API_PREFIXES = [
   "/api/orders",
   "/api/sales",
   "/api/stores",
+  "/api/coupons",
 ];
 
 // Define routes that only ADMINS can touch
 export const ADMIN_ONLY_API_ROUTES = [
   "/api/users",
   "/api/vendors",
-  "/api/settings",
-  "/api/coupons",
   "/api/categories",
 ];
 
