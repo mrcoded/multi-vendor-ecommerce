@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 
@@ -9,6 +9,16 @@ import { RootState } from "@/types/redux";
 
 function CartCounter() {
   const cartItems = useSelector((store: RootState) => store.cart);
+
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  // Prevent hydration mismatch by rendering nothing on the server
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <Link
