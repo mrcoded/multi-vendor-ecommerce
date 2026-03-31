@@ -77,6 +77,31 @@ body {
   }
 }
 
+@layer utilities {
+  .react-multi-carousel-item {
+    display: flex;
+    justify-content: center;
+  }
+  .carousel-container {
+    padding-bottom: 20px;
+    overflow: visible;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+  }
+}
+
 // width
 ::-webkit-scrollbar {
   width: 10px;
