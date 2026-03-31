@@ -1,12 +1,13 @@
 "use server";
 
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import {
   getVendorById as getVendorService,
   updateVendorProfile,
   deleteVendorUser,
   createVendorProfile,
   getAllVendors,
+  updateVendorStatusById,
 } from "@/services/vendor-service";
 import { authenticatedAction } from "../auth-wrapper";
 import { VendorProps } from "@/types/vendors";
@@ -22,7 +23,10 @@ export async function fetchVendorByIdAction(id?: string) {
   });
 }
 
-export async function updateVendorAction(id: string, formData: VendorProps) {
+export async function updateVendorAction(
+  id: string,
+  formData: VendorProps["vendorProfile"],
+) {
   return authenticatedAction("Update Vendor", ["ADMIN", "VENDOR"], async () => {
     try {
       const updated = await updateVendorProfile(id, formData);
@@ -42,6 +46,31 @@ export async function updateVendorAction(id: string, formData: VendorProps) {
   });
 }
 
+export async function updateVendorStatusAction(id: string, status: boolean) {
+  return authenticatedAction("Update Vendor Status", ["ADMIN"], async () => {
+    try {
+      const updatedUser = await updateVendorStatusById(id, status);
+
+      // 🎯 THE CACHE BUSTERS
+      // This forces 'getAllVendors' to fetch fresh data on the next request
+      revalidateTag("vendors-list");
+      revalidateTag(`vendor-${id}`);
+
+      return {
+        success: true,
+        data: updatedUser,
+        message: `Vendor status set to ${status ? "Approved" : "Pending"}`,
+      };
+    } catch (error: any) {
+      console.error("[UPDATE_VENDOR_ERROR]:", error);
+      return {
+        success: false,
+        error: error.message || "Update  Vendor status failed",
+      };
+    }
+  });
+}
+
 export async function deleteVendorAction(id: string) {
   return authenticatedAction("Delete Vendor", ["ADMIN"], async () => {
     try {
@@ -57,7 +86,9 @@ export async function deleteVendorAction(id: string) {
   });
 }
 
-export async function createVendorAction(formData: VendorProps) {
+export async function createVendorAction(
+  formData: VendorProps["vendorProfile"],
+) {
   return authenticatedAction("Create Vendor", ["ADMIN", "VENDOR"], async () => {
     try {
       const vendor = await createVendorProfile(formData);
@@ -77,18 +108,21 @@ export async function createVendorAction(formData: VendorProps) {
 }
 
 export async function fetchAllVendorsAction() {
-  return authenticatedAction("Fetch Vendors", ["ADMIN"], async () => {
+  return authenticatedAction("Fetch Vendors", ["ADMIN", "VENDOR"], async () => {
     try {
-      const getCachedVendors = unstable_cache(
-        async () => await getAllVendors(),
-        ["vendors-list"],
-        { tags: ["vendors-list"], revalidate: 3600 },
-      );
-
-      const data = await getCachedVendors();
-      return { success: true, data };
+      // 🎯 Call the cached service directly
+      const data = await getAllVendors();
+      return {
+        success: true,
+        data,
+        message: "Vendors retrieved successfully",
+      };
     } catch (error: any) {
-      return { success: false, error: error.message };
+      console.error("[FETCH_ALL_VENDORS_ERROR]:", error);
+      return {
+        success: false,
+        error: error.message || "Unable to fetch vendors",
+      };
     }
   });
 }

@@ -106,21 +106,20 @@ export async function deleteCategoryAction(id: string) {
 
 export async function fetchAllCategoriesAction() {
   try {
-    const getCachedCategories = unstable_cache(
-      async () => await getAllCategories(),
-      ["all-categories-data"],
-      { tags: ["categories-list"], revalidate: 3600 },
-    );
+    // 🎯 Call the cached service directly
+    const data = await getAllCategories();
 
-    const data = await getCachedCategories();
-
-    // Ensure plain JSON for Client Components
     return {
       success: true,
       data,
+      message: "Categories fetched successfully",
     };
   } catch (error: any) {
-    return { success: false, error: "Unable to fetch categories" };
+    console.error("[FETCH_ALL_CATEGORIES_ERROR]:", error);
+    return {
+      success: false,
+      error: "Unable to fetch categories",
+    };
   }
 }
 
@@ -131,22 +130,22 @@ export async function fetchCategoryBySlugAction(slug: string) {
   try {
     if (!slug) return { success: false, error: "Slug is required" };
 
-    const getCachedCategory = unstable_cache(
-      async (slug: string) => await getCategoryBySlug(slug),
-      [`category-detail-${slug}`],
-      { tags: [`category-${slug}`], revalidate: 3600 },
-    );
-
-    const data = await getCachedCategory(slug);
+    // 🎯 Simply call the cached service
+    const data = await getCategoryBySlug(slug);
 
     if (!data) return { success: false, error: "Category not found" };
 
     return {
       success: true,
-      data: JSON.parse(JSON.stringify(data)),
+      data: data, // Next.js 15 handles most serialization automatically now
+      message: "Category fetched successfully",
     };
   } catch (error: any) {
-    return { success: false, error: "Failed to fetch category" };
+    console.error("[FETCH_CATEGORY_ERROR]:", error);
+    return {
+      success: false,
+      error: "Failed to fetch category",
+    };
   }
 }
 

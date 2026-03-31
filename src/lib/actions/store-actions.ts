@@ -66,6 +66,7 @@ export async function updateStoreAction(id: string, formData: StoreProps) {
         revalidateTag("stores-list");
         revalidatePath(`/dashboard/stores/${id}`);
         revalidatePath("/dashboard/stores");
+        revalidateTag(`store-${formData.id}`);
 
         return {
           success: true,

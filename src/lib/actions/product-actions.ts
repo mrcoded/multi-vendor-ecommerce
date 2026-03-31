@@ -13,12 +13,12 @@ import {
   ProductQueryParams,
   updateProduct,
 } from "@/services/product-service";
-import { ProductFormData } from "@/types/products";
+import { ProductServicesProps } from "@/types/products";
 
 /**
  * CREATE PRODUCT(S)
  */
-export async function createProductAction(formData: ProductFormData) {
+export async function createProductAction(formData: ProductServicesProps) {
   return authenticatedAction(
     "Create Product",
     ["VENDOR", "ADMIN"],
@@ -32,10 +32,10 @@ export async function createProductAction(formData: ProductFormData) {
           };
         }
 
-        // 1. Execute the creation (Transaction-based)
+        // Execute the creation (Transaction-based)
         const products = await createStoreProducts(formData);
 
-        // 2. Cache Invalidation Logic
+        // Cache Invalidation Logic
         const stores = await db.store.findMany({
           where: { id: { in: formData.storeIds } },
           select: { slug: true },
@@ -106,7 +106,7 @@ export async function deleteProductAction(productId: string) {
  */
 export async function updateProductAction(
   productId: string,
-  formData: ProductFormData,
+  formData: ProductServicesProps,
 ) {
   return authenticatedAction(
     "Update Product",
@@ -161,6 +161,7 @@ export async function getFilteredProductsAction(params: any) {
 export async function getProductBySlugAction(slug: string) {
   try {
     const data = await getProductBySlug(slug);
+    console.log(data);
     return { success: true, data };
   } catch (error) {
     return { success: false, error: "Product not found" };
@@ -195,17 +196,8 @@ export async function fetchAllProductsAction() {
 
 export async function fetchFilteredProductsAction(params: ProductQueryParams) {
   try {
-    // 🎯 We cache based on the specific filter string
-    const getCachedFilteredProducts = unstable_cache(
-      async (p: ProductQueryParams) => await getFilteredProducts(p),
-      [`products-list-${JSON.stringify(params)}`],
-      {
-        tags: ["products-list"],
-        revalidate: 600, // Cache for 10 minutes
-      },
-    );
-
-    const data = await getCachedFilteredProducts(params);
+    // 🎯 We simply call the service. The service handles the caching.
+    const data = await getFilteredProducts(params);
 
     return {
       success: true,
@@ -213,7 +205,7 @@ export async function fetchFilteredProductsAction(params: ProductQueryParams) {
       message: "Products filtered successfully",
     };
   } catch (error: any) {
-    console.error("[FILTER_PRODUCTS_ERROR]:", error);
+    console.error("[FILTER_PRODUCTS_ACTION_ERROR]:", error);
     return {
       success: false,
       error: error.message || "Failed to fetch products",

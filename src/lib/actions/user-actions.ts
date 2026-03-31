@@ -6,8 +6,9 @@ import {
   getAllUsers,
   getUserById,
 } from "@/services/user-service";
+import { CreateUserProps } from "@/types/user";
 
-export async function registerUserAction(formData: any) {
+export async function registerUserAction(formData: CreateUserProps) {
   try {
     const newUser = await createNewUser(formData);
 
@@ -15,7 +16,7 @@ export async function registerUserAction(formData: any) {
     revalidateTag("users-list");
 
     // Refresh the layout and page (Ensures UI updates)
-    // revalidatePath("/dashboard/users");
+    revalidatePath("/dashboard/users");
     revalidatePath("/dashboard");
 
     return {
@@ -25,10 +26,11 @@ export async function registerUserAction(formData: any) {
     };
   } catch (error: any) {
     console.error("[ACTION_ERROR] registerUserAction:", error);
-    return {
-      success: false,
-      error: error.message || "Unable to create account",
-    };
+    // P2002 is the Prisma code for "Unique constraint failed"
+    if (error.code === "P2002") {
+      return { success: false, error: "Email already exists" };
+    }
+    return { success: false, error: "Internal Server Error" };
   }
 }
 
