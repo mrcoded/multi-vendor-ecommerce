@@ -1,16 +1,8 @@
 import { db } from "@/lib/db";
-import { CheckoutProps } from "@/types/order";
 import { OrderStatus } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 
-export interface OrderItemProps {
-  id: string;
-  imageUrl: string;
-  qty: string;
-  salePrice: string;
-  storeId: string;
-  title: string;
-  vendorId: string;
-}
+import { CheckoutProps, OrderItemProps } from "@/types/order";
 
 function generateOrderNumber(length: number) {
   const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -129,18 +121,31 @@ export async function createOrderService(
   );
 }
 
-export async function getAllOrders() {
+export async function getAllOrders(userId?: string) {
   return await db.order.findMany({
     orderBy: { createdAt: "desc" },
-    include: { orderItems: true },
+    include: {
+      orderItems: true,
+    },
   });
 }
 
 export async function getOrderById(id: string) {
-  return await db.order.findUnique({
-    where: { id },
-    include: { orderItems: true },
-  });
+  // 🎯 THE SERVICE WRAPPER: Handles Data + Specific Order Caching
+  const getCachedOrder = unstable_cache(
+    async (orderId: string) => {
+      return await db.order.findUnique({
+        where: { id: orderId },
+        include: {
+          orderItems: true,
+        },
+      });
+    },
+    [`order-${id}`],
+    { tags: [`order-${id}`], revalidate: 3600 },
+  );
+
+  return await getCachedOrder(id);
 }
 
 export async function deleteOrder(id: string) {
@@ -157,25 +162,45 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
 }
 
 export async function getAllSales() {
-  return await db.sale.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    // You can include relations here if you need store names or product details later
-    include: {
-      product: {
-        select: {
-          title: true,
-          category: { select: { title: true } },
+  // 🎯 THE SERVICE WRAPPER: Handles Data + Scoped Caching
+  const getCachedSales = unstable_cache(
+    async () => {
+      return await db.sale.findMany({
+        orderBy: { createdAt: "desc" },
+        include: {
+          product: {
+            select: {
+              title: true,
+              category: { select: { title: true } },
+            },
+          },
         },
-      },
+      });
     },
-  });
+    ["sales-list"],
+    { tags: ["sales-list"], revalidate: 3600 },
+  );
+
+  return await getCachedSales();
 }
 
 export async function getSalesByVendor(vendorId?: string) {
-  return await db.sale.findMany({
-    where: { vendorId },
-    orderBy: { createdAt: "desc" },
-  });
+  if (!vendorId) return [];
+
+  // 🎯 THE SERVICE WRAPPER: Handles Vendor-Scoped Caching
+  const getCachedVendorSales = unstable_cache(
+    async (vId: string) => {
+      return await db.sale.findMany({
+        where: { vendorId },
+        orderBy: { createdAt: "desc" },
+      });
+    },
+    [`sales-vendor-${vendorId}`],
+    {
+      tags: [`sales-vendor-${vendorId}`, "sales-list"],
+      revalidate: 3600,
+    },
+  );
+
+  return await getCachedVendorSales(vendorId);
 }

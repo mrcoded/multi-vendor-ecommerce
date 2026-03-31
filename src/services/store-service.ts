@@ -45,10 +45,19 @@ export async function createStore(data: StoreProps) {
 }
 
 export async function getStoreById(id: string) {
-  return await db.store.findUnique({
-    where: { id },
-    include: { products: true },
-  });
+  return await unstable_cache(
+    async () => {
+      return await db.store.findUnique({
+        where: { id },
+        include: { products: true },
+      });
+    },
+    [`store-${id}`],
+    {
+      revalidate: 3600,
+      tags: ["stores", `store-${id}`],
+    },
+  )();
 }
 
 export async function updateStore(id: string, data: StoreProps) {

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ProductFormData } from "@/types/products";
+import { ProductServicesProps } from "@/types/products";
 
 import { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
@@ -15,38 +15,51 @@ export interface ProductQueryParams {
 
 // GET Filtered Products (Cached for Public)
 export async function getFilteredProducts(params: ProductQueryParams) {
-  const pageSize = 10;
-  const { page = "1", catId, search, min, max, sort } = params;
+  // 🎯 THE WRAPPER: define the cached logic
+  const getCachedData = unstable_cache(
+    async (p: ProductQueryParams) => {
+      const pageSize = 10;
+      const { page = "1", catId, search, min, max, sort } = p;
 
-  const where: Prisma.ProductWhereInput = {};
-  if (catId) where.categoryId = catId;
+      const where: Prisma.ProductWhereInput = {};
+      if (catId) where.categoryId = catId;
 
-  if (search) {
-    where.OR = [
-      { title: { contains: search, mode: "insensitive" } },
-      { description: { contains: search, mode: "insensitive" } },
-    ];
-  }
+      if (search) {
+        where.OR = [
+          { title: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } },
+        ];
+      }
 
-  if (min || max) {
-    where.salePrice = {
-      gte: min ? parseFloat(min) : undefined,
-      lte: max ? parseFloat(max) : undefined,
-    };
-  }
+      if (min || max) {
+        where.salePrice = {
+          gte: min ? parseFloat(min) : undefined,
+          lte: max ? parseFloat(max) : undefined,
+        };
+      }
 
-  const orderBy: Prisma.ProductOrderByWithRelationInput =
-    sort === "asc" || sort === "desc"
-      ? { salePrice: sort }
-      : { createdAt: "desc" };
+      const orderBy: Prisma.ProductOrderByWithRelationInput =
+        sort === "asc" || sort === "desc"
+          ? { salePrice: sort }
+          : { createdAt: "desc" };
 
-  return await db.product.findMany({
-    where,
-    orderBy,
-    skip: (parseInt(page) - 1) * pageSize,
-    take: pageSize,
-    include: { category: true }, // Added category for better UI
-  });
+      return await db.product.findMany({
+        where,
+        orderBy,
+        skip: (parseInt(page) - 1) * pageSize,
+        take: pageSize,
+        include: { category: true },
+      });
+    },
+    [`products-list-${JSON.stringify(params)}`], // 🎯 Cache Key
+    {
+      tags: ["products-list"], // 🎯 Tag for revalidation
+      revalidate: 600,
+    },
+  );
+
+  // 🎯 THE INVOCATION: Call the cached function with the params
+  return await getCachedData(params);
 }
 
 // GET Single Product
@@ -58,7 +71,7 @@ export async function getProductById(id: string) {
 }
 
 // CREATE Bulk Products (Multi-Store)
-export async function createStoreProducts(data: ProductFormData) {
+export async function createStoreProducts(data: ProductServicesProps) {
   const {
     productImages,
     storeIds,
@@ -110,7 +123,10 @@ export async function getProductBySlug(slug: string) {
   )();
 }
 
-export async function updateProduct(productId: string, data: ProductFormData) {
+export async function updateProduct(
+  productId: string,
+  data: ProductServicesProps,
+) {
   // 1. 🛡️ Fetch the product to verify existence and get context
   const originalProduct = await db.product.findUnique({
     where: { id: productId },
@@ -136,12 +152,15 @@ export async function updateProduct(productId: string, data: ProductFormData) {
 
   const mainImage = data.productImages?.[0] || "";
 
+  const { categoryId, storeId, userId, store, ...rest } = data;
+
   // 3. 🎯 Direct Update
   // We no longer loop or deleteMany. We just update the record you are looking at.
   try {
     return await db.product.update({
       where: { id: productId },
       data: {
+        ...rest,
         title: data.title,
         slug: data.slug,
         qty: Number(data.qty),

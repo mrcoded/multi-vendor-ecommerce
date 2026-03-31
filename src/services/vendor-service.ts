@@ -1,6 +1,8 @@
 import { db } from "@/lib/db";
+import { VendorProps } from "@/types/vendors";
+import { unstable_cache } from "next/cache";
 
-export async function createVendorProfile(data: any) {
+export async function createVendorProfile(data: VendorProps["vendorProfile"]) {
   return await db.$transaction(async (tx) => {
     //Check if user exists
     const existingUser = await tx.user.findUnique({
@@ -13,6 +15,16 @@ export async function createVendorProfile(data: any) {
     const updatedUser = await tx.user.update({
       where: { id: data.userId },
       data: { emailVerified: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        emailVerified: true,
+        imageUrl: true,
+      },
     });
 
     //  Create Vendor Profile
@@ -28,8 +40,7 @@ export async function createVendorProfile(data: any) {
         phone: data.phone,
         physicalAddress: data.physicalAddress,
         terms: data.terms,
-        isActive: data.isActive,
-        imageUrl: data.imageUrl,
+        imageUrl: data.imageUrl ?? "",
         userId: data.userId,
       },
     });
@@ -39,17 +50,46 @@ export async function createVendorProfile(data: any) {
 }
 
 export async function getAllVendors() {
-  return await db.user.findMany({
-    where: { role: "VENDOR" },
-    include: { vendorProfile: true },
-    orderBy: { createdAt: "desc" },
-  });
+  // 🎯 THE SERVICE WRAPPER: Centralized Data + Cache logic
+  const getCachedVendors = unstable_cache(
+    async () => {
+      return await db.user.findMany({
+        where: { role: "VENDOR" },
+        select: {
+          vendorProfile: true,
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          status: true,
+          createdAt: true,
+          emailVerified: true,
+          imageUrl: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+    },
+    ["vendors-list"],
+    { tags: ["vendors-list"], revalidate: 3600 },
+  );
+
+  return await getCachedVendors();
 }
 
 export async function getVendorById(id?: string) {
   return await db.user.findUnique({
-    where: { id },
-    include: { vendorProfile: true },
+    where: { id, role: "VENDOR" },
+    select: {
+      vendorProfile: true,
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      emailVerified: true,
+      imageUrl: true,
+    },
   });
 }
 
@@ -61,6 +101,15 @@ export async function updateVendorProfile(id: string, data: any) {
       data: {
         emailVerified: true,
         status: data.isActive,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        emailVerified: true,
+        imageUrl: true,
       },
     });
 
@@ -86,5 +135,16 @@ export async function updateVendorProfile(id: string, data: any) {
 export async function deleteVendorUser(id: string) {
   return await db.user.delete({
     where: { id },
+  });
+}
+
+export async function updateVendorStatusById(id: string, newStatus: boolean) {
+  return await db.user.update({
+    where: { id },
+    data: {
+      status: newStatus,
+      // Pragmatic: If approving, we usually want to verify the email too
+      emailVerified: true,
+    },
   });
 }

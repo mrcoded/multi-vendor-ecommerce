@@ -3,17 +3,48 @@ import { CategoryFormProps } from "@/types/category";
 import { unstable_cache } from "next/cache";
 
 export async function getAllCategories() {
-  return await db.category.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { products: true },
-  });
+  // 🎯 THE SERVICE WRAPPER: Handles Data + Global Caching
+  const getCachedCategories = unstable_cache(
+    async () => {
+      return await db.category.findMany({
+        orderBy: { createdAt: "desc" },
+        include: {
+          products: true, // 🚀 Pragmatic: Only get the count for lists
+        },
+      });
+    },
+    ["all-categories-data"], // Static key for the full list
+    {
+      tags: ["categories-list"],
+      revalidate: 3600, // 1 hour TTL
+    },
+  );
+
+  return await getCachedCategories();
 }
 
 export async function getCategoryBySlug(slug: string) {
-  return await db.category.findUnique({
-    where: { slug },
-    include: { products: true },
-  });
+  // 🎯 THE SERVICE WRAPPER: Handles Data + Caching
+  const getCachedCategory = unstable_cache(
+    async (s: string) => {
+      return await db.category.findUnique({
+        where: { slug: s },
+        include: {
+          products: {
+            where: { isActive: true }, // Pragmatic: only fetch active products for the public
+            orderBy: { createdAt: "desc" },
+          },
+        },
+      });
+    },
+    [`category-detail-${slug}`], // Unique Key
+    {
+      tags: [`category-${slug}`, "categories-list"],
+      revalidate: 3600,
+    },
+  );
+
+  return await getCachedCategory(slug);
 }
 
 export async function getCategoryById(id: string) {
