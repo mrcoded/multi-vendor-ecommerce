@@ -13,17 +13,18 @@ import OrderSummary from "./OrderSummary";
 import PaymentMethodForm from "@/components/forms/StepForm/PaymentMethodForm";
 import PersonalDetailsForm from "@/components/forms/StepForm/PersonalDetailsForm";
 import ShippingDetailsForm from "@/components/forms/StepForm/ShippingDetailsForm";
+
 const StepForm = ({ user }: { user: User | undefined }) => {
   // Fetch the user's existing profile/data
-  const { data: userData } = useUserDetail(user?.id);
-
+  const currentUser = useUserDetail(user?.id);
+  const userData = currentUser?.data ?? null;
   const currentStep = useSelector(
     (state: RootState) => state.checkout.currentStep,
   );
 
   if (!userData) return <>Loading...</>;
 
-  const userProfile = userData.profile;
+  const userProfile = userData?.profile;
 
   const initialCheckoutData: CheckoutProps | null = userProfile
     ? {

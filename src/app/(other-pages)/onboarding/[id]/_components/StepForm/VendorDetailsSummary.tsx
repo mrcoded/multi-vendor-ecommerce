@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
 import {
   ChevronRight,
   ChevronLeft,
@@ -25,11 +24,14 @@ import { actions } from "@/redux/slices/onboardingSlice";
 import { RootState } from "@/types/redux";
 import SummaryItem from "../SummaryItem";
 
-const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
-  const router = useRouter();
+const VendorDetailsSummary = ({
+  vendorId,
+}: {
+  vendorId: string | undefined;
+}) => {
   const dispatch = useDispatch();
   //update vendor mutation
-  const { mutate: updateVendor, isPending } = useUpdateVendor(vendorId);
+  const { mutate: updateVendor, isPending } = useUpdateVendor(vendorId ?? "");
 
   const onboardingFormData = useSelector(
     (store: RootState) => store.onboarding.onboardingFormData,
@@ -48,7 +50,9 @@ const VendorDetailsSummary = ({ vendorId }: { vendorId: string }) => {
     const fullName = `${data.firstName} ${data.lastName}`;
     const code = generateUserCode("MVE", fullName);
     data.code = code;
-    data.userId = vendorId;
+    if (vendorId) {
+      data.userId = vendorId;
+    }
 
     //Update the vendor
     updateVendor(data);

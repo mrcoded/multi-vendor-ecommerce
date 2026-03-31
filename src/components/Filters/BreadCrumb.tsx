@@ -9,11 +9,11 @@ function BreadCrumb({
   title,
   resultCount,
 }: {
-  title: string;
+  title: string | undefined;
   resultCount: number;
 }) {
   const searchParams = useSearchParams();
-  const pageSize = 3;
+  const pageSize = 6;
   const currentPage = searchParams.get("page") || "1";
   const startRange = (parseInt(currentPage) - 1) * pageSize + 1;
   const endRange = Math.ceil(parseInt(currentPage) * pageSize);

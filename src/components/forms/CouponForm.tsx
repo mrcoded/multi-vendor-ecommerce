@@ -22,7 +22,7 @@ export interface CouponFormProps {
   id: string;
   title: string;
   couponCode: string;
-  expiryDate: string;
+  expiryDate: Date;
   vendorId: string | undefined;
   isActive: boolean;
 }
@@ -30,8 +30,8 @@ export interface CouponFormProps {
 const CouponForm = ({ couponId }: { couponId?: string }) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
+  const vendor = useVendor(userId);
   const { data: coupon } = useCouponById(couponId);
-  const { data: vendor } = useVendor(userId);
 
   //mutations
   const { mutate: createCoupon, isPending: isCreating } = useCreateCoupon();
@@ -71,16 +71,16 @@ const CouponForm = ({ couponId }: { couponId?: string }) => {
 
     if (!data.title || !data.expiryDate) return;
 
+    const formattedDate = generateISOFormatDate(new Date(formData.expiryDate));
+
     const couponCode = generateCouponCode({
       title: formData.title,
-      expiryDate: formData.expiryDate,
+      expiryDate: formattedDate,
     });
-
-    const formattedDate = generateISOFormatDate(new Date(formData.expiryDate));
-    formData.expiryDate = formattedDate;
 
     formData.couponCode = couponCode;
     formData.vendorId = vendor?.data?.id;
+    formData.expiryDate = new Date(formData.expiryDate);
 
     if (couponId) {
       //PUT request (update)

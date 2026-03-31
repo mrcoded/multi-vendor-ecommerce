@@ -23,7 +23,7 @@ function VendorForm({
   vendorId?: string;
   user: User | undefined;
 }) {
-  const { data: vendorData } = useVendor(vendorId);
+  const vendorData = useVendor(vendorId);
   const vendor = vendorData?.data;
   const vendorProfile = vendor?.vendorProfile;
 
@@ -49,7 +49,6 @@ function VendorForm({
       phone: vendorProfile?.phone ?? "",
       physicalAddress: vendorProfile?.physicalAddress ?? "",
       notes: vendorProfile?.notes ?? "",
-      isActive: vendorProfile?.isActive ?? false,
       terms: vendorProfile?.terms ?? "",
       contactPerson: vendorProfile?.contactPerson ?? "",
       contactPersonPhone: vendorProfile?.contactPersonPhone ?? "",
@@ -69,7 +68,6 @@ function VendorForm({
         phone: vendorProfile?.phone ?? "",
         physicalAddress: vendorProfile?.physicalAddress ?? "",
         notes: vendorProfile?.notes ?? "",
-        isActive: vendorProfile?.isActive ?? false,
         terms: vendorProfile?.terms ?? "",
         contactPerson: vendorProfile?.contactPerson ?? "",
         contactPersonPhone: vendorProfile?.contactPersonPhone ?? "",
@@ -194,15 +192,6 @@ function VendorForm({
           register={register}
           errors={errors}
           isRequired={false}
-        />
-
-        <ToggleInput
-          label="Vendor Status"
-          name="isActive"
-          truthyValue="Active"
-          falsyValue="Inactive"
-          register={register}
-          defaultCheck={vendorProfile?.isActive}
         />
       </div>
 

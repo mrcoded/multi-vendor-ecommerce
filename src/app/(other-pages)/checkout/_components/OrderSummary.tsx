@@ -79,6 +79,7 @@ const OrderSummary = ({ userId }: { userId: string }) => {
                   src={cartItem.imageUrl}
                   alt={cartItem.title}
                   fill
+                  unoptimized
                   className="rounded-lg object-cover"
                 />
                 <div className="absolute -top-1.5 -right-1.5 size-5 bg-gray-900 dark:bg-lime-600 text-white text-[9px] font-black flex items-center justify-center rounded-full border border-white dark:border-zinc-950">

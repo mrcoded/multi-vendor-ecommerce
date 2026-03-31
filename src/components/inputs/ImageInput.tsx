@@ -53,6 +53,7 @@ function ImageInput({
           alt="Item image"
           width={1000}
           height={667}
+          unoptimized
           className="w-full h-64 object-contain"
         />
       ) : (

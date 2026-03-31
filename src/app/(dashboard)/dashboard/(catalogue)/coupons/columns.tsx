@@ -3,8 +3,9 @@
 import { RowDatas } from "@/types/table";
 import { ColumnDef } from "@tanstack/react-table";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { useDeleteCoupon } from "@/hooks/useCoupon";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import DataColumn from "@/components/tables/DataTable/DataColumn";
 import SortableColumn from "@/components/tables/DataTable/SortableColumn";
 import ActiveStatusColumn from "@/components/tables/DataTable/ActiveStatusColumn";
@@ -63,11 +64,13 @@ export const columns: ColumnDef<RowDatas>[] = [
     id: "actions",
     cell: ({ row }) => {
       const coupon = row.original;
+      const deleteMutation = useDeleteCoupon();
 
       return (
         <ActiveStatusColumn
           title="Coupon"
           rowId={coupon.id}
+          deleteMutation={deleteMutation}
           editPageRoute={`coupons/update/${coupon.id}`}
         />
       );

@@ -3,17 +3,23 @@ import Loading from "@/app/loading";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-
-import PageHeader from "../_components/shared/PageHeader";
-import StoresTable from "./(stores-actions)/StoresTable";
 import { fetchAllStoresAction } from "@/lib/actions/store-actions";
+
+import { columns } from "./columns";
+import PageHeader from "../_components/shared/PageHeader";
+import { DataTable } from "@/components/tables/DataTable/page";
 
 const Page = async () => {
   const session = await getServerSession(authOptions);
   //GET user
   const user = session?.user;
 
-  const stores = fetchAllStoresAction();
+  const { data: stores } = await fetchAllStoresAction();
+  const allStores = stores ?? [];
+
+  const vendorStores = allStores.filter((store) => store.vendorId === user?.id);
+
+  const allStoresByRole = user?.role === "ADMIN" ? allStores : vendorStores;
 
   return (
     <div>
@@ -25,7 +31,9 @@ const Page = async () => {
       />
 
       <Suspense fallback={<Loading />}>
-        <StoresTable user={user} stores={stores} />
+        <div className="py-1">
+          <DataTable data={allStoresByRole} columns={columns} />
+        </div>
       </Suspense>
     </div>
   );

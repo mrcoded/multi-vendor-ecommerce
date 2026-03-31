@@ -10,11 +10,11 @@ function CategoryList({
   isStorePage,
 }: {
   storeId?: string;
-  category?: CategoryProps | null;
+  category: CategoryProps | null | undefined;
   isStorePage?: boolean;
 }) {
   const categoryProducts = isStorePage
-    ? category?.products?.filter((product) => product.storeId === storeId)
+    ? category?.products.filter((product) => product.storeId === storeId)
     : category?.products;
 
   return (

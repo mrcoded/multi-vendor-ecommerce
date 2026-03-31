@@ -1,22 +1,25 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-import getData from "@/lib/getData";
 import formatDate from "@/lib/formatDate";
+import { useCategoryById } from "@/hooks/useCategories";
+
 import { CommunityPostProps } from "@/types/communityPost";
 
-async function CommunityBlogCard({
+function CommunityBlogCard({
   communityPost,
 }: {
   communityPost: CommunityPostProps;
 }) {
   const categoryId = communityPost.categoryId;
-  const category = await getData(`categories/${categoryId}`);
-  const categoryTitle = category.title;
+  const { data: category } = useCategoryById(categoryId ?? "");
+  const categoryTitle = category?.title;
 
-  const normalDate = formatDate(communityPost.createdAt);
+  const normalDate = formatDate(communityPost.createdAt?.toString() ?? "");
 
   return (
     <div className="group">
@@ -28,6 +31,7 @@ async function CommunityBlogCard({
             width={556}
             height={556}
             priority
+            unoptimized
             className="object-cover w-full h-48 transition-all duration-200 transform group-hover:scale-110"
           />
         </div>

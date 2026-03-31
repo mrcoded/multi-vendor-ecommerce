@@ -8,12 +8,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Carousel } from "flowbite-react";
 
 interface BannerProps {
-  banners: {
-    id: string;
-    link: string;
-    title: string;
-    imageUrl: string;
-  }[];
+  banners:
+    | {
+        id: string;
+        link: string;
+        title: string;
+        imageUrl: string;
+      }[]
+    | undefined;
 }
 
 function HeroCarousel({ banners }: BannerProps) {
@@ -27,13 +29,14 @@ function HeroCarousel({ banners }: BannerProps) {
       }
       className="rounded-md overflow-hidden"
     >
-      {banners.map((banner) => {
+      {banners?.map((banner) => {
         return (
           <Link key={banner.id} href={banner.link}>
             <Image
               width={712}
               height={384}
               className="w-full"
+              unoptimized
               src={banner.imageUrl}
               alt={banner.title}
             />

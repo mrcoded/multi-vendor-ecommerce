@@ -34,16 +34,16 @@ export default function Navbar({
         </button>
 
         <Link
-          href="/dashboard"
+          href="/"
           className="font-bold text-xl tracking-tight text-lime-600 lg:hidden"
         >
-          LMS
+          Belstore
         </Link>
       </div>
 
       <div className="flex items-center gap-4">
         <ThemeSwitcherButton />
-        {session?.user && (
+        {session && (
           <div className="border-l pl-4 dark:border-slate-700">
             <UserAvatar user={session.user} />
           </div>

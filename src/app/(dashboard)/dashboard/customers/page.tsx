@@ -1,18 +1,21 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
+
+import { fetchAllUsersAction } from "@/lib/actions/user-actions";
 
 import { columns } from "./columns";
+import Loading from "@/app/loading";
 import { DataTable } from "@/components/tables/DataTable/page";
 
 const Page = async () => {
-  const customers = await getData("customers");
+  const { data: users } = await fetchAllUsersAction();
+  const allUsers = users ?? [];
 
   return (
-    <div>
+    <Suspense fallback={<Loading />}>
       <div className="py-1">
-        <DataTable data={customers} columns={columns} />
+        <DataTable data={allUsers} columns={columns} />
       </div>
-    </div>
+    </Suspense>
   );
 };
 

@@ -1,9 +1,8 @@
-"use client";
-
-import React from "react";
+import React, { Suspense } from "react";
+import Loading from "@/app/loading";
 import ResetPasswordForm from "@/components/forms/ResetPasswordForm";
 
-const page = () => {
+const Page = () => {
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -14,11 +13,13 @@ const page = () => {
             </h1>
           </div>
 
-          <ResetPasswordForm />
+          <Suspense fallback={<Loading />}>
+            <ResetPasswordForm />
+          </Suspense>
         </div>
       </div>
     </section>
   );
 };
 
-export default page;
+export default Page;

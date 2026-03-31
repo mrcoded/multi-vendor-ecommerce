@@ -1,13 +1,15 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
 
 import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
 
+import Loading from "@/app/loading";
 import PageHeader from "../../_components/shared/PageHeader";
+import { fetchAllBannersAction } from "@/lib/actions/banner-actions";
 
 const Page = async () => {
-  const banners = await getData("banners");
+  const { data: banners } = await fetchAllBannersAction();
+  const allBanners = banners ?? [];
 
   return (
     <div>
@@ -18,9 +20,11 @@ const Page = async () => {
         linkAction="Add Banner"
       />
 
-      <div className="py-1">
-        <DataTable data={banners} columns={columns} />
-      </div>
+      <Suspense fallback={<Loading />}>
+        <div className="py-1">
+          <DataTable data={allBanners} columns={columns} />
+        </div>
+      </Suspense>
     </div>
   );
 };

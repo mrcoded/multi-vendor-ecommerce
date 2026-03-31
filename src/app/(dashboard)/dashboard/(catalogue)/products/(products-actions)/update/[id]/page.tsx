@@ -19,12 +19,8 @@ const UpdateProduct = async ({
   const user = session?.user;
 
   if (!productId) return notFound();
-  // const { data: stores } = useStores();
 
-  const stores = fetchAllStoresAction();
-  // const { data: userData } = useUsers();
-  // const product = await getData(`products/${id}`);
-  // const { data: categoriesData } = useCategories();
+  const { data: stores } = await fetchAllStoresAction();
 
   return (
     <>

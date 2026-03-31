@@ -25,22 +25,27 @@ const Dashboard = async ({ user }: { user: User | undefined }) => {
   const { data: sales } = await fetchAllSalesAction();
   const { data: products } = await fetchAllProductsAction();
 
-  const allOrders = orders?.data;
-  const allVendors = vendors?.data;
+  const allOrders = orders?.data ?? [];
+  // const allUsers = users?.data ?? [];
+  const allVendors = vendors?.data ?? [];
+  const allProducts = products ?? [];
   const storeDatas = stores ?? [];
-  const allSales = sales?.data;
+  const allSales = sales?.data ?? [];
 
   //Set User and Vendor Dashboard
   if (role === "USER")
     return <UserDashboard user={user} products={products} orders={allOrders} />;
-  if (role === "VENDOR") {
-    <VendorDashboard
-      user={user}
-      stores={storeDatas}
-      products={products}
-      orders={allOrders}
-      sales={allSales}
-    />;
+  if (user?.role === "VENDOR") {
+    return (
+      <VendorDashboard
+        user={user}
+        stores={storeDatas}
+        products={allProducts}
+        orders={allOrders}
+        sales={allSales}
+        vendors={allVendors}
+      />
+    );
   }
 
   return (
@@ -54,7 +59,12 @@ const Dashboard = async ({ user }: { user: User | undefined }) => {
       <SmallCardGroups orders={allOrders} />
 
       {/* OverViewCards Cards */}
-      <OverViewCards stores={stores} vendors={allVendors} products={products} />
+      <OverViewCards
+        role={role}
+        stores={storeDatas}
+        vendors={allVendors}
+        products={allProducts}
+      />
 
       {/* Charts */}
       <DashboardCharts orders={allOrders} sales={allSales} />

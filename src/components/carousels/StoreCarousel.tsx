@@ -10,8 +10,8 @@ interface StoreProps {
   stores: {
     id: string;
     slug: string;
-    name: string;
-    imageUrl: string;
+    title: string;
+    imageUrl: string | null;
   }[];
 }
 
@@ -53,27 +53,29 @@ function StoreCarousel({ stores }: StoreProps) {
       dotListClass="custom-dot-list-style"
       itemClass="px-4"
     >
-      {stores?.map((store, i) => {
-        return (
-          <Link
-            key={i}
-            href={`/store/${store.slug}`}
-            className="rounded-lg mr-3 bg-red-400"
-          >
-            <Image
-              id={store.id}
-              src={store?.imageUrl}
-              alt="store name"
-              width={556}
-              height={556}
-              className="w-full rounded-2xl"
-            />
-            <h2 className="text-center dark:text-slate-200 text-slate-800 mt-2">
-              {store.name}
-            </h2>
-          </Link>
-        );
-      })}
+      {stores &&
+        stores?.map((store, i) => {
+          return (
+            <Link
+              key={i}
+              href={`/store/${store.slug}`}
+              className="rounded-lg mr-2 sm:mr-3 bg-red-400"
+            >
+              <Image
+                id={store.id}
+                src={store?.imageUrl ?? "/assets/icon.png"}
+                alt="store name"
+                width={556}
+                height={556}
+                unoptimized
+                className="w-full rounded-2xl"
+              />
+              <h2 className="text-center dark:text-slate-200 text-slate-800 mt-2">
+                {store.title}
+              </h2>
+            </Link>
+          );
+        })}
     </Carousel>
   );
 }

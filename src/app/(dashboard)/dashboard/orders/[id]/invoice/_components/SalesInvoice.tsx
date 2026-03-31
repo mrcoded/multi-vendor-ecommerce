@@ -45,7 +45,7 @@ function SalesInvoice({ order }: { order?: SalesInvoiceProps["order"] }) {
           <div className="flex flex-row justify-between items-start sm:gap-8 pb-10 border-b border-gray-100 dark:border-slate-800">
             <div className="space-y-2">
               <Image
-                src="/assets/logo.png"
+                src="/assets/icon.png"
                 alt="Logo"
                 className="w-24 sm:w-32 h-auto object-contain mb-4 dark:brightness-125"
                 height={64}
@@ -191,9 +191,9 @@ function SalesInvoice({ order }: { order?: SalesInvoiceProps["order"] }) {
           {/* FOOTER */}
           <div className="mt-8 sm:mt-16 pt-4 sm:pt-8 border-t border-dotted border-gray-200 dark:border-slate-800 flex flex-col items-center gap-4">
             <Image
-              src="/assets/logo.png"
+              src="/assets/icon.png"
               alt="Footer Logo"
-              className="w-20 opacity-30 grayscale"
+              className="h-10 w-20 opacity-30 grayscale"
               height={40}
               width={80}
               priority

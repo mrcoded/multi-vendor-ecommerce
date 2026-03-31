@@ -65,6 +65,7 @@ function CommunityPostCarousel({ communityPosts }: CommunityPostsProps) {
                 alt={post.title}
                 width={556}
                 height={556}
+                unoptimized
                 className="w-full h-48 object-cover"
               />
             </Link>

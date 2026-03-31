@@ -3,7 +3,7 @@ import React from "react";
 import AnalyticsCard from "./AnalyticsCard";
 
 import { StoreProps } from "@/types/store";
-import { VendorProps } from "@/types/vendors";
+import { VendorUIProps } from "@/types/vendors";
 import { ProductFormData } from "@/types/products";
 
 function OverViewCards({
@@ -18,7 +18,7 @@ function OverViewCards({
   products: ProductFormData[];
   vendorId?: string;
   stores: StoreProps[];
-  vendors: VendorProps[];
+  vendors: VendorUIProps[];
   sales?: {
     total: number;
   }[];
@@ -31,16 +31,20 @@ function OverViewCards({
 
   const totalStores = stores?.length.toString().padStart(2, "0") ?? "0";
 
-  const totalStoresByRole = role === "ADMIN" ? totalStores : totalVendorStores;
+  // const totalStoresByRole = role === "ADMIN" ? totalStores : totalVendorStores;
 
   // Get the count of vendors
   const totalVendors = vendors?.length.toString().padStart(2, "0") ?? "0";
 
   // Get the count of products
-  const productsCount = products.length.toString().padStart(2, "0");
+  const productsCount = products.length.toString().padStart(2, "0") ?? "0";
 
   // Get the total sales
-  const totalSales = sales?.reduce((acc, sale) => acc + sale.total, 0) ?? 0;
+  const totalSales =
+    sales
+      ?.reduce((acc, sale) => acc + sale.total, 0)
+      .toFixed(2)
+      .padStart(2, "0") ?? "0";
 
   // Analytics data
   const analytics = [
@@ -51,14 +55,14 @@ function OverViewCards({
     },
     {
       title: "Total Stores",
-      count: totalStoresByRole,
+      count: totalStores,
       link: "/dashboard/stores",
     },
     // If vendors exists, show Revenue. If not, show the fallback object.
     vendorId
       ? {
           title: "Total Revenue",
-          count: totalSales.toString(),
+          count: totalSales,
           link: "/dashboard/sales",
         }
       : {

@@ -12,7 +12,7 @@ function PriceFilter({
   slug,
   isSearch,
 }: {
-  slug: string;
+  slug: string | undefined;
   isSearch: boolean | undefined;
 }) {
   const router = useRouter();

@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 
 import { useDispatch } from "react-redux";
 import { actions } from "@/redux/slices/cartSlice";
+import { generateSlug } from "@/lib/generateSlug";
 
 interface ItemProps {
   id: string;
@@ -43,13 +44,14 @@ function CartProduct({ cartItem }: { cartItem: ItemProps }) {
             src={cartItem.imageUrl}
             fill
             alt={cartItem.title}
+            unoptimized
             className="rounded-xl object-cover border border-gray-100"
           />
         </div>
         <div className="flex items-start flex-col gap-2 w-full sm:w-auto">
           <div className="flex flex-col flex-grow min-w-0">
             <Link
-              href={`/products/${cartItem.id}`}
+              href={`/products/${generateSlug(cartItem.title)}`}
               className="font-bold text-gray-900 dark:text-muted-foreground text-sm sm:text-base line-clamp-2"
             >
               {cartItem.title}

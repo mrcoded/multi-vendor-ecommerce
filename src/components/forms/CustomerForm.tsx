@@ -1,18 +1,21 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+
 import { FieldValues, useForm } from "react-hook-form";
 
+import { useUserDetail } from "@/hooks/useUsers";
+import { useUpdateProfile } from "@/hooks/useUserProfile";
+import generateISOFormatDate from "@/lib/generateISOFormatDate";
+
+import { UserProfileProps } from "@/types/user";
 import TextInput from "@/components/inputs/TextInput";
 import ImageInput from "@/components/inputs/ImageInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
-import { useUserDetail } from "@/hooks/useUsers";
-import { UserProfileProps } from "@/types/user";
-import { useUpdateProfile } from "@/hooks/useUserProfile";
 
 function UsersForm({ userId }: { userId: string }) {
-  const { data: user } = useUserDetail(userId);
+  const userData = useUserDetail(userId);
+  const user = userData?.data;
   const profile = user?.profile;
 
   const [imageUrl, setImageUrl] = useState("");
@@ -20,8 +23,8 @@ function UsersForm({ userId }: { userId: string }) {
   const { mutate: updateMutation, isPending } = useUpdateProfile();
 
   //Convert customer to required ISO date for display
-  // const isoDate = profile?.dateOfBirth ?? "";
-  // const formattedDate = isoDate.split("T")[0];
+  const isoDate = profile?.dateOfBirth?.toISOString() ?? "";
+  const formattedDate = isoDate.split("T")[0];
 
   const {
     register,
@@ -37,7 +40,7 @@ function UsersForm({ userId }: { userId: string }) {
       district: profile?.district || "",
       lastName: profile?.lastName || "",
       userName: profile?.userName || "",
-      // dateOfBirth: profile?.dateOfBirth || Date.now(),
+      dateOfBirth: new Date(formattedDate) || new Date(),
       streetAddress: profile?.streetAddress || "",
       firstName: profile?.firstName || user?.name || "",
     },
@@ -53,7 +56,7 @@ function UsersForm({ userId }: { userId: string }) {
         district: profile?.district || "",
         lastName: profile?.lastName || "",
         userName: profile?.userName || "",
-        dateOfBirth: profile?.dateOfBirth || new Date(),
+        dateOfBirth: new Date(formattedDate) || new Date(),
         streetAddress: profile?.streetAddress || "",
         firstName: profile?.firstName || user?.name || "",
       });
@@ -63,14 +66,14 @@ function UsersForm({ userId }: { userId: string }) {
 
   //onSubmit function
   const onSubmit = async (data: FieldValues) => {
-    const formData = data as UserProfileProps["profile"];
     if (!data.name || !data.email) return;
+    const formData = data as UserProfileProps["profile"];
 
     formData.profileImage = imageUrl;
     formData.userId = user?.id ?? "";
 
-    // const formattedDate = generateISOFormatDate(formData.dateOfBirth);
-    // formData.dateOfBirth = formattedDate;
+    const formattedDate = generateISOFormatDate(new Date(formData.dateOfBirth));
+    formData.dateOfBirth = new Date(formData.dateOfBirth);
 
     //PUT request (update)
     updateMutation(formData);

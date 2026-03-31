@@ -17,7 +17,9 @@ import { UserProfileProps } from "@/types/user";
 import TextInput from "@/components/inputs/TextInput";
 
 const UserUpdateForm = ({ user }: { user: User | undefined }) => {
-  const { data: userData } = useUserDetail(user?.id);
+  const currentUser = useUserDetail(user?.id);
+  const userData = currentUser?.data ?? null;
+
   const [imageUrl, setImageUrl] = useState("");
   //mutation
   const { mutate: updateMutation, isPending } = useUpdateProfile();

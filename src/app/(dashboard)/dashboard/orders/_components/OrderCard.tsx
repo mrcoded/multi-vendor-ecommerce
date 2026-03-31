@@ -117,6 +117,7 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
                       width={64}
                       src={item.imageUrl}
                       alt={item.title}
+                      unoptimized
                     />
                   </div>
 
@@ -151,8 +152,7 @@ const OrderCard = ({ order }: { order: OrderCardProps }) => {
             Invoice
           </Link>
           <Link
-            href={`/products/${generateSlug(slug)}`}
-            // href={`/dashboard/orders/${order.id}`} // Link to the order detail page
+            href={`/order-confirmation/${order.id}`}
             className="px-2.5 xl:px-4 py-1.5 xl:py-2 text-xs font-bold text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
           >
             View Order

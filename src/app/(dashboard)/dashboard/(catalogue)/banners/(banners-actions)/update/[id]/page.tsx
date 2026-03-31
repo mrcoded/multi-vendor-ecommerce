@@ -1,6 +1,7 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
+import { notFound } from "next/navigation";
 
+import Loading from "@/app/loading";
 import BannerForm from "@/components/forms/BannerForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
@@ -9,14 +10,16 @@ const UpdateBanner = async ({
 }: {
   params: Promise<{ id: string }>;
 }) => {
-  const { id } = await params;
+  const { id: bannerId } = await params;
 
-  const banner = await getData(`banners/${id}`);
+  if (!bannerId) return notFound();
 
   return (
     <div>
       <FormHeader title="Update Banner" />
-      <BannerForm updateData={banner} />
+      <Suspense fallback={<Loading />}>
+        <BannerForm bannerId={bannerId} />
+      </Suspense>
     </div>
   );
 };

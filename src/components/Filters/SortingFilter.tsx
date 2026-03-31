@@ -23,8 +23,8 @@ function SortingFilter({
   slug,
 }: {
   isSearch: boolean | undefined;
-  title: string;
-  slug: string;
+  title: string | undefined;
+  slug: string | undefined;
 }) {
   const searchParams = useSearchParams();
   const sortParam = searchParams.get("sort");

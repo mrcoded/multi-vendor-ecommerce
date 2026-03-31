@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -7,7 +9,7 @@ import { CategoryProps } from "@/types/category";
 
 import { useCategories } from "@/hooks/useCategories";
 
-async function CategorySidebar() {
+function CategorySidebar() {
   const { data: categoriesData } = useCategories();
 
   if (!categoriesData) return <Loading />;
@@ -22,8 +24,8 @@ async function CategorySidebar() {
       <h2 className="bg-slate-100 dark:bg-gray-800 py-3 px-6 font-semibold border-b border-gray-300 dark:border-gray-600 text-slate-800 dark:text-slate-100">
         Shop By Category ({categories.length})
       </h2>
-      <div className="py-3 px-6 h-[300px] overflow-y-auto flex flex-col gap-2">
-        {categories.length > 0 &&
+      <div className="flex-1 py-3 px-6 h-[300px] overflow-y-auto flex flex-col gap-2">
+        {categories.length > 0 ? (
           categories.map((category: CategoryProps) => {
             return (
               <Link
@@ -35,6 +37,7 @@ async function CategorySidebar() {
                   width={556}
                   height={556}
                   priority
+                  unoptimized
                   className="w-10 h-10 rounded-full object-cover border border-lime-300"
                   src={category.imageUrl ?? ""}
                   alt={category.title}
@@ -44,7 +47,10 @@ async function CategorySidebar() {
                 </span>
               </Link>
             );
-          })}
+          })
+        ) : (
+          <>Loading...</>
+        )}
       </div>
     </div>
   );

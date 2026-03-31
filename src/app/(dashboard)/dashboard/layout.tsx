@@ -1,9 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-
-import "../../../styles/main.scss";
-
 import Sidebar from "./_components/shared/Sidebar";
 import Navbar from "./_components/shared/Navbar";
 
@@ -18,15 +15,19 @@ export default function DashboardLayout({
 
   return (
     <AuthProvider>
-      {/* Sidebar */}
-      <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
-      <div className="lg:ml-64 ml-0 flex-grow bg-slate-100 min-h-screen">
-        {/* Header */}
-        <Navbar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
-        {/* Main */}
-        <main className="p-8 bg-slate-100 dark:bg-slate-900 text-slate-50 min-h-screen mt-16">
-          {children}
-        </main>
+      <div className="flex min-h-screen bg-slate-100 dark:bg-slate-950">
+        {/* SIDEBAR*/}
+        <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
+
+        <div className="flex flex-col flex-1 lg:ml-64 min-w-0">
+          {/* NAVBAR */}
+          <Navbar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
+
+          {/* MAIN VIEWPORT */}
+          <main className="flex-1 p-4 md:p-6 lg:p-8 mt-16 bg-slate-100 dark:bg-slate-900 transition-all duration-300">
+            <div className="max-w-7xl mx-auto">{children}</div>
+          </main>
+        </div>
       </div>
     </AuthProvider>
   );

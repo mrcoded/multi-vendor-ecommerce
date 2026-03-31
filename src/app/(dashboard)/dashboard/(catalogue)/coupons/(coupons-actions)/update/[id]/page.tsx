@@ -1,6 +1,6 @@
-import React from "react";
-import getData from "@/lib/getData";
+import React, { Suspense } from "react";
 
+import Loading from "@/app/loading";
 import CouponForm from "@/components/forms/CouponForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
@@ -9,14 +9,14 @@ const UpdateCoupon = async ({
 }: {
   params: Promise<{ id: string }>;
 }) => {
-  const { id } = await params;
-
-  const coupon = await getData(`coupons/${id}`);
+  const { id: couponId } = await params;
 
   return (
     <div>
       <FormHeader title="Update Coupon" />
-      <CouponForm updateData={coupon} />
+      <Suspense fallback={<Loading />}>
+        <CouponForm couponId={couponId} />
+      </Suspense>
     </div>
   );
 };

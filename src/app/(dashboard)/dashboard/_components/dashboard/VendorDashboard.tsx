@@ -14,7 +14,7 @@ import OverViewCards from "@/components/cards/OverViewCards";
 import SmallCardGroups from "@/components/cards/SmallCardGroups";
 import LargeCardGroups from "@/components/cards/LargeCardGroups";
 
-async function VendorDashboard({
+function VendorDashboard({
   user,
   stores,
   orders,
@@ -24,8 +24,7 @@ async function VendorDashboard({
 }: DashboardProps) {
   const userId = user?.id;
   const role = user?.role;
-  const { data: vendor } = useVendor(userId);
-
+  const vendor = useVendor(userId);
   //check if user is a vendor
   const vendorId = vendor?.data?.id;
 
@@ -35,6 +34,9 @@ async function VendorDashboard({
       (item: { vendorId: string }) => item.vendorId === vendorId,
     ),
   );
+
+  //Fetch all the vendor stores
+  const vendorStores = stores?.filter((store) => store.vendorId === vendorId);
 
   //filter all the sales
   const salesById = sales?.filter(
@@ -82,7 +84,7 @@ async function VendorDashboard({
           role={role}
           vendorId={vendorId}
           products={productsById}
-          stores={stores}
+          stores={vendorStores}
           sales={salesById}
           vendors={vendors}
         />

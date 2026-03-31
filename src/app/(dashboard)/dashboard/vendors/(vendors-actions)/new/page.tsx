@@ -1,8 +1,9 @@
-import React from "react";
+import React, { Suspense } from "react";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
+import Loading from "@/app/loading";
 import VendorForm from "@/components/forms/VendorForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
@@ -11,10 +12,12 @@ const NewVendor = async () => {
   const user = session?.user;
 
   return (
-    <div>
+    <>
       <FormHeader title="New Vendor" />
-      <VendorForm user={user} />
-    </div>
+      <Suspense fallback={<Loading />}>
+        <VendorForm user={user} />
+      </Suspense>
+    </>
   );
 };
 

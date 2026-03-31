@@ -11,8 +11,8 @@ import VendorDetailsSummary from "./StepForm/VendorDetailsSummary";
 import BasicInformationForm from "./StepForm/BasicInformationForm";
 import AdditionalInformationForm from "./StepForm/AdditionalInformationForm";
 
-const StepForm = ({ vendorId }: { vendorId: string }) => {
-  const { data: vendor } = useVendor(vendorId);
+const StepForm = ({ vendorId }: { vendorId: string | undefined }) => {
+  const vendor = useVendor(vendorId);
   const vendorProfile = vendor?.data?.vendorProfile;
 
   if (!vendorProfile) return <>Loading...</>;

@@ -11,11 +11,11 @@ const FilterComponent = ({
   category,
   products,
 }: {
-  category: ProductsProp;
+  category: ProductsProp | undefined;
   products: ProductsProp["products"] | undefined;
 }) => {
-  const { title, slug } = category;
-  const productCount = category.products?.length;
+  const { title, slug } = category ?? {};
+  const productCount = category?.products?.length ?? 0;
 
   return (
     <div className="flex-1 space-y-6 text-slate-900">

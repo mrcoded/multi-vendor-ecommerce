@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -20,15 +20,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface UserAvatarProps {
-  role: string;
-  name: string;
-  email: string;
-  imageUrl?: string;
-}
-
 const UserAvatar = ({ user }: { user: User }) => {
   const router = useRouter();
+  const [isMounted, setIsMounted] = React.useState(false);
 
   //destructure image and name of a user
   const { imageUrl, name } = user ?? {};
@@ -40,6 +34,14 @@ const UserAvatar = ({ user }: { user: User }) => {
     await signOut();
     router.push("/");
   };
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  // Prevent hydration mismatch by rendering nothing on the server
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <DropdownMenu>

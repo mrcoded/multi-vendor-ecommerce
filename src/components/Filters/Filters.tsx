@@ -9,7 +9,7 @@ function Filters({
   slug,
   isSearch,
 }: {
-  slug: string;
+  slug: string | undefined;
   isSearch: boolean | undefined;
 }) {
   return (

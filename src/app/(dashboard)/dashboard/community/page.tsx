@@ -1,13 +1,13 @@
 import React from "react";
-import getData from "@/lib/getData";
 
 import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
 
 import PageHeader from "../_components/shared/PageHeader";
+import { getAllCommunityPosts } from "@/services/community-service";
 
 const Page = async () => {
-  const communityPosts = await getData("communityPosts");
+  const communityPosts = await getAllCommunityPosts();
 
   return (
     <div>
@@ -15,7 +15,7 @@ const Page = async () => {
       <PageHeader
         heading="Community Posts"
         href="/dashboard/community/new"
-        linkAction="Add Community Post"
+        linkAction="Add Post"
       />
 
       <div className="py-1">
