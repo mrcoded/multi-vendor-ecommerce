@@ -41,8 +41,8 @@ model Category {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   slug        String  @unique
-  imageUrl    String?
-  description String?
+  imageUrl    String
+  description String
   isActive    Boolean
 
   products      Product[]
@@ -56,12 +56,26 @@ model Category {
 }
 
 model Store {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  slug        String  @unique
-  imageUrl    String?
-  description String?
-  isActive    Boolean
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  slug          String  @unique
+  imageUrl      String?
+  description   String?
+  isActive      Boolean
+  storeEmail    String
+  storePhone    String
+  streetAddress String
+  city          String
+  country       String
+
+  orderItems OrderItem[]
+  // productStocks ProductStock[]
+
+  // productIds String[]  @db.ObjectId
+  products Product[]
+
+  vendor   User   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorId String @db.ObjectId
 
   categoryIds String[]   @db.ObjectId
   categories  Category[] @relation(fields: [categoryIds], references: [id])
@@ -71,26 +85,31 @@ model Store {
 }
 
 model Product {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  title             String
-  slug              String   @unique
-  imageUrl          String?
-  productImages     String[]
-  description       String?
-  isActive          Boolean
-  isWholesale       Boolean
-  sku               String?
-  qty               Int?
-  barcode           String?
-  productPrice      Float
-  productCode       String?
-  salePrice         Float
-  tags              String[]
-  wholesaleQuantity Int
-  wholesalePrice    Float
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  slug          String   @unique
+  imageUrl      String
+  productImages String[]
+  description   String?
+  isActive      Boolean
+  isWholesale   Boolean
+  sku           String?
+  qty           Int
+  barcode       String?
+  productPrice  Float
+  productCode   String?
+  salePrice     Float
 
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  categoryId String    @db.ObjectId
+  tags              String[]
+  wholesaleQuantity Int?
+  wholesalePrice    Float?
+
+  storeId String @db.ObjectId
+  // storeIds String[]
+  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  categoryId String   @db.ObjectId
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.ObjectId
@@ -99,6 +118,8 @@ model Product {
   createdAt  DateTime    @default(now())
   updatedAt  DateTime?   @updatedAt
   sales      Sale[]
+
+  // @@unique([slug, storeId])
 }
 
 model VendorProfile {
@@ -114,8 +135,9 @@ model VendorProfile {
   phone              String
   physicalAddress    String?
   terms              String?
-  isActive           Boolean
+  // isActive           Boolean? @default(false)
   products           String[]
+  stores             String[]
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique @db.ObjectId
@@ -128,9 +150,9 @@ model CommunityPost {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   slug        String  @unique
-  imageUrl    String?
-  description String?
-  content     String?
+  imageUrl    String
+  description String
+  content     String
   isActive    Boolean
 
   category   Category? @relation(fields: [categoryId], references: [id])
@@ -160,9 +182,9 @@ model UserProfile {
   userId        String    @unique @db.ObjectId
   // Personal Details
   name          String?
-  firstName     String?
-  lastName      String?
-  email         String?
+  firstName     String
+  lastName      String
+  email         String
   userName      String?
   phone         String?
   // Shipping Details
@@ -178,8 +200,8 @@ model UserProfile {
 
 model User {
   id                String  @id @default(auto()) @map("_id") @db.ObjectId
-  name              String?
-  email             String? @unique
+  name              String
+  email             String  @unique
   password          String
   imageUrl          String?
   emailVerified     Boolean @default(false)
@@ -190,6 +212,7 @@ model User {
 
   sales  Sale[]
   orders Order[]
+  stores Store[]
 
   plan          String?
   status        Boolean        @default(false)
@@ -202,8 +225,8 @@ model User {
 }
 
 model Order {
-  id            String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String  @db.ObjectId
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String @db.ObjectId
   // Personal Details
   firstName     String
   lastName      String
@@ -215,7 +238,7 @@ model Order {
   country       String
   district      String
   shippingCost  Float
-  orderNumber   String?
+  orderNumber   String
 
   //Payment Method
   paymentMethod String
@@ -234,16 +257,19 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  orderId   String  @db.ObjectId
-  productId String  @db.ObjectId
-  vendorId  String  @db.ObjectId
-  imageUrl  String?
-  title     String?
-  quantity  Int
-  price     Float
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  orderId    String @db.ObjectId
+  productId  String @db.ObjectId
+  storeId    String @db.ObjectId
+  vendorId   String @db.ObjectId
+  imageUrl   String
+  title      String
+  quantity   Int
+  price      Float
+  totalPrice Float
 
   order   Order   @relation(fields: [orderId], references: [id])
+  store   Store   @relation(fields: [storeId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
@@ -251,15 +277,16 @@ model OrderItem {
 }
 
 model Sale {
-  id              String  @id @default(auto()) @map("_id") @db.ObjectId
-  orderId         String  @db.ObjectId
-  productId       String  @db.ObjectId
-  vendorId        String  @db.ObjectId
-  productImageUrl String?
-  productTitle    String?
-  productPrice    Float?
-  productQty      Int?
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  orderId         String @db.ObjectId
+  productId       String @db.ObjectId
+  vendorId        String @db.ObjectId
+  productImageUrl String
+  productTitle    String
+  productPrice    Float
+  productQty      Int
   total           Float
+  storeId         String
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
