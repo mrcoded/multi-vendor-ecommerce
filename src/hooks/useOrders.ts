@@ -2,10 +2,16 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { OrderStatus } from "@prisma/client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import {
   createOrderAction,
   deleteOrderAction,
+  fetchAllOrdersAction,
   fetchAllSalesAction,
   fetchOrderByIdAction,
   fetchVendorSalesAction,
@@ -102,6 +108,7 @@ export function useSales() {
 }
 
 export function useOrder(id: string) {
+  if (!id) return null;
   return useQuery({
     queryKey: ["order", id],
     queryFn: async () => {
@@ -111,6 +118,19 @@ export function useOrder(id: string) {
     },
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useOrders() {
+  return useQuery({
+    queryKey: ["orders"],
+    queryFn: async () => {
+      const res = await fetchAllOrdersAction();
+      if (!res.success || !res.data?.success)
+        throw new Error("Failed to load all orders");
+      return res.data;
+    },
+    staleTime: 1000 * 60,
   });
 }
 

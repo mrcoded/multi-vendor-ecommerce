@@ -12,20 +12,13 @@ import {
   getProductBySlugAction,
   updateProductAction,
 } from "@/lib/actions/product-actions";
-import { ProductFormData } from "@/types/products";
+import { ProductServicesProps } from "@/types/products";
 
 export function useProducts() {
   return useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       return await fetchAllProductsAction();
-
-      // // We throw the error so TanStack Query enters the 'error' state
-      // if (!res.success) {
-      //   throw new Error(res.error);
-      // }
-
-      // return res.data;
     },
   });
 }
@@ -44,21 +37,25 @@ export function useFilteredProducts(params: any) {
 }
 
 export function useProductBySlug(slug: string) {
+  if (!slug) return null;
   return useQuery({
     queryKey: ["product-slug", slug],
     queryFn: async () => {
-      return await getProductBySlugAction(slug);
+      const res = await getProductBySlugAction(slug);
+      if (!res.success) throw new Error("Failed to load product");
+      return res.data;
     },
     enabled: !!slug, // Only run if slug exists
   });
 }
 
 export function useProductById(id: string) {
+  if (!id) return null;
   return useQuery({
     queryKey: ["product-id", id],
     queryFn: async () => {
       const res = await getProductByIdAction(id);
-      if (!res.success) throw new Error(res.error);
+      if (!res.success) throw new Error("Failed to load product");
       return res.data;
     },
     enabled: !!id,
@@ -77,7 +74,7 @@ export function useDeleteProduct() {
       const res = await deleteProductAction(productId);
 
       if (!res.success || !res.data?.success) {
-        throw new Error(res.error || "Failed to delete product");
+        throw new Error("Failed to delete product");
       }
 
       return res; // Return the whole response object
@@ -107,7 +104,7 @@ export function useCreateProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (formData: ProductFormData) => {
+    mutationFn: async (formData: ProductServicesProps) => {
       const res = await createProductAction(formData);
 
       if (!res.data?.success || !res.success) throw new Error(res.error);
@@ -145,7 +142,7 @@ export function useUpdateProduct() {
       formData,
     }: {
       productId: string;
-      formData: ProductFormData;
+      formData: ProductServicesProps;
     }) => {
       const res = await updateProductAction(productId, formData);
 

@@ -18,6 +18,7 @@ import {
   updateStoreAction,
 } from "@/lib/actions/store-actions";
 import { StoreProps } from "@/types/store";
+import { getStoreById } from "@/services/store-service";
 
 export function useAllStores() {
   return useSuspenseQuery({
@@ -37,8 +38,9 @@ export function useStoreById(id?: string) {
     queryFn: async () => {
       if (!id) return null;
       const res = await fetchStoreByIdAction(id);
-      if (!res.success) throw new Error(res.error);
-      return res.data;
+      console.log(res);
+      if (!res) throw new Error("Failed to fetch store details");
+      return res;
     },
     enabled: !!id,
   });
@@ -53,8 +55,9 @@ export function useCreateStore() {
   return useMutation({
     mutationFn: async (formData: StoreProps) => {
       const res = await createStoreAction(formData);
-      // 🚀 Bridge the Action error to TanStack Query
-      if (!res.data?.success || !res.success) throw new Error(res.error);
+      console.log(res);
+      if (!res.data?.success || !res.success)
+        throw new Error("Failed to create store");
       return res;
     },
     onMutate: async () => {
@@ -91,7 +94,8 @@ export function useUpdateStore() {
       formData: StoreProps;
     }) => {
       const res = await updateStoreAction(id, formData);
-      if (!res.data?.success || !res.success) throw new Error(res.error);
+      if (!res.data?.success || !res.success)
+        throw new Error("Failed to update store");
       return res;
     },
     onMutate: async ({ id }) => {
@@ -124,7 +128,8 @@ export function useDeleteStore() {
   return useMutation({
     mutationFn: async (id: string) => {
       const res = await deleteStoreAction(id);
-      if (!res.data?.success || !res.success) throw new Error(res.error);
+      if (!res.data?.success || !res.success)
+        throw new Error("Failed to delete store");
       return res;
     },
     onMutate: async () => {
@@ -151,7 +156,7 @@ export function useStoreBySlug(slug: string) {
     queryKey: ["store", "slug", slug],
     queryFn: async () => {
       const res = await fetchStoreBySlugAction(slug);
-      if (!res.success) throw new Error(res.error);
+      if (!res.success) throw new Error("Failed to fetch store details");
       return res.data;
     },
     enabled: !!slug,
