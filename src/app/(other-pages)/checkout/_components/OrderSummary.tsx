@@ -37,6 +37,10 @@ const OrderSummary = ({ userId }: { userId: string }) => {
       }, 0)
       .toFixed(2) ?? 0;
 
+  const total = (
+    parseFloat(subTotal) + parseFloat(checkoutFormData.shippingCost)
+  ).toFixed(2);
+
   //handleprevious function
   const handlePrevious = () => {
     dispatch(checkoutActions.setCurrentStep(currentStep - 1));
@@ -53,7 +57,7 @@ const OrderSummary = ({ userId }: { userId: string }) => {
         onSuccess: ({ data }) => {
           dispatch(cartActions.clearCart());
           toast.success("Order Successfully Placed!");
-          router.push(`/order-confirmation/${data?.data?.id}`);
+          router.push(`/order-confirmation/${data?.id}`);
         },
       },
     );
@@ -112,9 +116,15 @@ const OrderSummary = ({ userId }: { userId: string }) => {
           <span>Subtotal</span>
           <span className="text-gray-900 dark:text-white">${subTotal}</span>
         </div>
+        <div className="flex justify-between text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+          <span>Shipping Cost</span>
+          <span className="text-gray-900 dark:text-white">
+            ${checkoutFormData.shippingCost}
+          </span>
+        </div>
         <div className="flex justify-between text-sm font-black text-gray-900 dark:text-white pt-2 border-t border-gray-50 dark:border-zinc-900">
           <span>Total</span>
-          <span className="text-lime-600">${subTotal}</span>
+          <span className="text-lime-600">${total}</span>
         </div>
       </div>
 
