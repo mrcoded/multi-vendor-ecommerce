@@ -46,6 +46,10 @@ export const cartSlice = createSlice({
       }
     },
     clearCart: (state) => {
+      //clear Localstorage
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("cart");
+      }
       return []; // Returns an empty array, clearing the state
     },
     removeFromCart: (state, action) => {
