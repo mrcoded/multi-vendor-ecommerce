@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 
@@ -8,7 +8,14 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/types/redux";
 
 const CartBanner = () => {
+  //Add a mounted state
+  const [mounted, setMounted] = useState(false);
   const cartItems = useSelector((store: RootState) => store.cart);
+
+  // Set mounted to true after the first render
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const subTotal =
     cartItems
@@ -26,8 +33,9 @@ const CartBanner = () => {
               <ShoppingBag className="size-6" />
             </div>
             <p className="ml-3 text-base font-normal text-gray-900">
-              You have {cartItems.length} items in cart. Sub total is{" "}
-              <span className="font-bold">${subTotal}</span>
+              You have {mounted ? cartItems.length : 0} items in cart. Sub total
+              is{" "}
+              <span className="font-bold">${mounted ? subTotal : "0.00"}</span>
             </p>
           </div>
 

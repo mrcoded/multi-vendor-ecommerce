@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { User } from "next-auth";
 
 import { useSelector } from "react-redux";
@@ -9,23 +9,43 @@ import { CheckoutProps } from "@/types/order";
 
 import { useUserDetail } from "@/hooks/useUsers";
 
+import Loading from "@/app/loading";
 import OrderSummary from "./OrderSummary";
+import EmptyCart from "../../cart/_components/EmptyCart";
 import PaymentMethodForm from "@/components/forms/StepForm/PaymentMethodForm";
 import PersonalDetailsForm from "@/components/forms/StepForm/PersonalDetailsForm";
 import ShippingDetailsForm from "@/components/forms/StepForm/ShippingDetailsForm";
 
 const StepForm = ({ user }: { user: User | undefined }) => {
+  // Add a mounted state to prevent hydration issues
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Fetch the user's existing profile/data
   const currentUser = useUserDetail(user?.id);
   const userData = currentUser?.data ?? null;
+
+  const userProfile = userData?.profile;
+
+  //Get cart items
+  const cartItems = useSelector((store: RootState) => store.cart);
+
   const currentStep = useSelector(
     (state: RootState) => state.checkout.currentStep,
   );
 
-  if (!userData) return <>Loading...</>;
+  //if cart is empty
+  if (mounted && (!cartItems || cartItems.length === 0)) {
+    return <EmptyCart />;
+  }
 
-  const userProfile = userData?.profile;
+  // If we have a user but no profile data, we can show a loading state or an error
+  if (!userData || !mounted) return <Loading />;
 
+  console.log(cartItems);
   const initialCheckoutData: CheckoutProps | null = userProfile
     ? {
         userId: userData.id,
@@ -50,6 +70,7 @@ const StepForm = ({ user }: { user: User | undefined }) => {
     if (step === 3) return <PaymentMethodForm />;
     if (step === 4) return <OrderSummary userId={userData.id} />;
   };
+
   return <div>{renderFormByStep(currentStep)}</div>;
 };
 

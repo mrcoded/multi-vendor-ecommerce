@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
@@ -15,11 +15,18 @@ const Steps = ({
     title: string;
   }[];
 }) => {
+  //Add a mounted state
+  const [mounted, setMounted] = useState(false);
   const cartItems = useSelector((store: RootState) => store.cart);
 
   const currentStep = useSelector(
-    (state: RootState) => state.checkout.currentStep
+    (state: RootState) => state.checkout.currentStep,
   );
+
+  // Set mounted to true after the first render
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <nav className="flex text-sm md:text-xl mb-8">
@@ -38,7 +45,7 @@ const Steps = ({
             </Link>
             <span className="inline-flex items-center justify-center w-5 h-5 ml-2 text-xs font-bold bg-lime-400 rounded-full text-gray-500">
               {" "}
-              {cartItems.length}{" "}
+              {mounted ? cartItems.length : 0}
             </span>
           </div>
         </li>
