@@ -11,6 +11,7 @@ import HeroPage from "@/components/HeroPage";
 import StoreList from "@/components/StoreList";
 import CommunityPost from "@/components/community/CommunityPost";
 import CategoryList from "./category/_components/CategoryList";
+import SearchForm from "@/components/forms/SearchForm";
 
 export default async function Home() {
   const { data: communityPosts } = await getAllCommunityPostsAction();
@@ -25,7 +26,7 @@ export default async function Home() {
 
   //get user session
   const session = await getServerSession(authOptions);
-  console.log("session", session?.user);
+  // console.log("session", session?.user);
 
   const slicedPosts = communityPosts?.slice(0, 3);
 
@@ -33,6 +34,11 @@ export default async function Home() {
     <div className="min-h-screen">
       <Suspense fallback={<Loading />}>
         <HeroPage />
+
+        <div className="sm:hidden flex flex-1 max-w-md">
+          <SearchForm />
+        </div>
+
         <StoreList />
 
         {categories?.map((category) => {
