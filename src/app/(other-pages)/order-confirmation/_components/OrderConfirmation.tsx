@@ -8,10 +8,14 @@ import { CheckCircle2, FileText } from "lucide-react";
 import formatDate from "@/lib/formatDate";
 
 import { useOrder } from "@/hooks/useOrders";
+import Loading from "@/app/loading";
 
 const OrderConfirmation = ({ id }: { id: string }) => {
   const orderData = useOrder(id);
   const order = orderData?.data ?? null;
+
+  if (!order) return <Loading />;
+
   const orderItems = order?.orderItems ?? [];
 
   const subTotal =
@@ -59,11 +63,11 @@ const OrderConfirmation = ({ id }: { id: string }) => {
             </h2>
             <div className="text-sm text-gray-600 space-y-1">
               <p className="font-bold text-gray-900">
-                {order?.firstName} {order?.lastName}
+                {order.firstName} {order.lastName}
               </p>
-              <p>{order?.streetAddress}</p>
+              <p>{order.streetAddress}</p>
               <p>
-                {order?.city}, {order?.country}
+                {order.city}, {order.country}
               </p>
             </div>
           </div>
@@ -73,12 +77,12 @@ const OrderConfirmation = ({ id }: { id: string }) => {
               Payment Detail
             </h2>
             <div className="text-sm text-gray-600 space-y-1">
-              <p className="font-medium">{order?.paymentMethod}</p>
+              <p className="font-medium">{order.paymentMethod}</p>
               <p className="text-xs text-gray-600 capitalize">
-                Transaction Date: {formatDate(order!.createdAt.toString())}
+                Transaction Date: {formatDate(order.createdAt.toString())}
               </p>
               <p className="text-xs text-gray-400 uppercase">
-                Transaction ID: {order?.orderNumber}
+                Transaction ID: {order.orderNumber}
               </p>
             </div>
           </div>
@@ -90,7 +94,7 @@ const OrderConfirmation = ({ id }: { id: string }) => {
             Your Items
           </h2>
           <ul className="divide-y divide-gray-100">
-            {orderItems?.map((item) => (
+            {orderItems.map((item) => (
               <li key={item.id} className="flex py-2 sm:py-4 gap-4 sm:gap-6">
                 <div className="relative size-16 sm:size-20 flex-shrink-0 overflow-hidden rounded-lg border border-gray-100">
                   <Image

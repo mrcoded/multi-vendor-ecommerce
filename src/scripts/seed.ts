@@ -220,7 +220,7 @@ async function main() {
     const s = await prisma.store.create({
       data: {
         title: name,
-        slug: generateSlug(name, i.toString()),
+        slug: generateSlug(name),
         isActive: true,
         storeEmail: `contact@${generateSlug(name)}.com`,
         storePhone: `+2349000000${i}`,
@@ -316,7 +316,7 @@ async function main() {
         city: "Lagos",
         country: "Nigeria",
         district: "Lagos Mainland",
-        shippingCost: 5.0,
+        shippingCost: Math.random() > 0.5 ? 6.0 : 36.0,
         paymentMethod: "Stripe",
         orderStatus: orderStatuses[i % orderStatuses.length],
         orderItems: {

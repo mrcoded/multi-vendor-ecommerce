@@ -28,7 +28,6 @@ export async function createOrderService(
     paymentToken,
     ...orderData
   } = checkoutData;
-  console.log(checkoutData);
 
   await db.userProfile.upsert({
     where: { userId },
@@ -96,7 +95,8 @@ export async function createOrderService(
           orderId: newOrder.id,
           imageUrl: item.imageUrl,
           title: item.title,
-          totalPrice: item.salePrice * item.requestedQty,
+          totalPrice:
+            item.salePrice * item.requestedQty + parseFloat(shippingCost),
         })),
       });
 
@@ -111,7 +111,7 @@ export async function createOrderService(
           productTitle: item.title,
           productImageUrl: item.imageUrl,
           productPrice: item.salePrice,
-          total: item.salePrice * item.requestedQty,
+          total: item.salePrice * item.requestedQty + parseFloat(shippingCost),
         })),
       });
 

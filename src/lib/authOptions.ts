@@ -82,7 +82,7 @@ export const authOptions: NextAuthOptions = {
           emailVerified: token.emailVerified as boolean,
         };
       }
-      console.log("Session: ", session);
+      // console.log("Session: ", session);
       return session;
     },
     async jwt({ token, user }) {

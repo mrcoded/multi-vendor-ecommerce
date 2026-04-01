@@ -72,7 +72,7 @@ export async function createNewUser(userData: CreateUserProps) {
  * Get user by ID - Safe version for profile/UI display
  */
 export async function getUserById(id?: string) {
-  if (!id) return null; // Prevent Prisma from running with undefined
+  if (!id) return null;
 
   try {
     const user = await db.user.findUnique({
@@ -88,7 +88,7 @@ export async function getUserById(id?: string) {
       },
     });
 
-    return user; // findUnique returns null if not found, no need for extra check
+    return user;
   } catch (error) {
     console.error(`[SERVICE_ERROR] getUserById:`, error);
     // Don't throw a generic error here, return null so the UI can handle "Not Found"

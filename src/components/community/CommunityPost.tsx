@@ -13,7 +13,7 @@ async function CommunityPost({
   posts: CommunityPostProps[] | undefined | null;
 }) {
   return (
-    <section className="py-7 sm:py-12 bg-white rounded-md shadow-lg md:py-16 dark:bg-gray-700">
+    <section className="mt-7 py-7 sm:py-12 bg-white rounded-md shadow-lg md:py-16 dark:bg-gray-700">
       <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
         <div className="mx-auto md:mx-0">
           <div className="flex items-center justify-between">
@@ -22,7 +22,7 @@ async function CommunityPost({
             </h2>
             <Link
               href="/community-blogs"
-              className="bg-slate-800 py-2 md:py-3 px-2 md:px-5 rounded flex items-center text-sm md:text-base"
+              className="bg-slate-800 py-2 md:py-3 sm:px-2 md:px-5 rounded flex items-center text-xs sm:text-sm md:text-base"
             >
               See All
               <MoveRight className="flex-shrink-0 sm:mx-2 hidden sm:flex sm:size-4" />

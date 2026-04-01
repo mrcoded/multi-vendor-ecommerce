@@ -18,7 +18,7 @@ import {
   updateOrderStatusAction,
 } from "@/lib/actions/order-actions";
 
-import { CheckoutProps } from "@/types/order";
+import { CheckoutProps, OrderItemProps } from "@/types/order";
 
 export function useCreateOrder() {
   const queryClient = useQueryClient();
@@ -29,10 +29,10 @@ export function useCreateOrder() {
       orderItems: any[];
     }) => {
       const res = await createOrderAction(formData);
-      console.log(res);
+      console.log(res, res.data);
       if (!res.data?.success || !res.success)
         throw new Error("Unable to place order!");
-      return res;
+      return res.data;
     },
     onMutate: () => {
       queryClient.cancelQueries({ queryKey: ["orders"] });

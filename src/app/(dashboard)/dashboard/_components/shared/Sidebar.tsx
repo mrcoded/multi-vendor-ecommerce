@@ -64,16 +64,9 @@ export default function Sidebar({
         <div className="p-6 border-b">
           <Link
             href="/"
-            className="block"
-            onClick={() => setShowSidebar(false)}
+            className="block font-bold text-xl tracking-tight text-lime-600 lg:hidden"
           >
-            <Image
-              src="/assets/icon.png"
-              alt="logo"
-              width={150}
-              height={40}
-              className="h-8 w-auto lg:w-16 object-contain"
-            />
+            Belstore
           </Link>
         </div>
 
