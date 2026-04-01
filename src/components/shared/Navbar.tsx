@@ -23,7 +23,7 @@ function Navbar({ user }: { user?: User | undefined }) {
             alt="Belstore logo"
             width={100}
             height={100}
-            className="w-10 xl:w-24 h-10 xl:h-auto"
+            className="w-10 xl:w-16 h-8"
           />
         </Link>
 

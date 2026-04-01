@@ -15,13 +15,13 @@ function CategoryCarousel({
   const responsive = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
-      items: isStorePage ? 3 : 4,
+      items: 4,
       slidesToSlide: 1, // Changed to 1 for smoother individual transitions
       partialVisibilityGutter: 40, // Peeking amount in pixels
     },
     tablet: {
       breakpoint: { max: 1024, min: 464 },
-      items: isStorePage ? 2 : 3,
+      items: 3,
       slidesToSlide: 1,
       partialVisibilityGutter: 30,
     },

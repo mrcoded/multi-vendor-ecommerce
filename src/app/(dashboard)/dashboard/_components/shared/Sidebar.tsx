@@ -72,7 +72,7 @@ export default function Sidebar({
               alt="logo"
               width={150}
               height={40}
-              className="h-10 w-auto object-contain"
+              className="h-8 w-auto lg:w-16 object-contain"
             />
           </Link>
         </div>

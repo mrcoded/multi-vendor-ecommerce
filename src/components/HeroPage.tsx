@@ -54,6 +54,7 @@ function HeroPage() {
           width={556}
           height={556}
           alt="hero"
+          unoptimized
           className="w-full"
         />
       </div>
