@@ -1,14 +1,30 @@
 "use server";
 
 import { db } from "../db";
-import { revalidateTag } from "next/cache";
+import { CACHE_TAGS, invalidateCacheTag } from "@/lib/api/cache";
 import {
   createCommunityPost,
   getAllCommunityPosts,
   getCommunityPostById,
+  getCommunityPostBySlug,
 } from "@/services/community-service";
-import { authenticatedAction } from "@/lib/auth-wrapper";
+import { authenticatedAction, publicQueryAction } from "@/lib/auth-wrapper";
 import { CommunityPostFormProps } from "@/types/communityPost";
+import { sanitizeCommunityPostInput } from "@/lib/sanitize-payloads";
+
+export async function getAllCommunityPostsAction() {
+  return publicQueryAction(() => getAllCommunityPosts());
+}
+
+export async function getCommunityPostBySlugAction(slug: string) {
+  return publicQueryAction(() => getCommunityPostBySlug(slug));
+}
+
+export async function getCommunityPostByIdAction(id: string) {
+  return authenticatedAction("Fetch Community Post", ["ADMIN"], async () =>
+    getCommunityPostById(id),
+  );
+}
 
 export async function createCommunityPostAction(data: CommunityPostFormProps) {
   return authenticatedAction(
@@ -18,12 +34,14 @@ export async function createCommunityPostAction(data: CommunityPostFormProps) {
       try {
         const newPost = await createCommunityPost(data);
 
-        // 🎯 BUST THE CACHE
-        revalidateTag("community-posts");
+        invalidateCacheTag(CACHE_TAGS.communityPosts);
+        invalidateCacheTag(CACHE_TAGS.postBySlug(newPost.slug));
 
         return { success: true, data: newPost };
-      } catch (error: any) {
-        return { success: false, error: error.message };
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to create post";
+        return { success: false, error: message };
       }
     },
   );
@@ -35,17 +53,22 @@ export async function updateCommunityPostAction(
 ) {
   return authenticatedAction("Update Community post", ["ADMIN"], async () => {
     try {
+      const existing = await db.communityPost.findUnique({ where: { id } });
+      const safeData = sanitizeCommunityPostInput(data);
       const updated = await db.communityPost.update({
         where: { id },
-        data,
+        data: safeData,
       });
 
-      // 🎯 REVALIDATE: List and specific item
-      revalidateTag("community-posts");
-      revalidateTag(`post-${id}`);
+      invalidateCacheTag(CACHE_TAGS.communityPosts);
+      invalidateCacheTag(CACHE_TAGS.postById(id));
+      invalidateCacheTag(CACHE_TAGS.postBySlug(updated.slug));
+      if (existing?.slug && existing.slug !== updated.slug) {
+        invalidateCacheTag(CACHE_TAGS.postBySlug(existing.slug));
+      }
 
       return { success: true, data: updated };
-    } catch (error) {
+    } catch {
       return { success: false, error: "Community Post Update failed" };
     }
   });
@@ -54,40 +77,18 @@ export async function updateCommunityPostAction(
 export async function deleteCommunityPostAction(id: string) {
   return authenticatedAction("Delete Community post", ["ADMIN"], async () => {
     try {
+      const existing = await db.communityPost.findUnique({ where: { id } });
       await db.communityPost.delete({ where: { id } });
 
-      revalidateTag("community-posts");
-      revalidateTag(`post-${id}`);
+      invalidateCacheTag(CACHE_TAGS.communityPosts);
+      invalidateCacheTag(CACHE_TAGS.postById(id));
+      if (existing?.slug) {
+        invalidateCacheTag(CACHE_TAGS.postBySlug(existing.slug));
+      }
 
       return { success: true, message: "Post deleted successfully" };
-    } catch (error) {
+    } catch {
       return { success: false, error: "Community Post Deletion failed" };
     }
   });
-}
-
-export async function getCommunityPostAction(id: string) {
-  try {
-    const post = await getCommunityPostById(id);
-
-    if (!post) {
-      return { success: false, data: null, error: "Post not found" };
-    }
-
-    return { success: true, data: post, error: null };
-  } catch (error) {
-    console.error("Fetch Action Error:", error);
-    return { success: false, data: null, error: "Server error during fetch" };
-  }
-}
-
-export async function getAllCommunityPostsAction() {
-  try {
-    const post = await getAllCommunityPosts();
-
-    return { success: true, data: post, error: null };
-  } catch (error) {
-    console.error("Fetch Action Error:", error);
-    return { success: false, data: null, error: "Server error during fetch" };
-  }
 }

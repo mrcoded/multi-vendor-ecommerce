@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
-import { authenticatedAction } from "../auth-wrapper";
+import { CACHE_TAGS, invalidateCacheTag } from "@/lib/api/cache";
+import { revalidatePath } from "next/cache";
+import { authenticatedAction, publicQueryAction } from "../auth-wrapper";
 import {
   createCategory,
   deleteCategory,
@@ -12,13 +13,25 @@ import {
 } from "@/services/category-service";
 import { CategoryFormProps } from "@/types/category";
 
+export async function getAllCategoriesAction() {
+  return publicQueryAction(() => getAllCategories());
+}
+
+export async function getCategoryBySlugAction(slug: string) {
+  return publicQueryAction(() => getCategoryBySlug(slug));
+}
+
+export async function getCategoryByIdAction(id: string) {
+  return publicQueryAction(() => getCategoryById(id));
+}
+
 export async function createCategoryAction(formData: CategoryFormProps) {
   return authenticatedAction("Create Category", ["ADMIN"], async () => {
     try {
       const newCategory = await createCategory(formData);
 
-      revalidateTag("categories-list");
-      revalidateTag("products-list");
+      invalidateCacheTag(CACHE_TAGS.categoriesList);
+      invalidateCacheTag(CACHE_TAGS.productsList);
       revalidatePath("/dashboard/categories");
       revalidatePath("/store");
 
@@ -27,12 +40,11 @@ export async function createCategoryAction(formData: CategoryFormProps) {
         data: newCategory,
         message: "Category created successfully!",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create category";
       console.error("[ACTION_ERROR] createCategory:", error);
-      return {
-        success: false,
-        error: error.message || "Failed to create category",
-      };
+      return { success: false, error: message };
     }
   });
 }
@@ -46,19 +58,22 @@ export async function updateCategoryAction(
       const existing = await getCategoryById(id);
       if (!existing) throw new Error("Category not found");
 
-      // Authorization check
       if (user.role !== "ADMIN") {
         throw new Error("Unauthorized!");
       }
 
       const updated = await updateCategory(id, formData);
 
-      revalidateTag("categories-list");
-      revalidateTag(`category-${updated.slug}`);
-      revalidateTag(`category-${id}`);
+      invalidateCacheTag(CACHE_TAGS.categoriesList);
+      invalidateCacheTag(CACHE_TAGS.category(existing.slug));
+      invalidateCacheTag(CACHE_TAGS.category(updated.slug));
+      invalidateCacheTag(CACHE_TAGS.categoryById(id));
 
       revalidatePath("/dashboard/categories");
       revalidatePath(`/category/${updated.slug}`);
+      if (existing.slug !== updated.slug) {
+        revalidatePath(`/category/${existing.slug}`);
+      }
       revalidatePath("/store");
 
       return {
@@ -66,12 +81,11 @@ export async function updateCategoryAction(
         data: updated,
         message: "Category updated successfully!",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update category";
       console.error("[ACTION_ERROR] updateCategory:", error);
-      return {
-        success: false,
-        error: error.message || "Failed to update category",
-      };
+      return { success: false, error: message };
     }
   });
 }
@@ -82,78 +96,23 @@ export async function deleteCategoryAction(id: string) {
       const existing = await getCategoryById(id);
       if (!existing) throw new Error("Category not found");
 
-      // Authorization check
       if (user.role !== "ADMIN") {
         throw new Error("Unauthorized!");
       }
 
       await deleteCategory(id);
 
-      revalidateTag("categories-list");
+      invalidateCacheTag(CACHE_TAGS.categoriesList);
+      invalidateCacheTag(CACHE_TAGS.category(existing.slug));
+      invalidateCacheTag(CACHE_TAGS.categoryById(id));
       revalidatePath("/dashboard/categories");
 
       return { success: true, message: "Category deleted successfully!" };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to delete category.";
       console.error("[ACTION_ERROR] deleteCategory:", error);
-      // This will catch Prisma P2014 if products are still linked to this category
-      return {
-        success: false,
-        error: error.message || "Failed to delete category.",
-      };
+      return { success: false, error: message };
     }
   });
-}
-
-export async function fetchAllCategoriesAction() {
-  try {
-    // 🎯 Call the cached service directly
-    const data = await getAllCategories();
-
-    return {
-      success: true,
-      data,
-      message: "Categories fetched successfully",
-    };
-  } catch (error: any) {
-    console.error("[FETCH_ALL_CATEGORIES_ERROR]:", error);
-    return {
-      success: false,
-      error: "Unable to fetch categories",
-    };
-  }
-}
-
-/**
- * FETCH CATEGORY BY SLUG
- */
-export async function fetchCategoryBySlugAction(slug: string) {
-  try {
-    if (!slug) return { success: false, error: "Slug is required" };
-
-    // 🎯 Simply call the cached service
-    const data = await getCategoryBySlug(slug);
-
-    if (!data) return { success: false, error: "Category not found" };
-
-    return {
-      success: true,
-      data: data, // Next.js 15 handles most serialization automatically now
-      message: "Category fetched successfully",
-    };
-  } catch (error: any) {
-    console.error("[FETCH_CATEGORY_ERROR]:", error);
-    return {
-      success: false,
-      error: "Failed to fetch category",
-    };
-  }
-}
-
-export async function fetchCategoryByIdAction(id: string) {
-  try {
-    const category = await getCategoryById(id);
-    return { success: true, data: category };
-  } catch (error) {
-    return { success: false, error: "Failed to fetch category" };
-  }
 }

@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
-import { authenticatedAction } from "../auth-wrapper";
+import { CACHE_TAGS, invalidateCacheTag } from "@/lib/api/cache";
+import { revalidatePath } from "next/cache";
+import { authenticatedAction, publicQueryAction } from "../auth-wrapper";
 import {
   createStore,
   deleteStore,
@@ -12,20 +13,36 @@ import {
 } from "@/services/store-service";
 import { StoreProps } from "@/types/store";
 
-/**
- * CREATE STORE
- */
+export async function getAllStoresAction() {
+  return authenticatedAction("Fetch Stores", ["ADMIN", "VENDOR"], async () =>
+    getAllStores(),
+  );
+}
+
+export async function getStoreByIdAction(id: string) {
+  return authenticatedAction("Fetch Store", ["ADMIN", "VENDOR"], async () =>
+    getStoreById(id),
+  );
+}
+
+export async function getStoreBySlugAction(slug: string) {
+  return publicQueryAction(() => getStoreBySlug(slug));
+}
+
 export async function createStoreAction(formData: StoreProps) {
   return authenticatedAction(
     "Create Store",
     ["ADMIN", "VENDOR"],
     async (user) => {
       try {
-        // Force vendorId to the logged-in user for security
-        const storeData = { ...formData, vendorId: user.id };
+        const storeData =
+          user.role === "ADMIN"
+            ? { ...formData, vendorId: formData.vendorId || user.id }
+            : { ...formData, vendorId: user.id };
         const newStore = await createStore(storeData);
 
-        revalidateTag("stores-list");
+        invalidateCacheTag(CACHE_TAGS.storesList);
+        invalidateCacheTag(CACHE_TAGS.store(newStore.slug));
         revalidatePath("/dashboard/stores");
 
         return {
@@ -33,20 +50,16 @@ export async function createStoreAction(formData: StoreProps) {
           data: newStore,
           message: "Store created successfully",
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to create store";
         console.error("[ACTION_ERROR] createStoreAction:", error);
-        return {
-          success: false,
-          error: error.message || "Failed to create store",
-        };
+        return { success: false, error: message };
       }
     },
   );
 }
 
-/**
- * UPDATE STORE
- */
 export async function updateStoreAction(id: string, formData: StoreProps) {
   return authenticatedAction(
     "Update Store",
@@ -56,37 +69,35 @@ export async function updateStoreAction(id: string, formData: StoreProps) {
         const existing = await getStoreById(id);
         if (!existing) throw new Error("Store not found");
 
-        // Authorization check
         if (user.role !== "ADMIN" && existing.vendorId !== user.id) {
           throw new Error("Unauthorized: You do not own this store");
         }
 
         const updated = await updateStore(id, formData);
 
-        revalidateTag("stores-list");
+        invalidateCacheTag(CACHE_TAGS.storesList);
+        invalidateCacheTag(CACHE_TAGS.storeById(id));
+        invalidateCacheTag(CACHE_TAGS.store(existing.slug));
+        invalidateCacheTag(CACHE_TAGS.store(updated.slug));
         revalidatePath(`/dashboard/stores/${id}`);
         revalidatePath("/dashboard/stores");
-        revalidateTag(`store-${formData.id}`);
+        revalidatePath(`/store/${updated.slug}`);
 
         return {
           success: true,
           data: updated,
           message: "Store updated successfully",
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to update store";
         console.error("[ACTION_ERROR] updateStoreAction:", error);
-        return {
-          success: false,
-          error: error.message || "Failed to update store",
-        };
+        return { success: false, error: message };
       }
     },
   );
 }
 
-/**
- * DELETE STORE
- */
 export async function deleteStoreAction(id: string) {
   return authenticatedAction(
     "Delete Store",
@@ -96,57 +107,27 @@ export async function deleteStoreAction(id: string) {
         const existing = await getStoreById(id);
         if (!existing) throw new Error("Store not found");
 
-        // Authorization check
         if (user.role !== "ADMIN" && existing.vendorId !== user.id) {
           throw new Error("Unauthorized: You do not own this store");
         }
 
         await deleteStore(id);
 
-        revalidateTag("stores-list");
+        invalidateCacheTag(CACHE_TAGS.storesList);
+        invalidateCacheTag(CACHE_TAGS.storeById(id));
+        invalidateCacheTag(CACHE_TAGS.store(existing.slug));
         revalidatePath("/dashboard/stores");
 
         return {
           success: true,
           message: "Store deleted successfully",
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to delete store";
         console.error("[ACTION_ERROR] deleteStoreAction:", error);
-        // This will catch the P2014 relationship errors we discussed earlier!
-        return {
-          success: false,
-          error: error.message || "Failed to delete store",
-        };
+        return { success: false, error: message };
       }
     },
   );
-}
-
-export async function fetchAllStoresAction() {
-  try {
-    const data = await getAllStores();
-    return { success: true, data: data };
-  } catch (error) {
-    return { success: false, error: "Failed to fetch stores list" };
-  }
-}
-
-export async function fetchStoreBySlugAction(slug: string) {
-  try {
-    const data = await getStoreBySlug(slug);
-    if (!data) return { success: false, error: "Store not found" };
-    return { success: true, data: data };
-  } catch (error) {
-    return { success: false, error: "Failed to fetch store details" };
-  }
-}
-
-export async function fetchStoreByIdAction(id: string) {
-  try {
-    const data = await getStoreById(id);
-    if (!data) return { success: false, error: "Store not found" };
-    return { success: true, data: data };
-  } catch (error) {
-    return { success: false, error: "Failed to fetch store by ID" };
-  }
 }
