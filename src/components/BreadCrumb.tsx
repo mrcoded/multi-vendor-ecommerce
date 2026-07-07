@@ -5,43 +5,68 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight, Home } from "lucide-react";
 
-function BreadCrumb() {
+import { cn } from "@/lib/utils";
+
+function BreadCrumb({
+  labels,
+  hiddenSegments,
+  className,
+}: {
+  labels?: Record<string, string>;
+  hiddenSegments?: string[];
+  className?: string;
+}) {
   const pathname = usePathname();
-  const pathArray = pathname.split("/").filter((path) => path !== "");
+  const allSegments = pathname.split("/").filter((path) => path !== "");
+
+  const formatLabel = (segment: string) =>
+    labels?.[segment] ?? segment.replace(/-/g, " ");
+
+  const isSegmentHidden = (segment: string) =>
+    hiddenSegments?.includes(segment) ?? false;
+
+  const isLastVisibleSegment = (index: number) =>
+    !allSegments.slice(index + 1).some((segment) => !isSegmentHidden(segment));
 
   return (
-    <nav className="col-span-full mb-6 w-full" aria-label="Breadcrumb">
-      <ol className="flex items-center w-full">
-        <li className="flex-shrink-0">
+    <nav
+      className={cn("mb-4 w-full sm:mb-5", className)}
+      aria-label="Breadcrumb"
+    >
+      <ol className="flex items-center">
+        <li className="shrink-0">
           <Link
             href="/"
-            className="flex items-center text-xs font-medium text-slate-500 hover:text-blue-600 dark:text-slate-400"
+            className="flex items-center text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
           >
-            <Home className="w-3.5 h-3.5 mr-2" />
-            <span className="hidden sm:flex">Home</span>
+            <Home className="mr-1.5 size-3.5" />
+            <span className="hidden sm:inline">Home</span>
             <span className="sr-only">Home</span>
           </Link>
         </li>
 
-        {pathArray.map((path, index) => {
-          const isLast = index === pathArray.length - 1;
-          const href = `/${pathArray.slice(0, index + 1).join("/")}`;
+        {allSegments.map((path, index) => {
+          if (isSegmentHidden(path)) return null;
+
+          const isLast = isLastVisibleSegment(index);
+          const href = `/${allSegments.slice(0, index + 1).join("/")}`;
+          const label = formatLabel(path);
 
           return (
-            <li key={index} className="flex items-center min-width-0">
-              <ChevronRight className="w-4 h-4 text-slate-400 mx-1 flex-shrink-0" />
+            <li key={index} className="flex min-w-0 items-center">
+              <ChevronRight className="mx-1 size-3.5 shrink-0 text-muted-foreground/60" />
 
               <div className="min-w-0">
                 {isLast ? (
-                  <span className="block truncate text-xs font-bold text-slate-900 dark:text-white capitalize">
-                    {path.replace(/-/g, " ")}
+                  <span className="block truncate text-xs font-semibold capitalize text-foreground">
+                    {label}
                   </span>
                 ) : (
                   <Link
                     href={href}
-                    className="block truncate text-xs font-medium text-slate-500 hover:text-blue-600 dark:text-slate-400 capitalize"
+                    className="block truncate text-xs font-medium capitalize text-muted-foreground transition-colors hover:text-primary"
                   >
-                    {path.replace(/-/g, " ")}
+                    {label}
                   </Link>
                 )}
               </div>

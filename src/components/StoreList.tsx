@@ -1,22 +1,32 @@
-import React from "react";
+import { Suspense } from "react";
+
+import { getAllStores } from "@/services/store-service";
+import { serverRead } from "@/lib/api/resilient-read";
 
 import StoreCarousel from "./carousels/StoreCarousel";
-import { fetchAllStoresAction } from "@/lib/actions/store-actions";
+import ErrorBoundary from "@/components/feedback/ErrorBoundary";
+import StoreListSkeleton from "@/components/feedback/skeletons/StoreListSkeleton";
 
 async function StoreList() {
-  const { data: stores } = await fetchAllStoresAction();
-  const storesData = stores ?? [];
+  const stores = await serverRead(() => getAllStores(), {
+    source: "home:stores",
+  });
+
+  if (!stores.length) return null;
 
   return (
-    <div className="text-white py-10 sm:py-16">
-      {/* Store Slider */}
-      <div className="bg-slate-50 dark:bg-lime-900 rounded-lg p-4">
-        <h2 className="py-2 text-center text-lg sm:text-2xl text-slate-900 dark:text-slate-50 mb-4">
-          Shop By Store
-        </h2>
-        <StoreCarousel stores={storesData} />
-      </div>
-    </div>
+    <ErrorBoundary variant="inline" showHomeLink={false} showToast>
+      <Suspense fallback={<StoreListSkeleton />}>
+        <section className="overflow-hidden py-4 sm:py-5">
+          <div className="mb-3 flex items-center justify-center px-0.5 sm:mb-4">
+            <h2 className="text-sm font-semibold text-foreground sm:text-base">
+              Shop by Store
+            </h2>
+          </div>
+          <StoreCarousel stores={stores} />
+        </section>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 

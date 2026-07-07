@@ -1,56 +1,63 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import Loading from "../loading";
+import { getAllCategories } from "@/services/category-service";
+import { buildPageMetadata } from "@/lib/seo";
+import { safeServerRead } from "@/lib/api/resilient-read";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
-import { fetchAllCategoriesAction } from "@/lib/actions/category-actions";
-import { getAllCommunityPostsAction } from "@/lib/actions/community-actions";
-
-import HeroPage from "@/components/HeroPage";
+import HeroSection from "@/components/HeroSection";
 import StoreList from "@/components/StoreList";
 import CommunityPost from "@/components/community/CommunityPost";
 import CategoryList from "./category/_components/CategoryList";
 import SearchForm from "@/components/forms/SearchForm";
+import { CategoryProps } from "@/types/category";
+
+export const revalidate = 60;
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Home",
+  description:
+    "Discover products from multiple vendors on BelStore. Shop categories, explore stores, and read community posts.",
+  path: "/",
+});
 
 export default async function Home() {
-  const { data: communityPosts } = await getAllCommunityPostsAction();
-  //if no community posts
-  // if (!communityPosts) return null;
+  const [categoriesData] = await Promise.all([
+    safeServerRead(() => getAllCategories(), {
+      source: "home:categories",
+      fallback: [],
+    }),
+  ]);
 
-  const { data: categoriesData } = await fetchAllCategoriesAction();
+  const categories =
+    categoriesData?.filter((category: CategoryProps) => {
+      return category.products.length > 1;
+    }) ?? [];
 
-  const categories = categoriesData?.filter((category) => {
-    return category.products.length > 1;
-  });
-
-  //get user session
-  const session = await getServerSession(authOptions);
-  // console.log("session", session?.user);
-
-  const slicedPosts = communityPosts?.slice(0, 3);
+  const categoryTitleById = Object.fromEntries(
+    (categoriesData ?? []).map((category) => [category.id, category.title]),
+  );
 
   return (
     <div className="min-h-screen">
-      <Suspense fallback={<Loading />}>
-        <HeroPage />
+      <HeroSection categories={categoriesData ?? []} />
 
-        <div className="sm:hidden flex flex-1 max-w-md">
-          <SearchForm />
+      <div className="flex max-w-md flex-1 sm:hidden">
+        {/* <SearchForm /> */}
+      </div>
+
+      <StoreList />
+
+      {categories.map((category) => (
+        <div key={category.id} className="py-3 sm:py-5">
+          <CategoryList isStorePage={false} category={category} />
         </div>
+      ))}
 
-        <StoreList />
-
-        {categories?.map((category) => {
-          return (
-            <div key={category.id} className="py-3.5 md:py-8">
-              <CategoryList isStorePage={false} category={category} />
-            </div>
-          );
-        })}
-
-        <CommunityPost posts={slicedPosts} title="Featured Community Posts" />
-      </Suspense>
+      <CommunityPost
+        title="Featured Community Posts"
+        categoryTitleById={categoryTitleById}
+      />
     </div>
   );
 }
