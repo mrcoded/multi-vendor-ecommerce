@@ -1,15 +1,20 @@
+"use client";
+
 import React from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { RootState } from "@/types/redux";
 import { actions } from "@/redux/slices/onboardingSlice";
 import { useDispatch, useSelector } from "react-redux";
 
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
 const StepFormButton = () => {
   const dispatch = useDispatch();
 
   const currentStep = useSelector(
-    (state: RootState) => state.onboarding.currentStep
+    (state: RootState) => state.onboarding.currentStep,
   );
 
   const handlePrevious = () => {
@@ -17,24 +22,34 @@ const StepFormButton = () => {
   };
 
   return (
-    <div className="flex justify-between items-center">
+    <div
+      className={cn(
+        "flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:items-center",
+        currentStep > 1 ? "sm:justify-between" : "sm:justify-end",
+      )}
+    >
       {currentStep > 1 && (
-        <button
+        <Button
           onClick={handlePrevious}
           type="button"
-          className="inline-flex items-center px-6 py-3 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-slate-900 rounded-lg focus:ring-4 focus:ring-lime-200 dark:focus:ring-lime-900 hover:bg-slate-800 dark:bg-lime-600 dark:hover:bg-lime-700"
+          variant="outline"
+          size="sm"
+          className="w-full sm:w-auto"
         >
-          <span>Previous</span>
-          <ChevronRight className="size-5 ml-2" />
-        </button>
+          <ChevronLeft className="size-4" />
+          Previous
+        </Button>
       )}
-      <button
+
+      <Button
         type="submit"
-        className="inline-flex items-center px-6 py-3 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-slate-900 rounded-lg focus:ring-4 focus:ring-lime-200 dark:focus:ring-lime-900 hover:bg-slate-800 dark:bg-lime-600 dark:hover:bg-lime-700"
+        variant="accent"
+        size="sm"
+        className="w-full sm:w-auto"
       >
-        <span>Next</span>
-        <ChevronRight className="size-5 ml-2" />
-      </button>
+        Next
+        <ChevronRight className="size-4" />
+      </Button>
     </div>
   );
 };

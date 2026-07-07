@@ -1,7 +1,6 @@
 import React from "react";
 import { LucideIcon } from "lucide-react";
 
-// Helper component for summary rows
 const SummaryItem = ({
   icon: Icon,
   label,
@@ -11,15 +10,15 @@ const SummaryItem = ({
   label: string;
   value: string | string[];
 }) => (
-  <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
-    <div className="mt-1 p-1.5 bg-white dark:bg-slate-700 rounded-md shadow-sm">
-      <Icon className="size-3 sm:size-4 text-lime-600 dark:text-lime-400" />
+  <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-3.5 transition-colors hover:bg-muted/60">
+    <div className="mt-0.5 rounded-md bg-card p-1.5 shadow-sm ring-1 ring-border">
+      <Icon className="size-3.5 text-primary" aria-hidden />
     </div>
-    <div>
-      <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider leading-none mb-1">
+    <div className="min-w-0 flex-1">
+      <p className="mb-1 text-[10px] font-medium uppercase leading-none tracking-wider text-muted-foreground">
         {label}
       </p>
-      <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+      <p className="break-words text-sm font-semibold text-foreground">
         {Array.isArray(value) ? value.join(", ") : value || "N/A"}
       </p>
     </div>

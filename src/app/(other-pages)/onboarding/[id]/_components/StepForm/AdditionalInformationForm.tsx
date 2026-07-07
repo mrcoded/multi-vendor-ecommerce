@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { RootState } from "@/types/redux";
 import { VendorProps } from "@/types/vendors";
@@ -12,14 +12,15 @@ import { FieldValues, useForm } from "react-hook-form";
 import ImageInput from "@/components/inputs/ImageInput";
 import TextAreaInput from "@/components/inputs/TextAreaInput";
 import ArrayItemsInput from "@/components/inputs/ArrayItemsInput";
-import StepFormButton from "@/app/(other-pages)/checkout/_components/StepFormButton";
+import StepFormButton from "../StepFormButton";
 
 const AdditionalInformationForm = ({
   vendor,
 }: {
-  vendor: VendorProps["vendorProfile"];
+  vendor: VendorProps["vendorProfile"] | null;
 }) => {
   const dispatch = useDispatch();
+  const prefilled = useRef(false);
 
   const [imageUrl, setImageUrl] = useState("");
   const [products, setProducts] = useState<string[]>([]);
@@ -35,63 +36,90 @@ const AdditionalInformationForm = ({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      terms: existingFormData.terms || vendor?.terms || "",
-      notes: existingFormData.notes || vendor?.notes || "",
-      products: existingFormData.products || vendor?.products || [],
-      imageUrl: existingFormData.imageUrl || vendor?.imageUrl || "",
+      terms: existingFormData.terms || "",
+      notes: existingFormData.notes || "",
+      products: existingFormData.products || [],
+      imageUrl: existingFormData.imageUrl || "",
     },
   });
 
+  useEffect(() => {
+    if (!vendor || prefilled.current) return;
+    prefilled.current = true;
+
+    const nextProducts = existingFormData.products?.length
+      ? existingFormData.products
+      : vendor.products || [];
+    const nextImageUrl = existingFormData.imageUrl || vendor.imageUrl || "";
+
+    setProducts(nextProducts);
+    setImageUrl(nextImageUrl);
+
+    reset({
+      terms: existingFormData.terms || vendor.terms || "",
+      notes: existingFormData.notes || vendor.notes || "",
+      products: nextProducts,
+      imageUrl: nextImageUrl,
+    });
+  }, [vendor, reset, existingFormData]);
+
   const processData = (data: FieldValues) => {
-    //Update the onboarding Data
     data.products = products;
     data.imageUrl = imageUrl;
 
     dispatch(actions.updateOnboardingFormData(data));
-    //Update the Current step
     dispatch(actions.setCurrentStep(currentStep + 1));
   };
+
   return (
     <form onSubmit={handleSubmit(processData)}>
-      <h2 className="text-xl font-semibold mb-2 dark:text-lime-400">
-        Additional Information
-      </h2>
-
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 sm:gap-6">
-        {/* Product Tags */}
-        <ArrayItemsInput
-          setItems={setProducts}
-          items={products}
-          itemTitle="Product"
-        />
-
-        <ImageInput
-          imageUrl={imageUrl || vendor?.imageUrl || ""}
-          setImageUrl={setImageUrl}
-          endpoint="vendorProfileImageUploader"
-          label="Vendor Profile Image"
-        />
-
-        <TextAreaInput
-          label="Vendor's Payment Terms"
-          name="terms"
-          register={register}
-          errors={errors}
-          isRequired={false}
-        />
-
-        <TextAreaInput
-          label="Notes"
-          name="notes"
-          register={register}
-          errors={errors}
-          isRequired={false}
-        />
+      <div className="border-b border-border px-4 py-5 sm:px-6 sm:py-6">
+        <h2 className="text-lg font-semibold text-foreground sm:text-xl">
+          Business Details
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Add your store profile, product categories, and payment preferences.
+        </p>
       </div>
-      <StepFormButton />
+
+      <div className="space-y-4 p-4 sm:space-y-6 sm:p-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+          <ArrayItemsInput
+            setItems={setProducts}
+            items={products}
+            itemTitle="Product"
+          />
+
+          <ImageInput
+            imageUrl={imageUrl}
+            setImageUrl={setImageUrl}
+            endpoint="vendorProfileImageUploader"
+            label="Store Profile Image"
+          />
+
+          <TextAreaInput
+            label="Payment Terms"
+            name="terms"
+            register={register}
+            errors={errors}
+            isRequired={false}
+          />
+
+          <TextAreaInput
+            label="Additional Notes"
+            name="notes"
+            register={register}
+            errors={errors}
+            isRequired={false}
+          />
+        </div>
+
+        <StepFormButton />
+      </div>
     </form>
   );
 };
