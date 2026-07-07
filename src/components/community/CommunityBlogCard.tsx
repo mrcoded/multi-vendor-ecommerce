@@ -1,65 +1,79 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 import formatDate from "@/lib/formatDate";
-import { useCategoryById } from "@/hooks/useCategories";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 import { CommunityPostProps } from "@/types/communityPost";
 
 function CommunityBlogCard({
   communityPost,
+  categoryTitle,
 }: {
   communityPost: CommunityPostProps;
+  categoryTitle?: string;
 }) {
-  const categoryId = communityPost.categoryId;
-  const { data: category } = useCategoryById(categoryId ?? "");
-  const categoryTitle = category?.title;
-
   const normalDate = formatDate(communityPost.createdAt?.toString() ?? "");
 
   return (
-    <div className="group">
-      <div className="relative">
-        <div className="block overflow-hidden aspect-w-16 aspect-h-9 rounded-xl">
-          <Image
-            src={communityPost.imageUrl}
-            alt={communityPost.title}
-            width={556}
-            height={556}
-            priority
-            unoptimized
-            className="object-cover w-full h-48 transition-all duration-200 transform group-hover:scale-110"
-          />
-        </div>
-        <span className="absolute px-3 py-2 text-xs font-bold tracking-widest text-gray-900 uppercase bg-white rounded top-3 left-3">
-          {categoryTitle}
-        </span>
-      </div>
-      <p className="mt-2 sm:mt-6 text-sm font-medium text-gray-500 dark:text-slate-200">
-        {normalDate}
-      </p>
-      <h2 className="mt-1 sm:mt-4 lg:min-h-[50px] text-xl font-bold leading-tight text-gray-900 xl:pr-8">
-        <Link
-          href={`/community-blogs/${communityPost.slug}`}
-          className="line-clamp-2 dark:text-slate-200"
+    <Card className="group flex h-full flex-col overflow-hidden border-border/80 shadow-none transition-shadow hover:shadow-md">
+      <Link
+        href={`/community-blogs/${communityPost.slug}`}
+        className="relative block shrink-0 overflow-hidden"
+      >
+        <Image
+          src={communityPost.imageUrl}
+          alt={communityPost.title}
+          width={556}
+          height={312}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          loading="lazy"
+          className="aspect-[16/10] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+        />
+        {categoryTitle && (
+          <Badge className="absolute left-2 top-2 border-0 bg-card/95 text-[10px] text-foreground backdrop-blur-sm sm:text-xs">
+            {categoryTitle}
+          </Badge>
+        )}
+      </Link>
+
+      <CardContent className="flex flex-1 flex-col gap-2 p-3 sm:p-3.5">
+        <p className="text-[11px] text-muted-foreground sm:text-xs">
+          {normalDate}
+        </p>
+
+        <h3 className="min-h-[2.25rem] flex-1">
+          <Link
+            href={`/community-blogs/${communityPost.slug}`}
+            className="line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors hover:text-primary sm:text-base"
+          >
+            {communityPost.title}
+          </Link>
+        </h3>
+
+        {communityPost.description && (
+          <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+            {communityPost.description}
+          </p>
+        )}
+
+        <Button
+          variant="link"
+          size="sm"
+          className="h-auto justify-start gap-1 p-0 text-xs font-semibold text-primary sm:text-sm"
+          asChild
         >
-          {communityPost.title}
-        </Link>
-      </h2>
-      <div className="mt-2 lg:mt-6">
-        <Link
-          href={`/community-blogs/${communityPost.slug}`}
-          className="inline-flex items-center pb-2 text-xs font-bold tracking-widest text-gray-900 uppercase border-b border-gray-900 dark:border-lime-200 group dark:text-lime-200"
-        >
-          Continue Reading
-          <ArrowRight className="stroke-gray-900 w-4 h-4 ml-2 transition-all duration-200 transform group-hover:translate-x-1" />
-        </Link>
-      </div>
-    </div>
+          <Link href={`/community-blogs/${communityPost.slug}`}>
+            Read article
+            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 
