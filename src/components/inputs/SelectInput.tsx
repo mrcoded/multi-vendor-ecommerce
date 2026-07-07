@@ -4,6 +4,7 @@ import {
   FieldErrors,
   Path,
 } from "react-hook-form";
+import { cn } from "@/lib/utils";
 
 interface SelectInputProps<T extends FieldValues> {
   label: string;
@@ -34,18 +35,18 @@ function SelectInput<T extends FieldValues>({
 
   return (
     <div className={className}>
-      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-slate-50 leading-6">
+      <label className="mb-2 block text-sm font-medium leading-6 text-foreground">
         {label}
       </label>
 
       <div className="mt-2">
         {hasMultipleSelect ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-3 border rounded-md bg-white dark:bg-slate-900 ring-1 ring-inset ring-gray-300 dark:ring-slate-700">
+          <div className="grid grid-cols-1 gap-2 rounded-md border border-border bg-card p-3 md:grid-cols-2">
             {options.length > 0 ? (
               options.map((option) => (
                 <label
                   key={option.id}
-                  className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800 p-1 rounded transition-colors"
+                  className="flex cursor-pointer items-center space-x-3 rounded p-1 transition-colors hover:bg-muted"
                 >
                   <input
                     type="checkbox"
@@ -53,15 +54,15 @@ function SelectInput<T extends FieldValues>({
                     {...register(name, {
                       required: isRequired ? `${label} is required` : false,
                     })}
-                    className="w-4 h-4 text-lime-600 border-gray-300 rounded focus:ring-lime-500"
+                    className="size-4 rounded border-border text-primary focus-visible:ring-ring"
                   />
-                  <span className="text-sm text-gray-700 dark:text-slate-300">
+                  <span className="text-sm text-foreground">
                     {option.title || option.name}
                   </span>
                 </label>
               ))
             ) : (
-              <p className="text-xs text-gray-500 italic p-1">
+              <p className="p-1 text-xs italic text-muted-foreground">
                 No stores found for this vendor.
               </p>
             )}
@@ -72,7 +73,7 @@ function SelectInput<T extends FieldValues>({
               required: isRequired ? `${label} is required` : false,
             })}
             id={name}
-            className="block w-full rounded-md border-0 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-lime-700 sm:text-sm dark:bg-slate-900 dark:text-slate-100"
+            className="block w-full rounded-md border border-input bg-card px-3 py-3 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <option value="">Select {label}</option>
             {options.map((option) => (
@@ -84,7 +85,7 @@ function SelectInput<T extends FieldValues>({
         )}
 
         {error && (
-          <span className="text-xs text-red-600 mt-1 block">
+          <span className="mt-1 block text-xs text-destructive">
             {(error.message as string) || `${label} is required`}
           </span>
         )}

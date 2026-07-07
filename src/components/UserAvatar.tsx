@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-import { LayoutDashboard, LogOut, Settings } from "lucide-react";
+import { LayoutDashboard, LogOut, Package, Settings } from "lucide-react";
 
 import { User } from "next-auth";
 import { signOut } from "next-auth/react";
 import generateInitials from "@/lib/generateInitials";
+import { useIsMounted } from "@/hooks/useIsMounted";
 
 import {
   DropdownMenu,
@@ -22,25 +23,19 @@ import {
 
 const UserAvatar = ({ user }: { user: User }) => {
   const router = useRouter();
-  const [isMounted, setIsMounted] = React.useState(false);
+  const isMounted = useIsMounted();
 
-  //destructure image and name of a user
   const { imageUrl, name } = user ?? {};
   const role = user?.role;
-
   const initials = generateInitials(name ?? "User");
 
   const handleLogout = async () => {
-    await signOut();
+    await signOut({ redirect: false });
     router.push("/");
   };
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-  // Prevent hydration mismatch by rendering nothing on the server
   if (!isMounted) {
-    return null;
+    return <div className="h-8 w-8 rounded-full bg-muted sm:h-10 sm:w-10" />;
   }
 
   return (
@@ -53,10 +48,10 @@ const UserAvatar = ({ user }: { user: User }) => {
               alt="User Profile"
               width={200}
               height={200}
-              className="w-8 h-8 rounded-full"
+              className="h-8 w-8 rounded-full"
             />
           ) : (
-            <div className="w-8 sm:w-10 h-8 sm:h-10 p-4 flex items-center justify-center rounded-full bg-slate-300 dark:bg-slate-800 shadow-md border border-slate-600">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-600 bg-slate-300 p-4 shadow-md dark:bg-slate-800 sm:h-10 sm:w-10">
               {initials}
             </div>
           )}
@@ -86,7 +81,7 @@ const UserAvatar = ({ user }: { user: User }) => {
               href="/dashboard/orders"
               className="flex items-center space-x-2"
             >
-              <Settings className="mr-2 h-4 w-4" />
+              <Package className="mr-2 h-4 w-4" />
               <span>My Orders</span>
             </Link>
           </DropdownMenuItem>

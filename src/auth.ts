@@ -108,31 +108,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         token.userRefreshedAt = Date.now();
-
-        // #region agent log
-        fetch(
-          "http://127.0.0.1:7704/ingest/beb5adb7-ea2f-4f2d-9f5d-fd3483b578e0",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Debug-Session-Id": "219b6c",
-            },
-            body: JSON.stringify({
-              sessionId: "219b6c",
-              runId: "post-fix",
-              hypothesisId: "B",
-              location: "auth.ts:jwt-db-refresh",
-              message: "jwt refreshed user from database",
-              data: {
-                durationMs: Date.now() - dbStart,
-                trigger: trigger ?? null,
-              },
-              timestamp: Date.now(),
-            }),
-          },
-        ).catch(() => {});
-        // #endregion
       }
 
       return token;

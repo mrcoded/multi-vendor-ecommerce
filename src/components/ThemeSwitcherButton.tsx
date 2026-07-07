@@ -1,27 +1,37 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useTheme } from "next-themes";
+import React from "react";
+
+import { useTheme } from "@/providers/ThemeProvider";
+
 import { Moon, Sun } from "lucide-react";
 
+import { useIsMounted } from "@/hooks/useIsMounted";
+
 function ThemeSwitcherButton() {
-  const [mounted, setMounted] = React.useState(false);
-  const { theme, setTheme } = useTheme();
+  const mounted = useIsMounted();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { resolvedTheme, setTheme } = useTheme();
 
-  if (!mounted) {
-    return <div className="p-2 w-10 h-10" />;
-  }
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
-      className="text-lime-700 dark:text-lime-500"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      type="button"
+      aria-label="Toggle dark mode"
+      className="inline-flex size-9 items-center justify-center rounded-md text-primary hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      suppressHydrationWarning
     >
-      {theme == "light" ? <Moon /> : <Sun />}
+      {mounted ? (
+        isDark ? (
+          <Sun className="size-5" />
+        ) : (
+          <Moon className="size-5" />
+        )
+      ) : (
+        <Moon className="size-5 opacity-40" aria-hidden />
+      )}
     </button>
   );
 }

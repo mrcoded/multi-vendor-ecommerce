@@ -1,31 +1,41 @@
 import React from "react";
 import { LucideIcon } from "lucide-react";
 
-interface SmallCardProps {
-  data: {
-    title: string;
-    number: string;
-    iconBg: string;
-    icon: LucideIcon;
-  };
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
+import { StatVariant, statVariants } from "../../constants/stat-card-styles";
+
+export interface SmallCardData {
+  title: string;
+  number: string;
+  icon: LucideIcon;
+  variant: StatVariant;
 }
 
-function SmallCard({ data }: SmallCardProps) {
-  const { title, number, iconBg, icon: Icon } = data;
+function SmallCard({ data }: { data: SmallCardData }) {
+  const { title, number, icon: Icon, variant } = data;
+
   return (
-    <div className="rounded-lg shadow-lg bg-slate-50 dark:bg-slate-700 p-4 dark:text-slate-50 text-slate-800">
-      <div className="flex space-x-4 md:space-x-3 xl:space-x-4">
+    <Card className="hover-lift overflow-hidden">
+      <CardContent className="flex items-center gap-4 p-4 sm:p-5">
         <div
-          className={`size-12 md:size-8 xl:size-12 ${iconBg} rounded-full items-center flex justify-center flex-shrink-0`}
+          className={cn(
+            "flex size-11 shrink-0 items-center justify-center rounded-xl",
+            statVariants[variant],
+          )}
         >
-          <Icon className="size-7 md:size-4 xl:size-7 text-slate-50 dark:text-slate-50" />
+          <Icon className="size-5" aria-hidden />
         </div>
-        <div className="">
-          <p className="leading-5">{title}</p>
-          <h3 className="text-2xl font-bold">{number}</h3>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium text-muted-foreground">{title}</p>
+          <p className="mt-0.5 text-2xl font-bold tabular-nums tracking-tight text-foreground">
+            {number}
+          </p>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 

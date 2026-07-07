@@ -1,17 +1,22 @@
 import { Suspense } from "react";
+
 import "../../styles/main.scss";
-import { Metadata } from "next";
+
+import type { Metadata } from "next";
+
 import Loading from "../loading";
 
-import Navbar from "@/components/shared/Navbar";
+import Navbar from "@/components/shared/navbar";
+
+import { PRIVATE_ROBOTS } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Auth - BelStore",
-  description:
-    "BelStore's authentication page allows users to securely sign in, sign up, and manage their account. Access a wide range of features and functionalities within the BelStore platform.",
-  alternates: {
-    canonical: "/auth",
+  title: {
+    default: "Account",
+    template: "%s | BelStore",
   },
+  description: "Sign in, register, or recover your BelStore account.",
+  robots: PRIVATE_ROBOTS,
 };
 
 export default function AuthLayout({
@@ -21,7 +26,8 @@ export default function AuthLayout({
 }) {
   return (
     <main>
-      <Navbar />
+      <Navbar showSearch={false} />
+
       <Suspense fallback={<Loading />}>{children}</Suspense>
     </main>
   );

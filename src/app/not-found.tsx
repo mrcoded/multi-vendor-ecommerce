@@ -11,40 +11,39 @@ export default function NotFound() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-3 sm:px-6">
+    <div className="flex min-h-screen items-center justify-center bg-muted px-3 sm:px-6">
       <div className="text-center sm:max-w-md">
-        {/* 404 Graphic */}
         <div className="relative mb-8 flex justify-center">
-          <h1 className="text-[10rem] sm:text-[12rem] font-black text-slate-200 dark:text-slate-800 leading-none">
+          <h1 className="text-[10rem] font-black leading-none text-muted sm:text-[12rem]">
             404
           </h1>
           <div className="absolute inset-0 flex items-center justify-center">
-            <ShoppingBag className="w-20 h-20 text-lime-600 animate-bounce" />
+            <ShoppingBag className="size-20 animate-bounce text-primary" />
           </div>
         </div>
 
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+        <h2 className="mb-4 text-3xl font-bold text-foreground">
           Lost in the Marketplace?
         </h2>
-        <p className="text-slate-600 dark:text-slate-400 mb-8">
-          The page you're looking for doesn't exist or has been moved by the
-          vendor. Don't worry, we'll help you find your way back.
+        <p className="mb-8 text-muted-foreground">
+          The page you&apos;re looking for doesn&apos;t exist or has been moved
+          by the vendor. Don&apos;t worry, we&apos;ll help you find your way
+          back.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button asChild variant="outline" className="w-full sm:w-auto">
-            <button onClick={router.back} className="flex items-center gap-2">
-              <MoveLeft className="w-4 h-4" />
-              Go Back
-            </button>
+        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => router.back()}
+          >
+            <MoveLeft className="size-4" />
+            Go Back
           </Button>
 
-          <Button
-            asChild
-            className="w-full sm:w-auto bg-lime-600 hover:bg-lime-700"
-          >
+          <Button asChild variant="default" className="w-full sm:w-auto">
             <Link href="/" className="flex items-center gap-2">
-              <Home className="w-4 h-4" />
+              <Home className="size-4" />
               Back to Home
             </Link>
           </Button>

@@ -11,16 +11,17 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 
 import { OrderStatusManagerProps } from "@/types/order";
 
 const statusMap: Record<string, string> = {
-  DELIVERED: "bg-green-100 text-green-700 border-green-200",
-  PENDING: "bg-amber-100 text-amber-700 border-amber-200",
-  PROCESSING: "bg-blue-100 text-blue-700 border-blue-200",
-  CANCELLED: "bg-red-100 text-red-700 border-red-200",
-  SHIPPED: "bg-purple-100 text-purple-700 border-purple-200",
+  DELIVERED: "bg-primary/10 text-primary border-primary/30",
+  PENDING: "bg-accent/10 text-accent border-accent/30",
+  PROCESSING: "bg-secondary text-secondary-foreground border-border",
+  CANCELLED: "bg-destructive/10 text-destructive border-destructive/30",
+  SHIPPED: "bg-muted text-foreground border-border",
 };
 
 export function OrderStatusManager({
@@ -33,42 +34,43 @@ export function OrderStatusManager({
 
   const colorClass =
     statusMap[currentStatus.toUpperCase()] ||
-    "bg-gray-100 text-gray-700 border-gray-200";
+    "bg-muted text-muted-foreground border-border";
+
+  const canUpdate = session?.user?.role !== "USER";
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      {/* THE CURRENT STATUS BADGE*/}
+    <div className="flex shrink-0 flex-col items-end gap-2">
       <span
         className={cn(
-          "px-2.5 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wide",
+          "inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
           colorClass,
         )}
       >
         {currentStatus}
       </span>
 
-      {session?.user?.role !== "USER" && (
-        <Select onValueChange={onStatusChange} disabled={isUpdating} value="">
-          <SelectTrigger className="h-5 w-auto rounded-full bg-slate-50 px-2 border-slate-200 text-[9px] font-medium text-slate-500 hover:bg-slate-100 transition-colors focus:ring-0 focus:ring-offset-0">
-            <div className="flex items-center gap-1 uppercase tracking-tighter">
-              {isUpdating ? (
-                <Loader2 className="h-2.5 w-2.5 animate-spin" />
-              ) : (
-                <span>Change</span>
-              )}
-            </div>
+      {canUpdate && (
+        <Select onValueChange={onStatusChange} disabled={isUpdating}>
+          <SelectTrigger className="h-8 w-[130px] border-border bg-card text-xs">
+            {isUpdating ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <SelectValue placeholder="Update status" />
+            )}
           </SelectTrigger>
 
-          <SelectContent align="end" className="min-w-[120px]">
-            {options.map((option) => (
-              <SelectItem
-                key={option.id}
-                value={option.id}
-                className="text-xs py-1.5"
-              >
-                {option.title}
-              </SelectItem>
-            ))}
+          <SelectContent align="end">
+            {options
+              .filter((option) => option.id !== currentStatus)
+              .map((option) => (
+                <SelectItem
+                  key={option.id}
+                  value={option.id}
+                  className="text-xs"
+                >
+                  {option.title}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
       )}
