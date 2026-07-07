@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { actions } from "@/redux/slices/cartSlice";
 import { generateSlug } from "@/lib/generateSlug";
+import { Button } from "@/components/ui/button";
 
 interface ItemProps {
   id: string;
@@ -21,6 +22,7 @@ interface ItemProps {
 
 function CartProduct({ cartItem }: { cartItem: ItemProps }) {
   const dispatch = useDispatch();
+  const lineTotal = cartItem.salePrice * cartItem.qty;
 
   function handleRemoveFromCart(cartId: string) {
     dispatch(actions.removeFromCart(cartId));
@@ -36,84 +38,79 @@ function CartProduct({ cartItem }: { cartItem: ItemProps }) {
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-start lg:items-center justify-between border-b border-gray-200  pb-4 mb-4 gap-4">
-      {/* Product Image & Title */}
-      <div className="flex items-center gap-4 w-full sm:w-auto">
-        <div className="relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24">
+    <article className="group px-4 py-4 transition-colors hover:bg-muted/30 sm:px-5">
+      <div className="flex gap-3 sm:gap-4">
+        <Link
+          href={`/products/${generateSlug(cartItem.title)}`}
+          className="relative size-[4.5rem] shrink-0 overflow-hidden rounded-lg bg-muted ring-1 ring-border/80 transition-shadow group-hover:ring-border sm:size-20"
+        >
           <Image
             src={cartItem.imageUrl}
             fill
             alt={cartItem.title}
             unoptimized
-            className="rounded-xl object-cover border border-gray-100"
+            className="object-cover"
           />
-        </div>
-        <div className="flex items-start flex-col gap-2 w-full sm:w-auto">
-          <div className="flex flex-col flex-grow min-w-0">
+        </Link>
+
+        <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 flex-1 space-y-1">
             <Link
               href={`/products/${generateSlug(cartItem.title)}`}
-              className="font-bold text-gray-900 dark:text-muted-foreground text-sm sm:text-base line-clamp-2"
+              className="line-clamp-2 text-sm font-medium leading-snug text-foreground transition-colors hover:text-primary"
             >
               {cartItem.title}
             </Link>
-            <p className="text-gray-500 text-xs">
-              Unit Price: ${cartItem.salePrice}
+            <p className="text-xs text-muted-foreground">
+              ${cartItem.salePrice.toFixed(2)} each
             </p>
           </div>
-          {/* Quantity Toggle */}
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="flex items-center rounded-lg border border-gray-300 overflow-hidden bg-gray-50">
-              <button
+
+          <div className="flex items-center justify-between gap-3 sm:justify-end sm:gap-5">
+            <div className="inline-flex items-center overflow-hidden rounded-md border border-input bg-background shadow-sm">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => handleQtyDecrement(cartItem.id)}
-                className="p-2 hover:bg-gray-200 transition-colors border-r border-gray-300"
+                className="size-7 rounded-none border-r border-input hover:bg-muted"
                 aria-label="Decrease quantity"
               >
-                <Minus className="w-4 h-4 text-gray-600" />
-              </button>
-              <span className="px-4 py-1 text-sm font-bold text-gray-800 min-w-[40px] text-center">
+                <Minus className="size-3.5" />
+              </Button>
+              <span className="min-w-8 px-1 text-center text-xs font-semibold tabular-nums text-foreground">
                 {cartItem.qty}
               </span>
-              <button
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => handleQtyIncrement(cartItem.id)}
-                className="p-2 hover:bg-gray-200 transition-colors border-l border-gray-300"
+                className="size-7 rounded-none border-l border-input hover:bg-muted"
                 aria-label="Increase quantity"
               >
-                <Plus className="w-4 h-4 text-gray-600" />
-              </button>
+                <Plus className="size-3.5" />
+              </Button>
             </div>
-            {/* Price & Delete */}
-            <div className="sm:hidden flex items-center gap-1.5">
-              <div className="text-right">
-                <h4 className="font-bold text-gray-900 dark:text-muted-foreground text-sm sm:text-base">
-                  ${(cartItem.salePrice * cartItem.qty).toFixed(2)}
-                </h4>
-              </div>
-              <button
-                onClick={() => handleRemoveFromCart(cartItem.id)}
-                className="p-2 hover:bg-red-50 rounded-full transition-colors group"
-              >
-                <Trash2 className="text-gray-400 group-hover:text-red-600 w-5 h-5" />
-              </button>
-            </div>
+
+            <p className="min-w-[4.5rem] text-right text-sm font-semibold tabular-nums text-foreground sm:min-w-[5rem] sm:text-base">
+              ${lineTotal.toFixed(2)}
+            </p>
           </div>
         </div>
-      </div>
 
-      {/* Price & Delete */}
-      <div className="hidden sm:flex items-center gap-4">
-        <div className="text-right">
-          <h4 className="font-bold text-gray-900 dark:text-muted-foreground text-sm sm:text-base">
-            ${(cartItem.salePrice * cartItem.qty).toFixed(2)}
-          </h4>
-        </div>
-        <button
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
           onClick={() => handleRemoveFromCart(cartItem.id)}
-          className="p-2 hover:bg-red-50 rounded-full transition-colors group"
+          className="size-8 shrink-0 self-start text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          aria-label={`Remove ${cartItem.title} from cart`}
         >
-          <Trash2 className="text-gray-400 group-hover:text-red-600 w-5 h-5" />
-        </button>
+          <Trash2 className="size-4" />
+        </Button>
       </div>
-    </div>
+    </article>
   );
 }
 

@@ -1,19 +1,17 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
-
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { auth } from "@/auth";
+import { apiError } from "@/lib/api/api-auth";
 
 export async function PATCH(request: Request) {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    // Check if the user is authenticated
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id;
-
-    if (!userId) {
-      return NextResponse.json({ message: "User not found!" }, { status: 404 });
-    }
-
     const {
       email,
       firstName,
@@ -29,7 +27,7 @@ export async function PATCH(request: Request) {
     } = await request.json();
 
     const updatedUser = await db.userProfile.update({
-      where: { userId: userId },
+      where: { userId },
       data: {
         email,
         userName,
@@ -46,17 +44,7 @@ export async function PATCH(request: Request) {
     });
 
     return NextResponse.json(updatedUser);
-  } catch (error) {
-    console.log(error);
-
-    return NextResponse.json(
-      {
-        message: "Unable to update User profile",
-        error,
-      },
-      {
-        status: 500,
-      },
-    );
+  } catch {
+    return apiError("Unable to update user profile");
   }
 }

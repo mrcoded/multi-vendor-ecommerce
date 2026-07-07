@@ -1,7 +1,6 @@
 import { withUt } from "uploadthing/tw";
-import flowbite from "flowbite/plugin";
 import tailwindcssAnimate from "tailwindcss-animate";
-import flowbitePlugin from "@tailwindcss/forms";
+import forms from "@tailwindcss/forms";
 import flowbiteReact from "flowbite-react/plugin/tailwindcss";
 
 export default withUt({
@@ -62,7 +61,10 @@ export default withUt({
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+      },
     },
   },
-  plugins: [tailwindcssAnimate, flowbitePlugin, flowbiteReact],
+  plugins: [tailwindcssAnimate, forms, flowbiteReact],
 });

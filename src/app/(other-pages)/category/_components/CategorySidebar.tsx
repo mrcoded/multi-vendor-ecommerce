@@ -1,55 +1,46 @@
-"use client";
-
-import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-import Loading from "@/app/loading";
 import { CategoryProps } from "@/types/category";
 
-import { useCategories } from "@/hooks/useCategories";
+type CategorySidebarProps = {
+  categories: CategoryProps[];
+};
 
-function CategorySidebar() {
-  const { data: categoriesData } = useCategories();
-
-  if (!categoriesData) return <Loading />;
-
-  //Only categories with Products
-  const categories = categoriesData.filter(
-    (category: CategoryProps) => category.products.length > 0,
+function CategorySidebar({ categories }: CategorySidebarProps) {
+  const withProducts = categories.filter(
+    (category) => category.products.length > 0,
   );
 
   return (
-    <div className="col-span-4 lg:col-span-3 sm:block bg-white border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-700 text-slate-800 overflow-hidden hidden">
-      <h2 className="bg-slate-100 dark:bg-gray-800 py-3 px-6 font-semibold border-b border-gray-300 dark:border-gray-600 text-slate-800 dark:text-slate-100">
-        Shop By Category ({categories.length})
+    <div className="col-span-4 hidden overflow-hidden rounded-lg border border-border bg-card text-card-foreground sm:block lg:col-span-3">
+      <h2 className="border-b border-border bg-secondary px-6 py-3 font-semibold">
+        Shop By Category ({withProducts.length})
       </h2>
-      <div className="flex-1 py-3 px-6 h-[300px] overflow-y-auto flex flex-col gap-2">
-        {categories.length > 0 ? (
-          categories.map((category: CategoryProps) => {
-            return (
-              <Link
-                key={category.id}
-                href={`/category/${category.slug}`}
-                className="flex items-center gap-3 hover:bg-slate-50 duration-300 transition-all dark:text-slate-300 dark:hover:bg-slate-600 rounded-md"
-              >
-                <Image
-                  width={556}
-                  height={556}
-                  priority
-                  unoptimized
-                  className="w-10 h-10 rounded-full object-cover border border-lime-300"
-                  src={category.imageUrl ?? ""}
-                  alt={category.title}
-                />
-                <span className="text-sm truncate line-clamp-1">
-                  {category.title}
-                </span>
-              </Link>
-            );
-          })
+      <div className="custom-scrollbar flex h-[300px] flex-1 flex-col gap-2 overflow-y-auto px-6 py-3">
+        {withProducts.length > 0 ? (
+          withProducts.map((category) => (
+            <Link
+              key={category.id}
+              href={`/category/${category.slug}`}
+              className="flex items-center gap-3 rounded-md transition-all duration-300 hover:bg-muted"
+            >
+              <Image
+                width={40}
+                height={40}
+                sizes="40px"
+                loading="lazy"
+                className="size-10 rounded-full border border-primary/30 object-cover"
+                src={category.imageUrl ?? ""}
+                alt={category.title}
+              />
+              <span className="line-clamp-1 truncate text-sm">
+                {category.title}
+              </span>
+            </Link>
+          ))
         ) : (
-          <>Loading...</>
+          <p className="text-sm text-muted-foreground">No categories yet.</p>
         )}
       </div>
     </div>

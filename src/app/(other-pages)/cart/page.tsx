@@ -1,38 +1,14 @@
-"use client";
+import type { Metadata } from "next";
 
-import React from "react";
+import CartPageClient from "./_components/CartPageClient";
+import { noIndexMetadata } from "@/lib/seo";
 
-import { useSelector } from "react-redux";
-import { RootState } from "@/types/redux";
+export const metadata: Metadata = noIndexMetadata(
+  "Shopping Cart",
+  "Review items in your BelStore shopping cart before checkout.",
+  "/cart",
+);
 
-import BreadCrumb from "@/components/BreadCrumb";
-
-import EmptyCart from "./_components/EmptyCart";
-import CartItems from "./_components/CartItems";
-import CartSubTotalCard from "./_components/CartSubTotalCard";
-
-const Page = () => {
-  const cartItems = useSelector((store: RootState) => store.cart);
-
-  const subTotal = cartItems
-    .reduce((total, item) => {
-      return total + item.salePrice * item.qty;
-    }, 0)
-    .toFixed(2);
-
-  return (
-    <div>
-      <BreadCrumb />
-      {cartItems.length > 0 ? (
-        <div className="grid grid-cols-12 gap-6 lg:gap-14">
-          <CartItems cartItems={cartItems} />
-          <CartSubTotalCard subTotal={subTotal} />
-        </div>
-      ) : (
-        <EmptyCart />
-      )}
-    </div>
-  );
-};
-
-export default Page;
+export default function CartPage() {
+  return <CartPageClient />;
+}

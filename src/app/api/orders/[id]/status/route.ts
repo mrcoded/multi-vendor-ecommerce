@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 
 import { db } from "@/lib/db";
-import { authOptions } from "@/lib/authOptions";
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user;
 
     const { id: orderId } = await params;

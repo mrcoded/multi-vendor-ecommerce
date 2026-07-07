@@ -1,103 +1,75 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { apiError, requireAuth } from "@/lib/api/api-auth";
 
 export async function GET(
-  request: Request,
-  {
-    params,
-  }: {
-    params: Promise<{ id: string }>;
-  },
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
 
     const product = await db.product.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        store: true,
-      },
+      where: { id },
+      include: { store: true },
     });
 
-    return NextResponse.json(product);
-  } catch (error) {
-    console.log(error);
+    if (!product) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 },
+      );
+    }
 
-    return NextResponse.json(
-      {
-        message: "Unable to fetch Product",
-        error,
-      },
-      {
-        status: 500,
-      },
-    );
+    return NextResponse.json(product);
+  } catch {
+    return apiError("Unable to fetch product");
   }
 }
 
 export async function DELETE(
-  request: Request,
-  {
-    params,
-  }: {
-    params: Promise<{ id: string }>;
-  },
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const authResult = await requireAuth(["ADMIN", "VENDOR"]);
+  if (!authResult.ok) return authResult.response;
+
   try {
     const { id } = await params;
 
-    const existingProduct = await db.product.findUnique({
-      where: {
-        id,
-      },
-    });
+    const existingProduct = await db.product.findUnique({ where: { id } });
 
     if (!existingProduct) {
       return NextResponse.json(
-        {
-          data: null,
-          message: "Product Not Found",
-        },
-        {
-          status: 404,
-        },
+        { message: "Product not found" },
+        { status: 404 },
       );
     }
 
-    const deletedProduct = await db.product.delete({
-      where: {
-        id,
-      },
-    });
+    if (
+      authResult.user.role === "VENDOR" &&
+      existingProduct.userId !== authResult.user.id
+    ) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
 
+    const deletedProduct = await db.product.delete({ where: { id } });
     return NextResponse.json(deletedProduct);
-  } catch (error) {
-    console.log(error);
-
-    return NextResponse.json(
-      {
-        message: "Unable to Delete Product",
-        error,
-      },
-      {
-        status: 500,
-      },
-    );
+  } catch {
+    return apiError("Unable to delete product");
   }
 }
 
 export async function PUT(
   request: Request,
-  {
-    params,
-  }: {
-    params: Promise<{ id: string }>;
-  },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const authResult = await requireAuth(["ADMIN", "VENDOR"]);
+  if (!authResult.ok) return authResult.response;
+
   try {
     const { id } = await params;
+    const body = await request.json();
 
     const {
       title,
@@ -118,42 +90,40 @@ export async function PUT(
       wholesaleQuantity,
       wholesalePrice,
       vendorId,
+      storeId,
       storeIds,
-    } = await request.json();
+    } = body;
 
-    const existingProducts = await db.product.findUnique({
-      where: {
-        id,
-      },
-    });
+    const existingProduct = await db.product.findUnique({ where: { id } });
 
-    if (!existingProducts) {
+    if (!existingProduct) {
       return NextResponse.json(
-        {
-          data: null,
-          message: "Product not found",
-        },
+        { message: "Product not found" },
         { status: 404 },
       );
     }
 
-    const updatedPoduct = await db.product.update({
-      where: {
-        id,
-      },
+    if (
+      authResult.user.role === "VENDOR" &&
+      existingProduct.userId !== authResult.user.id
+    ) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
+
+    const resolvedStoreId =
+      storeId ??
+      (Array.isArray(storeIds) ? storeIds[0] : storeIds) ??
+      existingProduct.storeId;
+
+    const updatedProduct = await db.product.update({
+      where: { id },
       data: {
         title,
         slug,
         imageUrl,
-        category: {
-          connect: { id: categoryId },
-        },
-        user: {
-          connect: { id: vendorId },
-        },
-        store: {
-          connect: { id: id },
-        },
+        category: { connect: { id: categoryId } },
+        user: { connect: { id: vendorId ?? existingProduct.userId } },
+        store: { connect: { id: resolvedStoreId } },
         description,
         isActive,
         isWholesale,
@@ -165,23 +135,15 @@ export async function PUT(
         productCode,
         salePrice: parseFloat(salePrice),
         tags,
-        wholesaleQuantity: parseFloat(wholesaleQuantity),
-        wholesalePrice: parseFloat(wholesalePrice),
+        wholesaleQuantity: wholesaleQuantity
+          ? parseFloat(wholesaleQuantity)
+          : null,
+        wholesalePrice: wholesalePrice ? parseFloat(wholesalePrice) : null,
       },
     });
 
-    return NextResponse.json(updatedPoduct);
-  } catch (error) {
-    console.log(error);
-
-    return NextResponse.json(
-      {
-        message: "Unable to update Product",
-        error,
-      },
-      {
-        status: 500,
-      },
-    );
+    return NextResponse.json(updatedProduct);
+  } catch {
+    return apiError("Unable to update product");
   }
 }

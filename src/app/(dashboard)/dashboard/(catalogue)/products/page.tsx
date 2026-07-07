@@ -1,28 +1,48 @@
 import React, { Suspense } from "react";
+
 import Loading from "@/app/loading";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
-import { fetchAllProductsAction } from "@/lib/actions/product-actions";
-import { fetchAllStoresAction } from "@/lib/actions/store-actions";
+import { auth } from "@/auth";
+import { getAllStores } from "@/services/store-service";
+import { getAllProducts } from "@/services/product-service";
+
+import { safeServerRead } from "@/lib/api/resilient-read";
+import { classifyApiErrorFromMessage } from "@/lib/api/api-errors";
 
 import ProductsTable from "./_components/ProductsTable";
 import PageHeader from "../../_components/shared/PageHeader";
+import ContentUnavailable from "@/components/feedback/ContentUnavailable";
 
 const Page = async () => {
-  const session = await getServerSession(authOptions);
-  //GET user data
+  const session = await auth();
+
   const user = session?.user;
 
-  const { data: stores } = await fetchAllStoresAction();
-  const { data: allProducts } = await fetchAllProductsAction();
+  const [stores, products] = await Promise.all([
+    safeServerRead(() => getAllStores(), {
+      source: "products:stores",
+      fallback: null,
+    }),
+    safeServerRead(() => getAllProducts(), {
+      source: "products:list",
+      fallback: null,
+    }),
+  ]);
 
-  const allStoresData = stores ?? [];
-  const allProductsData = allProducts ?? [];
+  if (!stores || !products) {
+    return (
+      <ContentUnavailable
+        reason={classifyApiErrorFromMessage("Failed to fetch products data")}
+        reloadOnRetry
+        variant="inline"
+        showHomeLink={false}
+        className="min-h-[40vh]"
+      />
+    );
+  }
 
   return (
     <>
-      {/* Header */}
       <PageHeader
         heading="Products"
         href="/dashboard/products/new"
@@ -30,12 +50,7 @@ const Page = async () => {
       />
 
       <Suspense fallback={<Loading />}>
-        {/* ProductsTable Component */}
-        <ProductsTable
-          products={allProductsData}
-          stores={allStoresData}
-          user={user}
-        />
+        <ProductsTable products={products} stores={stores} user={user} />
       </Suspense>
     </>
   );

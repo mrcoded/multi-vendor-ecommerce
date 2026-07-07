@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
-import { authOptions } from "@/lib/authOptions";
+import { auth } from "@/auth";
 
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -26,7 +25,6 @@ export async function GET(
 
     return NextResponse.json(store);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -48,7 +46,7 @@ export async function DELETE(
     params: Promise<{ id: string }>;
   },
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user;
 
   try {
@@ -91,7 +89,6 @@ export async function DELETE(
 
     return NextResponse.json(deletedStore);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -115,7 +112,7 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user;
 
     if (!user || user.role === "USER") {
@@ -182,7 +179,6 @@ export async function PUT(
 
     return NextResponse.json(updatedStore);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -195,3 +191,4 @@ export async function PUT(
     );
   }
 }
+

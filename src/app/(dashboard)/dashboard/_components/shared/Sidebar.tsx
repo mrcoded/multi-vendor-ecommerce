@@ -3,11 +3,11 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
 import { signOut, useSession } from "next-auth/react";
 import { ChevronDown, ChevronRight, LogOut, Slack } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 import {
   Collapsible,
@@ -31,14 +31,12 @@ export default function Sidebar({
   const role = (session?.user?.role as keyof typeof ROLE_LINKS) || "USER";
   const links = useMemo(() => ROLE_LINKS[role], [role]);
 
-  // Prevent body scroll when sidebar is open
   useEffect(() => {
     if (showSidebar) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
     }
-    // Cleanup on unmount
     return () => {
       document.body.style.overflow = "unset";
     };
@@ -48,30 +46,28 @@ export default function Sidebar({
     <>
       <div
         className={cn(
-          "fixed inset-0 bg-black/50 z-30 transition-opacity lg:hidden",
-          showSidebar ? "opacity-100 visible" : "opacity-0 invisible",
+          "fixed inset-0 z-30 bg-black/50 transition-opacity lg:hidden",
+          showSidebar ? "visible opacity-100" : "invisible opacity-0",
         )}
-        onClick={() => setShowSidebar(false)} // 🎯 Closes the sidebar when clicking outside
+        onClick={() => setShowSidebar(false)}
         aria-hidden="true"
       />
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen w-64 border-r bg-white dark:bg-slate-900 transition-transform lg:translate-x-0 flex flex-col",
+          "fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-border bg-card transition-transform lg:translate-x-0",
           showSidebar ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        {/* LOGO AREA */}
-        <div className="p-6 border-b">
+        <div className="border-b border-border p-6">
           <Link
             href="/"
-            className="block font-bold text-xl tracking-tight text-lime-600 lg:hidden"
+            className="block text-xl font-bold tracking-wide text-primary"
           >
             Belstore
           </Link>
         </div>
 
-        {/* SCROLLABLE LINKS */}
-        <nav className="flex-1 overflow-y-auto py-4 space-y-1 custom-scrollbar">
+        <nav className="custom-scrollbar flex-1 space-y-1 overflow-y-auto py-4">
           <SidebarLink
             link={SHARED_LINKS.dashboard}
             isActive={pathname === "/dashboard"}
@@ -85,19 +81,19 @@ export default function Sidebar({
               className="px-3"
             >
               <CollapsibleTrigger asChild>
-                <button className="flex items-center justify-between w-full px-3 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                <button className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:bg-muted">
                   <div className="flex items-center gap-3">
-                    <Slack className="w-5 h-5" />
+                    <Slack className="size-5" />
                     <span className="font-medium">Catalogue</span>
                   </div>
                   {openMenu ? (
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className="size-4" />
                   ) : (
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="size-4" />
                   )}
                 </button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-1 mt-1 ml-4 border-l pl-4">
+              <CollapsibleContent className="ml-4 mt-1 space-y-1 border-l border-border pl-4">
                 {links.catalogue.map((link) => (
                   <SidebarLink
                     key={link.href}
@@ -121,15 +117,15 @@ export default function Sidebar({
           ))}
         </nav>
 
-        {/* LOGOUT AT BOTTOM */}
-        <div className="p-4 border-t">
-          <button
+        <div className="border-t border-border p-4">
+          <Button
+            variant="outline"
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="flex items-center gap-3 w-full px-2 xl:px-4 py-3 bg-lime-600 hover:bg-lime-700 text-white rounded-xl font-bold transition-all shadow-sm"
+            className="w-full gap-2 rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
+            <LogOut className="size-4" />
+            Logout
+          </Button>
         </div>
       </aside>
     </>
@@ -142,7 +138,11 @@ function SidebarLink({
   isSublink,
   onClick,
 }: {
-  link: any;
+  link: {
+    href: string;
+    title: string;
+    icon: React.ComponentType<{ className?: string }>;
+  };
   isActive: boolean;
   isSublink?: boolean;
   onClick: () => void;
@@ -152,18 +152,18 @@ function SidebarLink({
       href={link.href}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 px-6 py-2.5 transition-all relative group",
+        "group relative flex items-center gap-3 px-6 py-2.5 transition-all",
         isActive
-          ? "text-lime-600 font-semibold bg-lime-50/50 dark:bg-lime-900/10"
-          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white",
+          ? "bg-primary/10 font-semibold text-primary"
+          : "text-muted-foreground hover:text-foreground",
         isSublink && "px-3 py-1.5 text-sm",
       )}
     >
       {isActive && (
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-lime-500 rounded-r-full" />
+        <div className="absolute bottom-0 left-0 top-0 w-1 rounded-r-full bg-primary" />
       )}
       <link.icon
-        className={cn("w-5 h-5", isActive ? "text-lime-500" : "opacity-70")}
+        className={cn("size-5", isActive ? "text-primary" : "opacity-70")}
       />
       <span>{link.title}</span>
     </Link>

@@ -54,7 +54,7 @@ function VendorDashboard({
         <div
           role="alert"
           id="alert-additional-content-1"
-          className="p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"
+          className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-destructive"
         >
           <div className="flex items-center">
             <Info className="flex shrink-0 size-4 me-2" />

@@ -1,49 +1,47 @@
 import Link from "next/link";
 import React from "react";
-import { ShoppingCart, ArrowLeft } from "lucide-react";
+import { ArrowRight, ShoppingBag } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 function EmptyCart() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
-      <div className="relative mb-6">
-        <div className="absolute inset-0 scale-150 bg-lime-100 dark:bg-lime-900/20 rounded-full blur-3xl opacity-50" />
-        <div className="relative flex items-center justify-center w-24 h-24 bg-white dark:bg-slate-900 rounded-full shadow-xl border border-slate-100 dark:border-slate-800">
-          <ShoppingCart
-            className="w-10 h-10 text-slate-400 dark:text-slate-500"
-            strokeWidth={1.5}
-          />
-          <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full border-4 border-white dark:border-slate-900 flex items-center justify-center">
-            <span className="text-[10px] text-white font-bold">0</span>
+    <Card className="mx-auto max-w-md border-border/80 shadow-none">
+      <CardContent className="flex flex-col items-center px-6 py-12 text-center sm:py-16">
+        <div className="relative mb-5">
+          <div className="absolute inset-0 scale-150 rounded-full bg-primary/15 blur-2xl" />
+          <div className="relative flex size-20 items-center justify-center rounded-2xl border border-border bg-secondary/80">
+            <ShoppingBag className="size-9 text-primary" strokeWidth={1.5} />
           </div>
         </div>
-      </div>
 
-      <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">
-        Your cart feels a bit light
-      </h2>
-      <p className="text-slate-500 dark:text-slate-400 max-w-md mb-8 leading-relaxed">
-        It looks like you haven't added anything to your cart yet. Explore our
-        latest arrivals and find something you love!
-      </p>
+        <h2 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+          Your cart is empty
+        </h2>
+        <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
+          Browse our catalog and add items you love — they&apos;ll show up here
+          when you&apos;re ready to checkout.
+        </p>
 
-      {/* Call to Action */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center gap-2 px-5 sm:px-8 py-2 sm:py-3 bg-lime-600 hover:bg-lime-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-lime-600/20 active:scale-95"
-        >
-          <ShoppingCart className="w-4 h-4" />
-          Start Shopping
-        </Link>
-      </div>
+        <Button asChild variant="accent" size="sm" className="mt-6">
+          <Link href="/">
+            Browse products
+            <ArrowRight className="size-4" />
+          </Link>
+        </Button>
 
-      <p className="mt-12 text-sm text-slate-400 flex items-center gap-1">
-        Need help?{" "}
-        <Link href="#" className="underline hover:text-lime-600">
-          Contact Support
-        </Link>
-      </p>
-    </div>
+        <p className="mt-8 text-xs text-muted-foreground">
+          Need help?{" "}
+          <Link
+            href="#"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
+            Contact support
+          </Link>
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 

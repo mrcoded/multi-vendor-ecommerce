@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { Filter } from "lucide-react";
 
 import { columns } from "../columns";
 import { StoreFilter } from "./StoreFilter";
@@ -8,6 +9,7 @@ import { DataTable } from "@/components/tables/DataTable/page";
 
 import { StoreProps } from "@/types/store";
 import { ProductFormData } from "@/types/products";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function ProductsTable({
   user,
@@ -20,15 +22,12 @@ export default function ProductsTable({
 }) {
   const [selectedStoreId, setSelectedStoreId] = useState<string>("all");
 
-  //Filter by vendorId => to get products for this vendor
   const vendorProducts = products.filter(
     (product: { userId?: string }) => product.userId === user?.id,
   );
 
-  //Get products by user role
   const productsData = user?.role === "ADMIN" ? products : vendorProducts;
 
-  //Filter products based on the dropdown selection
   const filteredProducts = useMemo(() => {
     if (selectedStoreId === "all") {
       return productsData;
@@ -38,30 +37,28 @@ export default function ProductsTable({
     );
   }, [selectedStoreId, productsData]);
 
-  //Filter by vendorId => to get stores for this vendor
   const vendorStores = stores.filter(
     (store: { vendorId: string }) => store.vendorId === user?.id,
   );
 
-  //Get stores by user role
   const storesDataByRole = user?.role === "ADMIN" ? stores : vendorStores;
 
   return (
-    <div>
-      <div className="flex items-center gap-2 justify-end">
-        <h1 className="text-xs lg:text-sm font-medium">Filter by Store:</h1>
+    <div className="space-y-4">
+      <Card>
+        <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Filter className="size-4 text-primary" />
+            <span className="font-medium text-foreground">Filter by store</span>
+          </div>
+          <StoreFilter
+            stores={storesDataByRole}
+            onStoreChange={(id) => setSelectedStoreId(id)}
+          />
+        </CardContent>
+      </Card>
 
-        {/* The Dropdown Component */}
-        <StoreFilter
-          stores={storesDataByRole}
-          onStoreChange={(id) => setSelectedStoreId(id)}
-        />
-      </div>
-
-      {/* The DataTable now only sees the filtered results */}
-      <div className="py-1">
-        <DataTable data={filteredProducts} columns={columns} />
-      </div>
+      <DataTable data={filteredProducts} columns={columns} />
     </div>
   );
 }

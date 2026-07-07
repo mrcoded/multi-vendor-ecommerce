@@ -21,7 +21,6 @@ export async function GET(
 
     return NextResponse.json(staff);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -74,7 +73,6 @@ export async function DELETE(
 
     return NextResponse.json(deletedStaff);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -87,3 +85,4 @@ export async function DELETE(
     );
   }
 }
+

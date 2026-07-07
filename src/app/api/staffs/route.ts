@@ -30,7 +30,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newStaff);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -57,7 +56,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(staffs);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -70,3 +68,4 @@ export async function GET(request: Request) {
     );
   }
 }
+

@@ -1,29 +1,42 @@
 import React, { Suspense } from "react";
 import Loading from "@/app/loading";
+import { auth } from "@/auth";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
-import { fetchAllStoresAction } from "@/lib/actions/store-actions";
+import { getAllStores } from "@/services/store-service";
+import { classifyApiErrorFromMessage } from "@/lib/api/api-errors";
+import ContentUnavailable from "@/components/feedback/ContentUnavailable";
+import { safeServerRead } from "@/lib/api/resilient-read";
 
 import { columns } from "./columns";
 import PageHeader from "../_components/shared/PageHeader";
 import { DataTable } from "@/components/tables/DataTable/page";
 
 const Page = async () => {
-  const session = await getServerSession(authOptions);
-  //GET user
+  const session = await auth();
   const user = session?.user;
 
-  const { data: stores } = await fetchAllStoresAction();
-  const allStores = stores ?? [];
+  const allStores = await safeServerRead(() => getAllStores(), {
+    source: "stores:list",
+    fallback: null,
+  });
+
+  if (!allStores) {
+    return (
+      <ContentUnavailable
+        reason={classifyApiErrorFromMessage("Failed to fetch stores")}
+        reloadOnRetry
+        variant="inline"
+        showHomeLink={false}
+        className="min-h-[40vh]"
+      />
+    );
+  }
 
   const vendorStores = allStores.filter((store) => store.vendorId === user?.id);
-
   const allStoresByRole = user?.role === "ADMIN" ? allStores : vendorStores;
 
   return (
     <div>
-      {/* Header */}
       <PageHeader
         heading="Stores"
         href="/dashboard/stores/new"

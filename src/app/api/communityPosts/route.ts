@@ -1,8 +1,10 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { sanitizeCommunityPostInput } from "@/lib/sanitize-payloads";
 
 export async function POST(request: Request) {
   try {
+    const body = await request.json();
     const {
       title,
       slug,
@@ -11,12 +13,24 @@ export async function POST(request: Request) {
       description,
       isActive,
       content,
-    } = await request.json();
+      id,
+    } = body;
+
+    const safeData = sanitizeCommunityPostInput({
+      id: id ?? "",
+      title,
+      slug,
+      categoryId,
+      imageUrl,
+      description,
+      isActive,
+      content,
+    });
 
     //Check if community post already exists
     const existingStore = await db.communityPost.findUnique({
       where: {
-        slug,
+        slug: safeData.slug,
       },
     });
 
@@ -26,26 +40,24 @@ export async function POST(request: Request) {
           data: null,
           message: "Community post already exists",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     const newCommunityPost = await db.communityPost.create({
       data: {
-        title,
-        slug,
-        categoryId,
-        imageUrl,
-        description,
-        isActive,
-        content,
+        title: safeData.title,
+        slug: safeData.slug,
+        categoryId: safeData.categoryId,
+        imageUrl: safeData.imageUrl,
+        description: safeData.description,
+        isActive: safeData.isActive,
+        content: safeData.content,
       },
     });
 
     return NextResponse.json(newCommunityPost);
   } catch (error) {
-    console.log(error);
-
     return NextResponse.json(
       {
         message: "Unable to create Community Post",
@@ -53,7 +65,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
@@ -68,8 +80,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(communityPost);
   } catch (error) {
-    console.log(error);
-
     return NextResponse.json(
       {
         message: "Unable to fetch Community Posts",
@@ -77,7 +87,7 @@ export async function GET(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

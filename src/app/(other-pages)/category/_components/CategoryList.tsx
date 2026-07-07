@@ -1,8 +1,12 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 
 import { CategoryProps } from "@/types/category";
+
+import { Button } from "@/components/ui/button";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import CategoryCarousel from "@/components/carousels/CategoryCarousel";
+import CategoryListsSkeleton from "@/components/feedback/skeletons/CategoryListsSkeleton";
 
 function CategoryList({
   storeId,
@@ -10,6 +14,7 @@ function CategoryList({
   isStorePage,
 }: {
   storeId?: string;
+  storeSlug?: string;
   category: CategoryProps | null | undefined;
   isStorePage?: boolean;
 }) {
@@ -17,25 +22,42 @@ function CategoryList({
     ? category?.products.filter((product) => product.storeId === storeId)
     : category?.products;
 
-  return (
-    <div className="bg-white border border-gray-300 dark:bg-gray-700 dark:border-gray-700 rounded-lg text-slate-800 overflow-hidden">
-      <div className="bg-slate-100 dark:bg-gray-800 py-2 sm:py-3 px-6 font-semibold border-b border-gray-300 dark:border-gray-600 text-slate-800 dark:text-slate-100 flex justify-between items-center">
-        <h2 className="text-sm md:text-base">{category?.title}</h2>
-        <Link
-          href={`/category/${category?.slug}`}
-          className="px-2 lg:px-4 py-1 lg:py-2 text-sm md:text-base bg-lime-600 hover:bg-lime-800 duration-300 transition-all text-slate-50 rounded-md"
-        >
-          See All
-        </Link>
-      </div>
+  if (!categoryProducts?.length) return null;
 
-      <div className="bg-white dark:bg-slate-700 py-2 sm:p-4">
-        <CategoryCarousel
-          isStorePage={isStorePage}
-          products={categoryProducts}
-        />
-      </div>
-    </div>
+  const seeAllHref = `/category/${category?.slug}`;
+
+  return (
+    <ErrorBoundary variant="inline" showHomeLink={false} showToast>
+      <Suspense fallback={<CategoryListsSkeleton />}>
+        <section className="overflow-hidden rounded-lg border border-border bg-card">
+          <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2 sm:px-3.5">
+            <div className="min-w-0">
+              <h2 className="truncate text-sm font-semibold text-foreground">
+                {category?.title}
+              </h2>
+              {isStorePage && (
+                <p className="text-[10px] text-muted-foreground sm:text-[11px]">
+                  {categoryProducts.length}{" "}
+                  {categoryProducts.length === 1 ? "product" : "products"}
+                </p>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 shrink-0 px-2 text-xs text-accent hover:text-accent sm:h-8 sm:px-2.5"
+              asChild
+            >
+              <Link href={seeAllHref}>See all</Link>
+            </Button>
+          </div>
+
+          <div className="px-1 py-2 sm:px-2 sm:py-2.5">
+            <CategoryCarousel products={categoryProducts} />
+          </div>
+        </section>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 

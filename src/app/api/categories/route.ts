@@ -28,7 +28,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newCategory);
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       {
         message: "Unable to create Category",
@@ -54,7 +53,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(categories);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -67,3 +65,4 @@ export async function GET(request: Request) {
     );
   }
 }
+

@@ -1,8 +1,18 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { auth } from "@/auth";
+import { sanitizeServerError } from "@/lib/api/api-errors";
 
 // Match these to your Prisma Schema roles
 type UserRole = "ADMIN" | "VENDOR" | "USER";
+
+export async function publicQueryAction<T>(fn: () => Promise<T>) {
+  try {
+    const data = await fn();
+    return { success: true as const, data };
+  } catch (error: unknown) {
+    console.error("[QUERY_ERROR]:", error);
+    return { success: false as const, error: sanitizeServerError(error) };
+  }
+}
 
 export async function authenticatedAction<T>(
   actionName: string,
@@ -10,7 +20,7 @@ export async function authenticatedAction<T>(
   callback: (user: { id: string; email: string; role: UserRole }) => Promise<T>,
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user as any;
 
     //Check if user is logged in
@@ -46,11 +56,11 @@ export async function authenticatedAction<T>(
       data,
       message: `${actionName} completed successfully.`,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`[ACTION_ERROR] ${actionName}:`, error);
     return {
       success: false,
-      error: error.message || "A server error occurred.",
+      error: sanitizeServerError(error),
       code: 500,
     };
   }

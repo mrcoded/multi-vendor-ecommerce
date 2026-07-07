@@ -1,18 +1,17 @@
 import React, { Suspense } from "react";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 
 import Loading from "@/app/loading";
-import { authOptions } from "@/lib/authOptions";
 
 import Dashboard from "./_components/Dashboard";
 
 const Page = async () => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user;
 
   return (
     <Suspense fallback={<Loading />}>
-      <Dashboard user={user} />
+      <Dashboard user={user} />;
     </Suspense>
   );
 };

@@ -1,5 +1,7 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/api/api-auth";
+import { getOrdersForUser } from "@/services/order-service.";
 
 interface OrderItemProps {
   id: string;
@@ -25,6 +27,10 @@ function generateOrderNumber(length: number) {
 
 export async function POST(request: Request) {
   try {
+    const authResult = await requireAuth();
+    if (!authResult.ok) return authResult.response;
+
+    const { user } = authResult;
     const { checkoutFormData, orderItems } = await request.json();
     const {
       userId,
@@ -40,40 +46,12 @@ export async function POST(request: Request) {
       paymentMethod,
     } = checkoutFormData;
 
-    // Upsert the customer profile
-    // await db.userProfile.upsert({
-    //   where: {
-    //     userId: userId,
-    //   },
-    //   update: {
-    //     // What to change if they already have a profile
-    //     firstName,
-    //     lastName,
-    //     phone,
-    //     streetAddress,
-    //     city,
-    //     country,
-    //     district,
-    //   },
-    //   // create: {
-    //   //   // What to set if this is their first time
-    //   //   userId,
-    //   //   emailAddress,
-    //   //   firstName,
-    //   //   lastName,
-    //   //   phone,
-    //   //   streetAddress,
-    //   //   city,
-    //   //   country,
-    //   //   district,
-    //   // },
-    // });
+    if (userId !== user.id) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
 
-    //Use the prisma transaction API
     const result = await db.$transaction(
       async (prisma) => {
-        // ATOMIC INVENTORY UPDATE if stock is low.
-        // Process inventory one by one - often more stable for transactions
         for (const item of orderItems) {
           const quantity = parseInt(item.qty);
 
@@ -83,7 +61,6 @@ export async function POST(request: Request) {
           });
         }
 
-        //create order and orderitems within the transaction
         const newOrder = await prisma.order.create({
           data: {
             userId,
@@ -101,7 +78,6 @@ export async function POST(request: Request) {
           },
         });
 
-        //Create Order Item
         const newOrderItems = await prisma.orderItem.createMany({
           data: orderItems.map((item: OrderItemProps) => ({
             productId: item.id,
@@ -109,7 +85,7 @@ export async function POST(request: Request) {
             storeId: item.storeId,
             quantity: parseInt(item.qty),
             price: parseFloat(item.salePrice),
-            orderId: newOrder.id, //associate the order with the item
+            orderId: newOrder.id,
             imageUrl: item.imageUrl,
             title: item.title,
             totalPrice: parseFloat(item.salePrice) * parseInt(item.qty),
@@ -135,50 +111,32 @@ export async function POST(request: Request) {
         return { newOrder, newOrderItems, sales };
       },
       {
-        maxWait: 10000, // 10 seconds to wait for a connection
-        timeout: 30000, // 30 seconds to complete all operations
+        maxWait: 10000,
+        timeout: 30000,
       },
     );
 
     return NextResponse.json(result.newOrder);
-  } catch (error) {
-    console.log(error);
-
+  } catch {
     return NextResponse.json(
-      {
-        message: "Unable to create Order",
-        error,
-      },
-      {
-        status: 500,
-      },
+      { message: "Unable to create Order" },
+      { status: 500 },
     );
   }
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const orders = await db.order.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        orderItems: true,
-      },
-    });
+    const authResult = await requireAuth();
+    if (!authResult.ok) return authResult.response;
+
+    const orders = await getOrdersForUser(authResult.user);
 
     return NextResponse.json(orders);
-  } catch (error) {
-    console.log(error);
-
+  } catch {
     return NextResponse.json(
-      {
-        message: "Unable to fetch Orders",
-        error,
-      },
-      {
-        status: 500,
-      },
+      { message: "Unable to fetch Orders" },
+      { status: 500 },
     );
   }
 }

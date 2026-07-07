@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 
 import { db } from "@/lib/db";
-import { authOptions } from "@/lib/authOptions";
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user;
 
   try {
@@ -57,7 +56,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newStore);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -81,7 +79,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(stores);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -94,3 +91,4 @@ export async function GET(request: Request) {
     );
   }
 }
+

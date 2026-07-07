@@ -1,32 +1,44 @@
 import React, { Suspense } from "react";
-
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { auth } from "@/auth";
 
 import { columns } from "./columns";
 import { DataTable } from "@/components/tables/DataTable/page";
+import { getAllCoupons } from "@/services/coupon-service";
+import {
+  classifyApiErrorFromMessage,
+  sanitizeServerError,
+} from "@/lib/api/api-errors";
+import ContentUnavailable from "@/components/feedback/ContentUnavailable";
 
 import Loading from "@/app/loading";
 import PageHeader from "../../_components/shared/PageHeader";
-import { getAllCoupons } from "@/services/coupon-service";
 import { RowDatas } from "@/types/table";
 
 const Page = async () => {
-  const session = await getServerSession(authOptions);
-  //GET userID and Role
+  const session = await auth();
   const user = session?.user;
 
-  const coupons = await getAllCoupons();
+  let coupons: Awaited<ReturnType<typeof getAllCoupons>>;
 
-  //Filter by vendorId => to get coupons for this vendor
+  try {
+    coupons = await getAllCoupons();
+  } catch (error) {
+    return (
+      <ContentUnavailable
+        reason={classifyApiErrorFromMessage(sanitizeServerError(error))}
+        reloadOnRetry
+        variant="inline"
+        showHomeLink={false}
+        className="min-h-[40vh]"
+      />
+    );
+  }
+
   const vendorCoupons = coupons.filter(
     (coupon: { vendorId: string }) => coupon.vendorId === user?.id,
   );
-
-  //Get stores by user role
   const couponsDataByRole = user?.role === "ADMIN" ? coupons : vendorCoupons;
 
-  //Convert Date fields to strings for RowDatas compatibility
   const formattedCoupons = couponsDataByRole.map((coupon) => ({
     ...coupon,
     expiryDate: coupon.expiryDate.toISOString().split("T")[0],
@@ -38,7 +50,6 @@ const Page = async () => {
 
   return (
     <div>
-      {/* Header */}
       <PageHeader
         heading="Coupons"
         href="/dashboard/coupons/new"

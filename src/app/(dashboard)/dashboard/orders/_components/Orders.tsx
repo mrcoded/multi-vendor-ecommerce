@@ -1,41 +1,85 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { User } from "next-auth";
-import { useSearchParams } from "next/navigation";
+import { ShoppingBag } from "lucide-react";
 
 import { useVendor } from "@/hooks/useVendor";
 import { useOrders } from "@/hooks/useOrders";
 
 import OrderCard from "./OrderCard";
 import Paginate from "@/components/Filters/Paginate";
+import AsyncContent from "@/components/feedback/AsyncContent";
 
 const Orders = ({ user }: { user?: User | undefined }) => {
-  const searchParams = useSearchParams();
-  const currentPage = parseInt(searchParams.get("page") || "1");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const vendorData = useVendor(user?.id);
-  const { data: orders } = useOrders();
+  const {
+    data: vendor,
+    isLoading: vendorLoading,
+    isError: vendorError,
+    refetch: refetchVendor,
+  } = useVendor(user?.role === "VENDOR" ? user?.id : undefined);
+  const {
+    data: orders,
+    isLoading: ordersLoading,
+    isError: ordersError,
+    refetch: refetchOrders,
+  } = useOrders();
 
-  if (!orders) return <div>Loading...</div>;
+  const isLoading = ordersLoading || (user?.role === "VENDOR" && vendorLoading);
+  const isError = ordersError || (user?.role === "VENDOR" && vendorError);
 
-  const vendorId = vendorData?.data?.id;
+  const handleRetry = () => {
+    if (ordersError) refetchOrders();
+    if (user?.role === "VENDOR" && vendorError) refetchVendor();
+  };
 
-  const allOrders = orders?.data ?? [];
+  return (
+    <AsyncContent
+      isLoading={isLoading}
+      isError={isError}
+      onRetry={handleRetry}
+      loadingLabel="Loading orders..."
+      variant="inline"
+      showHomeLink={false}
+    >
+      <OrdersList
+        user={user}
+        orders={orders}
+        vendorId={vendor?.id}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
+    </AsyncContent>
+  );
+};
 
-  //Filter by userId
+function OrdersList({
+  user,
+  orders,
+  vendorId,
+  currentPage,
+  onPageChange,
+}: {
+  user?: User;
+  orders: ReturnType<typeof useOrders>["data"];
+  vendorId?: string;
+  currentPage: number;
+  onPageChange: (page: number) => void;
+}) {
+  const allOrders = orders ?? [];
+
   const userOrders = allOrders.filter(
     (order: { userId: string }) => order.userId === user?.id,
   );
 
-  //Filter by vendorId
   const vendorOrders = allOrders.filter((order) =>
     order.orderItems.find(
       (item: { vendorId: string }) => item.vendorId === vendorId,
     ),
   );
 
-  // Filter by Role (User vs Vendor)
   const getOrdersByRole =
     user?.role === "VENDOR"
       ? vendorOrders
@@ -43,49 +87,62 @@ const Orders = ({ user }: { user?: User | undefined }) => {
         ? userOrders
         : allOrders;
 
-  //PAGINATION LOGIC
   const pageSize = 9;
-  const productCount = getOrdersByRole.length; // Use filtered count, not allOrders
+  const productCount = getOrdersByRole.length;
   const totalPages = Math.ceil(productCount / pageSize);
 
-  // Slice the array
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const currentOrders = getOrdersByRole.slice(startIndex, endIndex);
 
   return (
-    <section className="xl:py-4 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div className="">
-            <h1 className="text-2xl font-bold dark:text-muted-foreground text-gray-900 sm:text-3xl">
-              Your Orders
-            </h1>
-            <p className="mt-2 text-sm font-normal dark:text-muted-foreground text-gray-600">
-              Check the status of recent and old orders & discover more products
+    <section className="min-h-[60vh] py-2 xl:py-4">
+      <div className="mx-auto max-w-7xl">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
+          <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
+            Your Orders
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Track recent and past orders, or discover more products.
+          </p>
+          {productCount > 0 && (
+            <p className="mt-3 text-xs font-medium text-primary">
+              {productCount} order{productCount !== 1 ? "s" : ""} total
             </p>
-          </div>
+          )}
         </div>
 
-        {/* Orders List */}
-        <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mt-8 lg:mt-12 ">
-          {currentOrders?.length > 0 ? (
-            currentOrders.map((order, i) => <OrderCard key={i} order={order} />)
+        <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-12 xl:grid-cols-3">
+          {currentOrders.length > 0 ? (
+            currentOrders.map((order) => (
+              <OrderCard key={order.id} order={order} />
+            ))
           ) : (
-            <div className="col-span-full text-center py-20 bg-white rounded-lg border border-dashed border-gray-300">
-              <p className="text-gray-500">No orders found.</p>
-            </div>
+            <li className="col-span-full">
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card py-20 text-center">
+                <ShoppingBag className="mb-4 size-12 text-muted-foreground/40" />
+                <p className="font-medium text-foreground">No orders found</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Orders will appear here once placed.
+                </p>
+              </div>
+            </li>
           )}
         </ul>
 
-        {/* Pagination Section */}
-        <div className="mt-5 xl:mt-12 flex justify-center">
-          <Paginate totalPages={totalPages} productCount={productCount} />
-        </div>
+        {totalPages > 1 && (
+          <div className="mt-8 border-t border-border pt-8 lg:mt-12">
+            <Paginate
+              totalPages={totalPages}
+              productCount={productCount}
+              currentPage={currentPage}
+              onPageChange={onPageChange}
+            />
+          </div>
+        )}
       </div>
     </section>
   );
-};
+}
 
 export default Orders;

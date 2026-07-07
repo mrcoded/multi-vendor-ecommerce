@@ -43,9 +43,23 @@ export const columns: ColumnDef<RowDatas>[] = [
     header: "Product Image",
     cell: ({ row }) => <ImageColumn row={row} accessorKey="productImageUrl" />,
   },
-  { accessorKey: "productPrice", header: "Price" },
+  {
+    accessorKey: "productPrice",
+    header: "Price",
+    cell: ({ row }) => {
+      const value = Number(row.getValue("productPrice"));
+      return `$${(Number.isFinite(value) ? value : 0).toFixed(2)}`;
+    },
+  },
   { accessorKey: "productQty", header: "Qty" },
-  { accessorKey: "total", header: "Total" },
+  {
+    accessorKey: "total",
+    header: "Total",
+    cell: ({ row }) => {
+      const value = Number(row.getValue("total"));
+      return `$${(Number.isFinite(value) ? value : 0).toFixed(2)}`;
+    },
+  },
   {
     accessorKey: "createdAt",
     header: "Date Created",
