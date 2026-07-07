@@ -20,7 +20,6 @@ export async function GET(
 
     return NextResponse.json(communityPost);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -33,3 +32,4 @@ export async function GET(
     );
   }
 }
+

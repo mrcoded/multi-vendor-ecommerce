@@ -15,11 +15,9 @@ export async function POST(request: Request) {
         vendorId,
       },
     });
-    console.log(newCoupon);
 
     return NextResponse.json(newCoupon);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -43,7 +41,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(coupons);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -56,3 +53,4 @@ export async function GET(request: Request) {
     );
   }
 }
+

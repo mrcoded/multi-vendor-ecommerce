@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { sanitizeCommunityPostInput } from "@/lib/sanitize-payloads";
 
 export async function GET(
   request: Request,
@@ -20,8 +21,6 @@ export async function GET(
 
     return NextResponse.json(communityPost);
   } catch (error) {
-    console.log(error);
-
     return NextResponse.json(
       {
         message: "Unable to fetch Community Post",
@@ -71,8 +70,6 @@ export async function DELETE(
 
     return NextResponse.json(deletedcommunityPost);
   } catch (error) {
-    console.log(error);
-
     return NextResponse.json(
       {
         message: "Unable to Delete Community Post",
@@ -96,15 +93,11 @@ export async function PUT(
   try {
     const { id } = await params;
 
-    const {
-      title,
-      slug,
-      categoryId,
-      imageUrl,
-      description,
-      isActive,
-      content,
-    } = await request.json();
+    const body = await request.json();
+    const safeData = sanitizeCommunityPostInput({
+      id,
+      ...body,
+    });
 
     const existingcommunityPost = await db.communityPost.findUnique({
       where: {
@@ -127,20 +120,18 @@ export async function PUT(
         id,
       },
       data: {
-        title,
-        slug,
-        categoryId,
-        imageUrl,
-        description,
-        isActive,
-        content,
+        title: safeData.title,
+        slug: safeData.slug,
+        categoryId: safeData.categoryId,
+        imageUrl: safeData.imageUrl,
+        description: safeData.description,
+        isActive: safeData.isActive,
+        content: safeData.content,
       },
     });
 
     return NextResponse.json(updatedcommunityPost);
   } catch (error) {
-    console.log(error);
-
     return NextResponse.json(
       {
         message: "Unable to update Community Post",

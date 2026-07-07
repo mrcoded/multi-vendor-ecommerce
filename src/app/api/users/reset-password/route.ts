@@ -1,54 +1,43 @@
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { apiError } from "@/lib/api/api-auth";
 
 export async function PUT(request: Request) {
   try {
-    //extract the data
-    const { password, id } = await request.json();
+    const { password, id, token } = await request.json();
 
-    //check if user already exists in the db
-    const user = await db.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) {
+    if (!password || !id || !token) {
       return NextResponse.json(
-        {
-          data: null,
-          message: "User Not Found",
-        },
-        { status: 404 },
+        { message: "Password, user id, and reset token are required" },
+        { status: 400 },
       );
     }
-    //Encrypt password with bcrypt
-    const hashedPassword = await bcrypt.hash(password, 16);
 
-    //Update a user in the DB
+    const user = await db.user.findUnique({ where: { id } });
+
+    if (!user || !user.verificationToken || user.verificationToken !== token) {
+      return NextResponse.json(
+        { message: "Invalid or expired reset link" },
+        { status: 400 },
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
     await db.user.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
         password: hashedPassword,
+        verificationToken: null,
       },
     });
 
     return NextResponse.json(
-      { data: null, message: "Password Reset Successful" },
-      { status: 201 },
+      { message: "Password reset successful" },
+      { status: 200 },
     );
-  } catch (error) {
-    console.log(error);
-
-    return NextResponse.json(
-      {
-        message: "Unable to Reset User Password",
-        error,
-      },
-      {
-        status: 500,
-      },
-    );
+  } catch {
+    return apiError("Unable to reset password");
   }
 }

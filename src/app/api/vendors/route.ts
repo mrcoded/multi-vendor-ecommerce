@@ -53,7 +53,6 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -83,7 +82,6 @@ export async function GET() {
 
     return NextResponse.json(vendors);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -96,3 +94,4 @@ export async function GET() {
     );
   }
 }
+

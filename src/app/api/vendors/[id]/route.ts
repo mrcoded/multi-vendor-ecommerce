@@ -1,129 +1,68 @@
 import { db } from "@/lib/db";
-import { authOptions } from "@/lib/authOptions";
-
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import { apiError, publicUserSelect, requireAuth } from "@/lib/api/api-auth";
 
 export async function GET(
-  request: Request,
-  {
-    params,
-  }: {
-    params: Promise<{ id: string }>;
-  },
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
 
     const vendor = await db.user.findUnique({
-      where: {
-        id,
-      },
-      include: {
+      where: { id },
+      select: {
+        ...publicUserSelect,
         vendorProfile: true,
       },
     });
 
-    return NextResponse.json(vendor);
-  } catch (error) {
-    console.log(error);
+    if (!vendor) {
+      return NextResponse.json(
+        { message: "Vendor not found" },
+        { status: 404 },
+      );
+    }
 
-    return NextResponse.json(
-      {
-        message: "Unable to fetch Vendor",
-        error,
-      },
-      {
-        status: 500,
-      },
-    );
+    return NextResponse.json(vendor);
+  } catch {
+    return apiError("Unable to fetch vendor");
   }
 }
 
 export async function DELETE(
-  request: Request,
-  {
-    params,
-  }: {
-    params: Promise<{ id: string }>;
-  },
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getServerSession(authOptions);
-  const user = session?.user;
-
-  if (!user || user.role === "USER") {
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Unauthorized",
-      },
-      { status: 401 },
-    );
-  }
+  const authResult = await requireAuth(["ADMIN"]);
+  if (!authResult.ok) return authResult.response;
 
   try {
     const { id } = await params;
 
-    const existingUser = await db.user.findUnique({
-      where: {
-        id,
-      },
-    });
-
+    const existingUser = await db.user.findUnique({ where: { id } });
     if (!existingUser) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "User Not Found",
-        },
-        {
-          status: 404,
-        },
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const deletedUser = await db.user.delete({
-      where: {
-        id,
-      },
-    });
-
+    const deletedUser = await db.user.delete({ where: { id } });
     return NextResponse.json(deletedUser);
-  } catch (error) {
-    console.log(error);
-
-    return NextResponse.json(
-      {
-        message: "Unable to Delete User",
-        error,
-      },
-      {
-        status: 500,
-      },
-    );
+  } catch {
+    return apiError("Unable to delete user");
   }
 }
 
 export async function PUT(
   request: Request,
-  {
-    params,
-  }: {
-    params: Promise<{ id: string }>;
-  },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const session = await getServerSession(authOptions);
-  const user = session?.user;
+  const authResult = await requireAuth(["ADMIN", "VENDOR"]);
+  if (!authResult.ok) return authResult.response;
 
-  if (!user || user.role === "USER") {
-    return NextResponse.json(
-      {
-        data: null,
-        message: "Unauthorized",
-      },
-      { status: 401 },
-    );
+  if (authResult.user.role === "VENDOR" && authResult.user.id !== id) {
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }
 
   try {
@@ -133,8 +72,6 @@ export async function PUT(
       email,
       firstName,
       lastName,
-      status,
-      emailVerified,
       notes,
       phone,
       physicalAddress,
@@ -142,58 +79,34 @@ export async function PUT(
       isActive,
       imageUrl,
       products,
-      userId,
     } = await request.json();
 
-    const existingUser = await db.user.findUnique({
-      where: {
-        id,
-      },
-    });
-
+    const existingUser = await db.user.findUnique({ where: { id } });
     if (!existingUser) {
-      return NextResponse.json(
-        {
-          data: null,
-          message: "User not found",
-        },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const updatedUser = await db.user.update({
-      where: {
-        id: user.id,
-      },
+    await db.user.update({
+      where: { id },
       data: {
-        emailVerified: true,
-        status: isActive,
+        status: typeof isActive === "boolean" ? isActive : existingUser.status,
       },
     });
-    console.log(updatedUser);
+
     const existingVendor = await db.vendorProfile.findUnique({
-      where: { userId: existingUser.id },
+      where: { userId: id },
     });
 
     if (!existingVendor) {
       return NextResponse.json(
-        {
-          data: null,
-          message: "Vendor User not found",
-        },
+        { message: "Vendor profile not found" },
         { status: 404 },
       );
     }
 
     const updatedVendor = await db.vendorProfile.update({
-      where: {
-        userId: id,
-      },
-      // include: {
-      //   vendorProfile: true,
-      // },
+      where: { userId: id },
       data: {
-        // code: session?.user?.name,
         contactPerson,
         contactPersonPhone,
         email: email || existingUser.email,
@@ -203,25 +116,13 @@ export async function PUT(
         phone,
         physicalAddress,
         terms,
-        // isActive,
         imageUrl,
         products,
-        // userId: existingUser.id,
       },
     });
 
     return NextResponse.json(updatedVendor);
-  } catch (error) {
-    console.log(error);
-
-    return NextResponse.json(
-      {
-        message: "Unable to update Vendor",
-        error,
-      },
-      {
-        status: 500,
-      },
-    );
+  } catch {
+    return apiError("Unable to update vendor");
   }
 }

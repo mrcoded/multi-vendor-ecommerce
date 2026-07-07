@@ -1,15 +1,15 @@
+import { CATALOG_PAGE_SIZE } from "@/constants/catalog";
 import { db } from "@/lib/db";
-import { authOptions } from "@/lib/authOptions";
-import { revalidateTag } from "next/cache";
+import { auth } from "@/auth";
+import { CACHE_TAGS, purgeCacheTag } from "@/lib/api/cache";
 
 import { Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export const revalidate = 30;
 
 export async function GET(request: NextRequest) {
-  const pageSize = 10;
+  const pageSize = CATALOG_PAGE_SIZE;
   const { searchParams } = request.nextUrl;
 
   const min = searchParams.get("min");
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   const userId = session?.user?.id;
   if (!userId || session?.user?.role === "USER") {
@@ -149,13 +149,12 @@ export async function POST(request: Request) {
 
     // invalidate store products specific cache tag
     stores.forEach((store) => {
-      revalidateTag(`store-${store.slug}`);
+      purgeCacheTag(CACHE_TAGS.store(store.slug));
     });
+    purgeCacheTag(CACHE_TAGS.productsList);
 
     return NextResponse.json(createdProduct);
   } catch (error) {
-    console.log(error);
-
     return NextResponse.json(
       {
         message: "Unable to create Product",

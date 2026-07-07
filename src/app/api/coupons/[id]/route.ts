@@ -20,7 +20,6 @@ export async function GET(
 
     return NextResponse.json(coupon);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -71,7 +70,6 @@ export async function DELETE(
 
     return NextResponse.json(deletedCoupon);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -123,7 +121,6 @@ export async function PUT(
 
     return NextResponse.json(updatedCoupon);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -136,3 +133,4 @@ export async function PUT(
     );
   }
 }
+

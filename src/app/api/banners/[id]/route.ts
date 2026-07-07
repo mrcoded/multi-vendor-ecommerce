@@ -16,7 +16,6 @@ export async function GET(
 
     return NextResponse.json(banner);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -63,7 +62,6 @@ export async function DELETE(
 
     return NextResponse.json(deletedBanner);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -115,7 +113,6 @@ export async function PUT(
 
     return NextResponse.json(updatedBanner);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -128,3 +125,4 @@ export async function PUT(
     );
   }
 }
+

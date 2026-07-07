@@ -16,7 +16,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newBanner);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -40,7 +39,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(banners);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -53,3 +51,4 @@ export async function GET(request: Request) {
     );
   }
 }
+

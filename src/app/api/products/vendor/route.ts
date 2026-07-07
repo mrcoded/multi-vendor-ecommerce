@@ -1,11 +1,10 @@
-import { authOptions } from "@/lib/authOptions";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user;
 
     const product = await db.product.findMany({
@@ -16,7 +15,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(product);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -29,3 +27,4 @@ export async function GET(request: Request) {
     );
   }
 }
+
