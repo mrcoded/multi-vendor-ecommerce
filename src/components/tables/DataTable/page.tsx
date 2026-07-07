@@ -73,42 +73,42 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="flex-1 flex flex-col space-y-4">
-      <DataTableToolbar
-        table={table}
-        filterKeys={filterKeys}
-        columnKey={(columns[1] as { accessorKey: string }).accessorKey}
-      />
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader className="text-primary">
+    <div className="flex flex-1 flex-col space-y-4">
+      <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+        <DataTableToolbar
+          table={table}
+          filterKeys={filterKeys}
+          columnKey={(columns[1] as { accessorKey: string }).accessorKey}
+        />
+      </div>
+
+      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
+        <Table className="min-w-[640px]">
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      colSpan={header.colSpan}
-                      className={cn(
-                        // Hide everything except the first two columns (Checkbox and Title) and the last (Actions)
-                        header.id !== "select" &&
-                          header.id !== "title" &&
-                          header.id !== "productTitle" &&
-                          header.id !== "name" &&
-                          header.id !== "actions"
-                          ? "hidden sm:table-cell"
-                          : "",
-                      )}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    className={cn(
+                      header.id !== "select" &&
+                        header.id !== "title" &&
+                        header.id !== "productTitle" &&
+                        header.id !== "name" &&
+                        header.id !== "actions"
+                        ? "hidden sm:table-cell"
+                        : "",
+                    )}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
@@ -123,7 +123,6 @@ export function DataTable<TData, TValue>({
                     <TableCell
                       key={cell.id}
                       className={cn(
-                        // Match the logic used in the Header
                         cell.column.id !== "select" &&
                           cell.column.id !== "title" &&
                           cell.column.id !== "name" &&
@@ -142,19 +141,22 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : (
-              <TableRow>
+              <TableRow className="hover:bg-transparent">
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center text-primary"
+                  className="h-32 text-center text-muted-foreground"
                 >
-                  No results.
+                  No results found.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+
+      <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+        <DataTablePagination table={table} />
+      </div>
     </div>
   );
 }
