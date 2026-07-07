@@ -1,14 +1,12 @@
 import React, { Suspense } from "react";
-
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { auth } from "@/auth";
 
 import Loading from "@/app/loading";
 import VendorForm from "@/components/forms/VendorForm";
 import FormHeader from "@/app/(dashboard)/dashboard/_components/shared/FormHeader";
 
 const NewVendor = async () => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user;
 
   return (

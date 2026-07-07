@@ -1,18 +1,30 @@
 "use client";
 
-import React from "react";
 import { columns } from "./columns";
-import { DataTable } from "@/components/tables/DataTable/page";
+
 import { useVendors } from "@/hooks/useVendor";
 
+import { DataTable } from "@/components/tables/DataTable/page";
+import AsyncContent from "@/components/feedback/AsyncContent";
+
 const VendorsTable = () => {
-  const { data: vendorProfile } = useVendors();
-  const vendors = vendorProfile?.data ?? [];
+  const { data: vendors, isLoading, isError, refetch } = useVendors();
+
+  const vendorRows = Array.isArray(vendors) ? vendors : [];
 
   return (
-    <div className="py-1">
-      <DataTable data={vendors} columns={columns} filterKeys={["name"]} />
-    </div>
+    <AsyncContent
+      isLoading={isLoading}
+      isError={isError}
+      onRetry={() => refetch()}
+      loadingLabel="Loading vendors..."
+      variant="inline"
+      showHomeLink={false}
+    >
+      <div className="py-1">
+        <DataTable data={vendorRows} columns={columns} filterKeys={["name"]} />
+      </div>
+    </AsyncContent>
   );
 };
 

@@ -74,15 +74,15 @@ function WeeklySalesChart({
       title: "Sales (Avg)",
       type: "sales",
       data: weeklyData.averageSales,
-      borderColor: "rgb(255, 99, 132)",
-      backgroundColor: "rgba(255, 99, 132, 0.2)",
+      borderColor: "hsl(25, 95%, 50%)",
+      backgroundColor: "hsla(25, 95%, 50%, 0.15)",
     },
     {
       title: "Orders",
       type: "orders",
       data: weeklyData.orderBuckets,
-      borderColor: "rgb(34, 197, 94)",
-      backgroundColor: "rgba(34, 197, 94, 0.2)",
+      borderColor: "hsl(84 65% 38%)",
+      backgroundColor: "hsla(84, 65%, 38%, 0.2)",
     },
   ];
 
@@ -107,21 +107,21 @@ function WeeklySalesChart({
   const hasData = activeTab.data.some((val) => val > 0);
 
   return (
-    <div className="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-      <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-50">
+    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center lg:flex-col xl:flex-row">
+        <h2 className="text-lg font-bold text-foreground">
           Performance Overview
         </h2>
 
-        <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-lg w-full sm:w-auto">
+        <div className="flex w-full rounded-lg bg-muted p-1 sm:w-auto">
           {tabs.map((tab) => (
             <button
               key={tab.type}
               onClick={() => setChartToDisplay(tab.type)}
-              className={`flex-1 sm:flex-none px-6 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+              className={`flex-1 rounded-md px-6 py-2 text-sm font-medium transition-all duration-200 sm:flex-none ${
                 chartToDisplay === tab.type
-                  ? "bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"
+                  ? "bg-card text-accent shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {tab.title}
@@ -141,7 +141,7 @@ function WeeklySalesChart({
             }}
           />
         ) : (
-          <div className="h-full flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg text-slate-400">
+          <div className="flex h-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-border text-muted-foreground">
             <p className="text-sm font-medium">
               No {activeTab.type} activity for this month
             </p>

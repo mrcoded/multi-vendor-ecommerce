@@ -1,9 +1,6 @@
 import React, { Suspense } from "react";
 import { notFound } from "next/navigation";
-
-import { getServerSession } from "next-auth";
-
-import { authOptions } from "@/lib/authOptions";
+import { auth } from "@/auth";
 
 import Loading from "@/app/loading";
 import VendorForm from "@/components/forms/VendorForm";
@@ -14,7 +11,7 @@ const UpdateVendor = async ({
 }: {
   params: Promise<{ id: string }>;
 }) => {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user;
 
   const { id: vendorId } = await params;

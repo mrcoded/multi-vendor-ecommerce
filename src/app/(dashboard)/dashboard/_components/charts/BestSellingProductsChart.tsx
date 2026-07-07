@@ -13,27 +13,39 @@ import { SalesProps } from "@/types/dashboard";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+const CHART_COLORS = [
+  "hsla(84, 65%, 38%, 0.85)",
+  "hsla(25, 95%, 50%, 0.85)",
+  "hsla(84, 40%, 55%, 0.85)",
+  "hsla(25, 80%, 60%, 0.85)",
+  "hsla(0, 0%, 60%, 0.85)",
+];
+
+const CHART_BORDERS = [
+  "hsl(84, 65%, 38%)",
+  "hsl(25, 95%, 50%)",
+  "hsl(84, 40%, 55%)",
+  "hsl(25, 80%, 60%)",
+  "hsl(0, 0%, 60%)",
+];
+
 function BestSellingProductsChart({
   sales = [],
 }: {
   sales: SalesProps["sales"] | undefined;
 }) {
-  const allSales = sales ?? [];
-
   const productData = useMemo(() => {
     const counts: Record<string, number> = {};
 
-    // Count occurrences of each product title
     sales.forEach((sale) => {
       const title = sale.productTitle || "Unknown Product";
       counts[title] = (counts[title] || 0) + 1;
     });
 
-    // Convert to array, sort by count descending, and take top 5
     const sortedProducts = Object.entries(counts)
       .map(([title, count]) => ({ title, count }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 5); // Change this to 4 or 5 as needed
+      .slice(0, 5);
 
     return {
       labels: sortedProducts.map((p) => p.title),
@@ -48,20 +60,8 @@ function BestSellingProductsChart({
       {
         label: "Times Ordered",
         data: productData.values.length > 0 ? productData.values : [1],
-        backgroundColor: [
-          "rgba(132, 204, 22, 0.7)", // Lime (Rank 1)
-          "rgba(34, 197, 94, 0.7)", // Green (Rank 2)
-          "rgba(54, 162, 235, 0.7)", // Blue (Rank 3)
-          "rgba(255, 206, 86, 0.7)", // Yellow (Rank 4)
-          "rgba(255, 99, 132, 0.7)", // Pink (Rank 5)
-        ],
-        borderColor: [
-          "rgba(132, 204, 22, 1)",
-          "rgba(34, 197, 94, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(255, 99, 132, 1)",
-        ],
+        backgroundColor: CHART_COLORS,
+        borderColor: CHART_BORDERS,
         borderWidth: 1,
       },
     ],
@@ -76,7 +76,7 @@ function BestSellingProductsChart({
         labels: {
           usePointStyle: true,
           padding: 15,
-          color: "rgb(156, 163, 175)",
+          color: "hsl(var(--muted-foreground))",
           font: { size: 12 },
         },
       },
@@ -89,20 +89,24 @@ function BestSellingProductsChart({
   };
 
   return (
-    <div className="dark:bg-slate-800 bg-white p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 h-full">
+    <div className="h-full rounded-xl border border-border bg-card p-6 shadow-sm">
       <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-50">
+        <h2 className="text-xl font-bold text-foreground">
           Best Selling Products
         </h2>
-        <p className="text-sm text-slate-500">Based on all-time order volume</p>
+        <p className="text-sm text-muted-foreground">
+          Based on all-time order volume
+        </p>
       </div>
 
-      <div className="h-[300px] md:h-[350px] w-full relative">
+      <div className="relative h-[300px] w-full md:h-[350px]">
         {productData.labels.length > 0 ? (
           <Pie data={data} options={options} />
         ) : (
-          <div className="flex items-center justify-center h-full border-2 border-dashed rounded-lg border-slate-200 dark:border-slate-700">
-            <p className="text-slate-400 text-sm">No order history available</p>
+          <div className="flex h-full items-center justify-center rounded-lg border-2 border-dashed border-border">
+            <p className="text-sm text-muted-foreground">
+              No order history available
+            </p>
           </div>
         )}
       </div>

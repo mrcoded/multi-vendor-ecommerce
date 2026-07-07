@@ -1,14 +1,11 @@
 import React, { Suspense } from "react";
-import { getServerSession } from "next-auth";
-
-import { authOptions } from "@/lib/authOptions";
+import { auth } from "@/auth";
 
 import Orders from "./_components/Orders";
 import Loading from "@/app/loading";
 
 async function OrdersPage() {
-  //Get session
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user;
 
   return (

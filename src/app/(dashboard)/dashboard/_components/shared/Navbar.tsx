@@ -17,34 +17,35 @@ export default function Navbar({
   const { data: session } = useSession();
 
   return (
-    <header className="fixed top-0 right-0 left-0 lg:left-64 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b z-30 px-4 flex items-center justify-between">
+    <header className="fixed left-0 right-0 top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card/95 px-4 backdrop-blur-md sm:px-6 lg:left-64">
       <div className="flex items-center gap-4">
         <button
           onClick={(e) => {
-            e.stopPropagation(); // Prevents the click from bubbling
+            e.stopPropagation();
             setShowSidebar(!showSidebar);
           }}
-          className="p-2 rounded-lg lg:hidden relative z-[70] text-slate-600 dark:text-slate-300"
+          className="relative z-[70] rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
+          aria-label="Toggle sidebar"
         >
           {showSidebar ? (
-            <X className="w-6 h-6" />
+            <X className="size-6" />
           ) : (
-            <AlignJustify className="w-6 h-6" />
+            <AlignJustify className="size-6" />
           )}
         </button>
 
         <Link
           href="/"
-          className="font-bold text-xl tracking-tight text-lime-600 lg:hidden"
+          className="text-xl font-bold tracking-tight text-primary lg:hidden"
         >
           Belstore
         </Link>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         <ThemeSwitcherButton />
         {session && (
-          <div className="border-l pl-4 dark:border-slate-700">
+          <div className="ml-1 flex items-center rounded-xl border border-border bg-muted/30 py-1.5 pl-3 pr-3 sm:ml-2 sm:pl-4 sm:pr-4">
             <UserAvatar user={session.user} />
           </div>
         )}

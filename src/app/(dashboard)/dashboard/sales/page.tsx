@@ -1,37 +1,56 @@
 import React, { Suspense } from "react";
+import { auth } from "@/auth";
 
-import { getServerSession } from "next-auth";
-
-import { authOptions } from "@/lib/authOptions";
-import {
-  fetchAllSalesAction,
-  fetchVendorSalesAction,
-} from "@/lib/actions/order-actions";
-import { fetchVendorByIdAction } from "@/lib/actions/vendor-actions";
+import { getAllSales, getSalesByVendor } from "@/services/order-service.";
+import { getVendorById } from "@/services/vendor-service";
+import { classifyApiErrorFromMessage } from "@/lib/api/api-errors";
+import ContentUnavailable from "@/components/feedback/ContentUnavailable";
+import { RowDatas } from "@/types/table";
 
 import { columns } from "./columns";
 import Loading from "@/app/loading";
 import Heading from "@/components/shared/Heading";
 import { DataTable } from "@/components/tables/DataTable/page";
+import { safeServerRead } from "@/lib/api/resilient-read";
 
 const Page = async () => {
-  const session = await getServerSession(authOptions);
-  //GET user
+  const session = await auth();
   const userId = session?.user?.id;
   const role = session?.user?.role;
 
-  const { data: sales } = await fetchAllSalesAction();
-  const { data: vendor } = await fetchVendorByIdAction(userId);
-  const { data: vendorSales } = await fetchVendorSalesAction(vendor?.data?.id);
+  const allSales = await safeServerRead(() => getAllSales(), {
+    source: "sales:all",
+    fallback: [],
+  });
 
-  const allSales = sales?.data ?? [];
-  const allVendorSales = vendorSales?.data ?? [];
+  let allSalesByRole: RowDatas[] = allSales as RowDatas[];
 
-  const allSalesByRole = role === "ADMIN" ? allSales : allVendorSales;
+  if (role !== "ADMIN" && userId) {
+    const vendor = await safeServerRead(() => getVendorById(userId), {
+      source: "sales:vendor",
+      fallback: null,
+    });
+
+    if (!vendor) {
+      return (
+        <ContentUnavailable
+          reason={classifyApiErrorFromMessage("Vendor not found")}
+          reloadOnRetry
+          variant="inline"
+          showHomeLink={false}
+          className="min-h-[40vh]"
+        />
+      );
+    }
+
+    allSalesByRole = (await safeServerRead(() => getSalesByVendor(vendor.id), {
+      source: "sales:vendor-sales",
+      fallback: [],
+    })) as RowDatas[];
+  }
 
   return (
     <div>
-      {/* Header */}
       <Heading title="Sales" />
       <Suspense fallback={<Loading />}>
         <DataTable data={allSalesByRole} columns={columns} />
