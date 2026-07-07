@@ -6,13 +6,14 @@ import { XCircle } from "lucide-react";
 
 import toast from "react-hot-toast";
 import { UploadDropzone } from "@/lib/uploadthing";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
 interface MultiImageInputProps {
   label: string;
   imageUrls: Array<string>;
   className?: string;
   setImageUrls: React.Dispatch<React.SetStateAction<string[]>>;
-  endpoint: any;
+  endpoint: keyof OurFileRouter;
 }
 
 function MultiImageInput({
@@ -20,7 +21,7 @@ function MultiImageInput({
   imageUrls,
   setImageUrls,
   className = "col-span-full",
-  endpoint = "imageUploader",
+  endpoint,
 }: MultiImageInputProps) {
   const handleImageRemove = (imageIndex: number) => {
     const updatedImages = imageUrls.filter(
@@ -34,7 +35,7 @@ function MultiImageInput({
       <div className="flex justify-between items-center mb-4">
         <label
           htmlFor="product-image"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-slate-50 leading-6"
+          className="mb-2 block text-sm font-medium leading-6 text-foreground"
         >
           {label}
         </label>
@@ -46,7 +47,7 @@ function MultiImageInput({
               <div key={index} className="relative mb-6">
                 <button
                   onClick={() => handleImageRemove(index)}
-                  className="absolute -top-4 -right-2 bg-slate-100 text-slate-900 rounded-full"
+                  className="absolute -right-2 -top-4 rounded-full bg-card text-foreground shadow-sm ring-1 ring-border"
                 >
                   <XCircle />
                 </button>
@@ -56,6 +57,7 @@ function MultiImageInput({
                   width={1000}
                   height={667}
                   unoptimized
+                  priority={index === 0}
                   className="w-full h-32 object-contain"
                 />
               </div>
@@ -74,14 +76,15 @@ function MultiImageInput({
             toast.success("Image uploaded successfully");
           }}
           onUploadError={(error: Error) => {
-            console.log("Upload failed:", error);
             toast.error("Image Upload failed");
           }}
           appearance={{
             container:
-              "border-gray-300 dark:border-gray-600 bg-slate-50 dark:bg-slate-800/50",
-            label: "text-lime-700 dark:text-lime-400",
-            allowedContent: "text-gray-500 dark:text-gray-400",
+              "border-border bg-muted/30 ut-uploading:opacity-60 rounded-lg",
+            label: "text-foreground font-medium",
+            allowedContent: "text-muted-foreground text-xs",
+            button:
+              "bg-primary text-primary-foreground ut-ready:bg-primary ut-uploading:bg-primary/70 ut-readying:bg-primary/50 rounded-md px-4 py-2 text-sm font-medium transition-colors",
           }}
         />
       </div>

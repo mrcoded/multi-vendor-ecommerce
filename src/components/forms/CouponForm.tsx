@@ -58,9 +58,13 @@ const CouponForm = ({ couponId }: { couponId?: string }) => {
 
   useEffect(() => {
     if (coupon) {
+      const iso = coupon.expiryDate
+        ? new Date(coupon.expiryDate).toISOString().split("T")[0]
+        : "";
+
       reset({
         title: coupon.title,
-        expiryDate: formattedDate,
+        expiryDate: iso,
         isActive: coupon.isActive,
       });
     }

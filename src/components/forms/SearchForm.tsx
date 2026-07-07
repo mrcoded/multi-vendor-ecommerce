@@ -3,10 +3,19 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-import { DoorOpen, Loader2, Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { FieldValues, useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
-function SearchForm() {
+function SearchForm({
+  compact = false,
+  className,
+}: {
+  compact?: boolean;
+  className?: string;
+}) {
   const router = useRouter();
   const {
     register,
@@ -24,36 +33,52 @@ function SearchForm() {
   return (
     <form
       onSubmit={handleSubmit(handleSearch)}
-      className="flex items-center max-w-lg mx-auto"
+      className={cn(
+        "flex w-full items-center",
+        compact ? "gap-1.5" : "mx-auto max-w-lg gap-2",
+        className,
+      )}
     >
-      <label htmlFor="voice-search" className="sr-only">
+      <label htmlFor={compact ? "mobile-search" : "search"} className="sr-only">
         Search
       </label>
-      <div className="relative w-full">
-        <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-          <DoorOpen className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+      <div className="relative min-w-0 flex-1">
+        <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
+          <Search className="size-4 text-muted-foreground" />
         </div>
-        <input
+        <Input
           {...register("searchTerm")}
-          type="text"
-          id="search"
+          type="search"
+          id={compact ? "mobile-search" : "search"}
           disabled={isSubmitting}
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-lime-500 dark:focus:border-lime-500"
-          placeholder="Search Products, Categories, Markets..."
+          className={cn("ps-9", compact && "h-9 text-sm")}
+          placeholder={
+            compact
+              ? "Search products, stores..."
+              : "Search Products, Categories, Markets..."
+          }
           required
         />
       </div>
-      <button
+      <Button
         type="submit"
-        className="inline-flex items-center py-2.5 px-3 ms-2 text-sm font-medium text-white bg-lime-700 rounded-lg border border-lime-700 hover:bg-lime-800 focus:ring-4 focus:outline-none focus:ring-lime-300 dark:bg-lime-600 dark:hover:bg-lime-700 dark:focus:ring-lime-800"
+        variant="accent"
+        size={compact ? "icon-sm" : "sm"}
+        disabled={isSubmitting}
+        className="shrink-0"
+        aria-label={isSubmitting ? "Searching" : "Search"}
       >
         {isSubmitting ? (
-          <Loader2 className="w-4 h-4 me-2 animate-spin" />
+          <Loader2 className="size-4 animate-spin" />
         ) : (
-          <Search className="w-4 h-4 me-2" />
+          <Search className="size-4" />
         )}
-        {isSubmitting ? "Searching..." : "Search"}
-      </button>
+        {!compact && (
+          <span className="hidden sm:inline">
+            {isSubmitting ? "Searching..." : "Search"}
+          </span>
+        )}
+      </Button>
     </form>
   );
 }

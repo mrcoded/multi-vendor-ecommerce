@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 
 import TextInput from "@/components/inputs/TextInput";
 import ToggleInput from "@/components/inputs/ToggleInput";
@@ -12,7 +12,6 @@ import MultiImageInput from "@/components/inputs/MultiImageInput";
 import { ProductInputFormProps } from "@/types/products";
 
 const ProductInputForm = ({
-  reset,
   register,
   errors,
   categoriesData,
@@ -31,65 +30,41 @@ const ProductInputForm = ({
   users,
   allStores,
 }: ProductInputFormProps) => {
-  // Watch the userId field
   const selectedVendorId = watch("userId");
   const activeVendorId = role === "ADMIN" ? selectedVendorId : vendorId;
 
   const userData = users ?? [];
   const storesData = allStores ?? [];
 
-  // Sync the state when the product data finally arrives
-  useEffect(() => {
-    if (product) {
-      // Reset React Hook Form fields
-      reset({
-        sku: product.sku ?? "",
-        qty: product.qty ?? 0,
-        title: product.title ?? "",
-        barcode: product.barcode ?? "",
-        userId: selectedVendorId ?? "",
-        salePrice: product.salePrice ?? 0,
-        categoryId: product.categoryId ?? "",
-        description: product.description ?? "",
-        productPrice: product.productPrice ?? 0,
-        wholesalePrice: product.wholesalePrice ?? 0,
-        wholesaleQuantity: product.wholesaleQuantity ?? 0,
-        isWholesale: product.isWholesale ?? false,
-        isActive: product.isActive ?? false,
-      });
+  const storeVendorId = product?.store?.vendorId;
 
-      // Sync Local UI States
-      setTags(product.tags ?? []);
-      setProductImages(product.productImages ?? []);
-      setIsWholesaleCheck(product.isWholesale ?? false);
-    }
-  }, [product, reset]);
-
-  //get all stores for current vendor
   const vendorStoreDatas = storesData.filter(
     (store: { vendorId: string }) => store.vendorId === vendorId,
   );
 
-  //Get products by user role
   const storesDataByRole = role === "ADMIN" ? storesData : vendorStoreDatas;
 
-  //all vendors for ADMIN
-  const vendorData = userData?.filter(
+  const vendorData = userData.filter(
     (vendor: { role: string }) => vendor.role === "VENDOR",
   );
 
-  // Memoize the filtered stores so they only recalculate when vendor or stores change
   const filteredStores = useMemo(() => {
     if (!activeVendorId) return [];
-
-    // Filter the original stores list by the vendor ID
     return storesDataByRole.filter(
       (store) => store.vendorId === activeVendorId,
     );
   }, [activeVendorId, storesDataByRole]);
 
+  const assignedVendorName = useMemo(() => {
+    const ownerId = productId ? storeVendorId : activeVendorId;
+    const vendor = vendorData.find(
+      (v: { id: string; name?: string }) => v.id === ownerId,
+    );
+    return vendor?.name || "—";
+  }, [productId, storeVendorId, activeVendorId, vendorData]);
+
   return (
-    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 sm:gap-6">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
       <TextInput
         label="Product Title"
         name="title"
@@ -142,8 +117,7 @@ const ProductInputForm = ({
         hasMultipleSelect={false}
       />
 
-      {/* //Set vendorId */}
-      {role === "ADMIN" ? (
+      {role === "ADMIN" && !productId ? (
         <SelectInput
           label="Select Vendor"
           name="userId"
@@ -154,8 +128,18 @@ const ProductInputForm = ({
           options={vendorData}
           hasMultipleSelect={false}
         />
+      ) : role === "ADMIN" && productId ? (
+        <div className="w-full">
+          <label className="mb-2 block text-sm font-medium leading-6 text-foreground">
+            Vendor
+          </label>
+          <div className="rounded-md border border-border bg-muted/40 px-3 py-3 text-sm font-medium text-foreground">
+            {assignedVendorName}
+          </div>
+          <input type="hidden" {...register("userId")} />
+        </div>
       ) : (
-        <input type="hidden" {...register("userId")} value={vendorId ?? ""} />
+        <input type="hidden" {...register("userId")} />
       )}
 
       <ToggleInput
@@ -200,24 +184,22 @@ const ProductInputForm = ({
       />
 
       {!productId ? (
-        <span>
-          <SelectInput
-            label="Select Stores"
-            name="storeIds"
-            register={register}
-            errors={errors}
-            className="w-full"
-            options={filteredStores}
-            hasMultipleSelect={true}
-          />
-        </span>
+        <SelectInput
+          label="Select Stores"
+          name="storeIds"
+          register={register}
+          errors={errors}
+          className="w-full"
+          options={filteredStores}
+          hasMultipleSelect={true}
+        />
       ) : (
-        <span className="flex flex-col mb-2 text-sm font-medium text-gray-900 dark:text-slate-50 leading-6">
-          Selected store:{" "}
-          <span className="ml-2 text-base line-clamp-2">
-            {product?.store?.title}
+        <div className="flex flex-col text-sm font-medium leading-6 text-foreground">
+          <span className="mb-2">Selected store</span>
+          <span className="rounded-md border border-border bg-muted/40 px-3 py-3 text-base font-semibold">
+            {product?.store?.title ?? "—"}
           </span>
-        </span>
+        </div>
       )}
 
       <MultiImageInput
@@ -227,7 +209,6 @@ const ProductInputForm = ({
         label="Product Images"
       />
 
-      {/* Tags */}
       <ArrayItemsInput setItems={setTags} items={tags} itemTitle="Tag" />
 
       <TextAreaInput

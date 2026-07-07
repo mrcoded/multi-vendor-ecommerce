@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { FieldValues, useForm } from "react-hook-form";
-import { makePostRequest } from "@/lib/apiRequest";
+import { makePostRequest } from "@/lib/api/apiRequest";
 
 import TextInput from "../inputs/TextInput";
 import SubmitButton from "../buttons/SubmitButton";

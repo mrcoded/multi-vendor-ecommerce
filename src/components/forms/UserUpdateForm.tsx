@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { Loader2, Home } from "lucide-react";
 
 import { User } from "next-auth";
@@ -15,16 +16,14 @@ import generateInitials from "@/lib/generateInitials";
 
 import { UserProfileProps } from "@/types/user";
 import TextInput from "@/components/inputs/TextInput";
+import { Button } from "@/components/ui/button";
 
 const UserUpdateForm = ({ user }: { user: User | undefined }) => {
-  const currentUser = useUserDetail(user?.id);
-  const userData = currentUser?.data ?? null;
+  const { data: userData } = useUserDetail(user?.id);
+  const userProfile = userData?.profile;
 
   const [imageUrl, setImageUrl] = useState("");
-  //mutation
   const { mutate: updateMutation, isPending } = useUpdateProfile();
-
-  const userProfile = userData?.profile;
 
   const {
     register,
@@ -33,6 +32,23 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
     formState: { errors },
   } = useForm<UserProfileProps["profile"]>({
     defaultValues: {
+      city: "",
+      phone: "",
+      email: user?.email || "",
+      country: "",
+      district: "",
+      lastName: "",
+      userName: "",
+      dateOfBirth: new Date(),
+      streetAddress: "",
+      firstName: user?.name || "",
+    },
+  });
+
+  useEffect(() => {
+    if (!userData) return;
+
+    reset({
       city: userProfile?.city || "",
       phone: userProfile?.phone || "",
       email: userProfile?.email || user?.email || "",
@@ -43,30 +59,33 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
       dateOfBirth: userProfile?.dateOfBirth || new Date(),
       streetAddress: userProfile?.streetAddress || "",
       firstName: userProfile?.firstName || user?.name || "",
-    },
-  });
+    });
 
-  // if (!userData) return <>Loading...</>;
+    if (userProfile?.profileImage) {
+      setImageUrl(userProfile.profileImage);
+    }
+  }, [userData, userProfile, user?.email, user?.name, reset]);
 
   const onSubmit = (data: FieldValues) => {
     const formData = data as UserProfileProps["profile"];
-
     updateMutation(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-2 sm:p-6 space-y-8">
-      {/* Avatar Upload */}
-      <div className="flex flex-col sm:flex-row items-center gap-6 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-lg">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-4 sm:p-6">
+      <div className="flex flex-col items-center gap-4 rounded-lg bg-secondary p-4 sm:flex-row sm:p-5">
         <div className="relative">
           {imageUrl ? (
-            <img
+            <Image
               src={imageUrl}
-              className="size-24 rounded-full object-cover border-4 border-white"
+              width={96}
+              height={96}
+              className="size-24 rounded-full border-4 border-card object-cover"
               alt="Profile"
+              unoptimized
             />
           ) : (
-            <div className="size-24 rounded-full dark:bg-lime-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white">
+            <div className="flex size-24 items-center justify-center rounded-full border-4 border-card bg-primary text-2xl font-bold text-primary-foreground">
               {generateInitials(user?.name || "User")}
             </div>
           )}
@@ -79,13 +98,12 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
               setImageUrl(res[0].ufsUrl);
               toast.success("Image uploaded!");
             }}
-            className="px-2 ut-button:bg-lime-600 ut-button:ut-readying:bg-lime-500/50"
+            className="px-2 ut-button:bg-primary ut-button:ut-readying:bg-primary/50"
           />
         </div>
       </div>
 
-      {/* Personal Information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <TextInput
           label="Username"
           name="userName"
@@ -93,7 +111,6 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
           errors={errors}
           className="w-full"
         />
-
         <TextInput
           label="Email"
           name="email"
@@ -102,7 +119,6 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
           className="w-full"
           disabled={true}
         />
-
         <TextInput
           label="First Name"
           name="firstName"
@@ -110,7 +126,6 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
           errors={errors}
           className="w-full"
         />
-
         <TextInput
           label="Last Name"
           name="lastName"
@@ -118,7 +133,6 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
           errors={errors}
           className="w-full"
         />
-
         <TextInput
           type="date"
           label="Date Of Birth"
@@ -127,7 +141,6 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
           errors={errors}
           className="w-full"
         />
-
         <TextInput
           label="Phone Number"
           name="phone"
@@ -136,13 +149,12 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
           className="w-full"
         />
       </div>
-      <hr className="border-slate-100 dark:border-slate-800" />
+      <hr className="border-border" />
 
-      {/* Home Details */}
-      <h2 className="text-lg font-semibold flex items-center gap-2">
-        <Home className="size-5 text-lime-600" /> Home Details
+      <h2 className="flex items-center gap-2 text-lg font-semibold">
+        <Home className="size-5 text-primary" /> Home Details
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <TextInput
           label="Street Address"
           name="streetAddress"
@@ -150,7 +162,6 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
           errors={errors}
           className="w-full"
         />
-
         <TextInput
           label="City"
           name="city"
@@ -158,7 +169,6 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
           errors={errors}
           className="w-full"
         />
-
         <TextInput
           label="District/State"
           name="district"
@@ -166,7 +176,6 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
           errors={errors}
           className="w-full"
         />
-
         <TextInput
           label="Country"
           name="country"
@@ -176,15 +185,11 @@ const UserUpdateForm = ({ user }: { user: User | undefined }) => {
         />
       </div>
 
-      <div className="flex justify-end pt-4">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="bg-lime-600 hover:bg-lime-700 text-white px-8 py-2.5 rounded-lg font-bold flex items-center gap-2"
-        >
-          {isPending && <Loader2 className="animate-spin size-4" />}
+      <div className="flex justify-end pt-2">
+        <Button type="submit" variant="accent" size="sm" disabled={isPending}>
+          {isPending && <Loader2 className="size-4 animate-spin" />}
           Save Profile
-        </button>
+        </Button>
       </div>
     </form>
   );

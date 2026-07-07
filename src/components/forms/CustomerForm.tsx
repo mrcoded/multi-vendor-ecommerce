@@ -82,13 +82,13 @@ function UsersForm({ userId }: { userId: string }) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="w-full max-w-3xl p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
+      className="mx-auto my-3 w-full max-w-3xl rounded-lg border border-border bg-card p-4 shadow sm:p-6 md:p-8"
     >
-      <h2 className="text-xl font-semibold mb-2 dark:text-lime-400">
+      <h2 className="mb-2 text-xl font-semibold text-foreground">
         Personal Details
       </h2>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 sm:gap-6 border-b border-gray-700 pb-10">
+      <div className="grid grid-cols-1 gap-4 border-b border-border pb-10 sm:grid-cols-2 sm:gap-6">
         <TextInput
           label="First Name"
           name="firstName"
@@ -148,7 +148,7 @@ function UsersForm({ userId }: { userId: string }) {
         />
       </div>
 
-      <h2 className="text-xl font-semibold mb-2 dark:text-lime-400 pt-10">
+      <h2 className="mb-2 pt-10 text-xl font-semibold text-foreground">
         Shipping Details
       </h2>
 

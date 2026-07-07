@@ -9,9 +9,9 @@ import {
   Mail,
   Phone,
   MapPin,
-  Briefcase,
   CheckCircle2,
   FileText,
+  Store,
 } from "lucide-react";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -23,6 +23,7 @@ import { actions } from "@/redux/slices/onboardingSlice";
 
 import { RootState } from "@/types/redux";
 import SummaryItem from "../SummaryItem";
+import { Button } from "@/components/ui/button";
 
 const VendorDetailsSummary = ({
   vendorId,
@@ -30,8 +31,10 @@ const VendorDetailsSummary = ({
   vendorId: string | undefined;
 }) => {
   const dispatch = useDispatch();
-  //update vendor mutation
-  const { mutate: updateVendor, isPending } = useUpdateVendor(vendorId ?? "");
+  const { mutate: updateVendor, isPending } = useUpdateVendor(vendorId ?? "", {
+    redirectTo: "/dashboard",
+    refreshSession: true,
+  });
 
   const onboardingFormData = useSelector(
     (store: RootState) => store.onboarding.onboardingFormData,
@@ -54,140 +57,144 @@ const VendorDetailsSummary = ({
       data.userId = vendorId;
     }
 
-    //Update the vendor
     updateVendor(data);
   };
 
+  const sectionTitleClass =
+    "flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground";
+
   return (
-    <div className="my-6 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+    <div>
+      <div className="border-b border-border px-4 py-5 sm:px-6 sm:py-6">
+        <h2 className="text-lg font-semibold text-foreground sm:text-xl">
           Review Your Details
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm">
-          Please confirm that the information below is correct before completing
-          your registration.
+        <p className="mt-1 text-sm text-muted-foreground">
+          Confirm everything looks correct before completing your registration.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Section: Personal Info */}
-        <div className="space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-            <span className="w-8 h-[1px] bg-slate-200 dark:bg-slate-700"></span>
-            Identity
-          </h3>
-          <SummaryItem
-            icon={User}
-            label="Full Name"
-            value={`${onboardingFormData.firstName} ${onboardingFormData.lastName}`}
-          />
-          <SummaryItem
-            icon={Mail}
-            label="Email Address"
-            value={onboardingFormData.email}
-          />
-          <SummaryItem
-            icon={Phone}
-            label="Primary Phone"
-            value={onboardingFormData.phone}
-          />
-        </div>
-
-        {/* Section: Business Info */}
-        <div className="space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-            <span className="w-8 h-[1px] bg-slate-200 dark:bg-slate-700"></span>
-            Business Details
-          </h3>
-
-          <SummaryItem
-            icon={CheckCircle2}
-            label="Products"
-            value={onboardingFormData.products}
-          />
-          <SummaryItem
-            icon={MapPin}
-            label="Physical Address"
-            value={onboardingFormData.physicalAddress}
-          />
-        </div>
-
-        {/* Section: Contact Person */}
-        <div className="md:col-span-2 space-y-4 pt-4">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-            <span className="w-8 h-[1px] bg-slate-200 dark:bg-slate-700"></span>
-            Secondary Contact
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="space-y-5 p-4 sm:space-y-6 sm:p-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="space-y-3">
+            <h3 className={sectionTitleClass}>
+              <span className="h-px w-6 bg-border" aria-hidden />
+              Identity
+            </h3>
             <SummaryItem
               icon={User}
-              label="Contact Person"
-              value={onboardingFormData.contactPerson}
+              label="Full Name"
+              value={`${onboardingFormData.firstName} ${onboardingFormData.lastName}`}
+            />
+            <SummaryItem
+              icon={Mail}
+              label="Email Address"
+              value={onboardingFormData.email}
             />
             <SummaryItem
               icon={Phone}
-              label="Contact Person Phone"
-              value={onboardingFormData.contactPersonPhone}
+              label="Primary Phone"
+              value={onboardingFormData.phone}
             />
           </div>
-        </div>
 
-        {/* Section: Notes & Terms */}
-        <div className="md:col-span-2 bg-lime-50 dark:bg-lime-900/10 border border-lime-100 dark:border-lime-900/30">
-          <div className="flex items-start p-4 rounded-xl mt-4 gap-3">
-            <CheckCircle2 className="size-3 sm:size-4 text-lime-600 dark:text-lime-400 mt-1" />
-            <div>
-              <h4 className="font-bold text-slate-800 dark:text-slate-100">
-                Vendor Terms
-              </h4>
-              <p className="text-[10px] font-bold uppercase text-lime-700 dark:text-lime-400">
-                {onboardingFormData.terms}
-              </p>
+          <div className="space-y-3">
+            <h3 className={sectionTitleClass}>
+              <span className="h-px w-6 bg-border" aria-hidden />
+              Business
+            </h3>
+            <SummaryItem
+              icon={Store}
+              label="Products"
+              value={onboardingFormData.products}
+            />
+            <SummaryItem
+              icon={MapPin}
+              label="Physical Address"
+              value={onboardingFormData.physicalAddress}
+            />
+          </div>
+
+          <div className="space-y-3 md:col-span-2">
+            <h3 className={sectionTitleClass}>
+              <span className="h-px w-6 bg-border" aria-hidden />
+              Secondary Contact
+            </h3>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <SummaryItem
+                icon={User}
+                label="Contact Person"
+                value={onboardingFormData.contactPerson}
+              />
+              <SummaryItem
+                icon={Phone}
+                label="Contact Person Phone"
+                value={onboardingFormData.contactPersonPhone}
+              />
             </div>
           </div>
-          <div className="flex items-start p-4 rounded-xl mt-4 gap-3">
-            <FileText className="size-3 sm:size-4 text-lime-600 dark:text-lime-400 mt-1" />
-            <div>
-              <h4 className="font-bold text-slate-800 dark:text-slate-100">
-                Additional Notes
-              </h4>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                {onboardingFormData.notes || "No additional notes provided."}
-              </p>
+
+          <div className="overflow-hidden rounded-xl border border-primary/20 bg-primary/5 md:col-span-2">
+            <div className="flex items-start gap-3 border-b border-primary/10 p-4">
+              <CheckCircle2
+                className="mt-0.5 size-4 shrink-0 text-primary"
+                aria-hidden
+              />
+              <div>
+                <h4 className="text-sm font-semibold text-foreground">
+                  Payment Terms
+                </h4>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {onboardingFormData.terms || "No payment terms specified."}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-4">
+              <FileText
+                className="mt-0.5 size-4 shrink-0 text-primary"
+                aria-hidden
+              />
+              <div>
+                <h4 className="text-sm font-semibold text-foreground">
+                  Additional Notes
+                </h4>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {onboardingFormData.notes || "No additional notes provided."}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Navigation Buttons */}
-      <div className="flex items-center justify-between mt-10 pt-6 border-t border-slate-100 dark:border-slate-800">
-        <button
-          type="button"
-          onClick={handlePrevious}
-          className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 transition-colors"
-        >
-          <ChevronLeft className="size-4" />
-          <span>Edit Details</span>
-        </button>
+        <div className="flex flex-col-reverse items-stretch gap-2 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <Button
+            type="button"
+            onClick={handlePrevious}
+            variant="outline"
+            size="sm"
+            className="w-full sm:w-auto"
+          >
+            <ChevronLeft className="size-4" />
+            Edit Details
+          </Button>
 
-        {isPending ? (
-          <button
-            disabled
-            className="inline-flex items-center gap-2 px-8 py-3 text-sm font-bold text-white bg-slate-400 dark:bg-slate-700 rounded-xl cursor-not-allowed"
-          >
-            <span>Processing</span>
-            <Loader2 className="size-4 animate-spin" />
-          </button>
-        ) : (
-          <button
-            onClick={onSubmit}
-            className="inline-flex items-center gap-2 px-8 py-3 text-sm font-bold text-white bg-lime-600 hover:bg-lime-700 rounded-xl shadow-lg shadow-lime-200 dark:shadow-none transition-all transform active:scale-95"
-          >
-            <span>Complete Registration</span>
-            <ChevronRight className="size-4" />
-          </button>
-        )}
+          {isPending ? (
+            <Button disabled size="sm" className="w-full sm:w-auto">
+              Processing
+              <Loader2 className="size-4 animate-spin" />
+            </Button>
+          ) : (
+            <Button
+              onClick={onSubmit}
+              variant="accent"
+              size="sm"
+              className="w-full sm:w-auto"
+            >
+              Complete Registration
+              <ChevronRight className="size-4" />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

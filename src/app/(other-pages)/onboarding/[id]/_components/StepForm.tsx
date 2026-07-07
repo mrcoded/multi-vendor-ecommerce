@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+
 import { useSelector } from "react-redux";
 
 import { RootState } from "@/types/redux";
@@ -12,21 +13,25 @@ import BasicInformationForm from "./StepForm/BasicInformationForm";
 import AdditionalInformationForm from "./StepForm/AdditionalInformationForm";
 
 const StepForm = ({ vendorId }: { vendorId: string | undefined }) => {
-  const vendor = useVendor(vendorId);
-  const vendorProfile = vendor?.data?.vendorProfile;
+  const { data: vendor } = useVendor(vendorId);
 
-  if (!vendorProfile) return <>Loading...</>;
+  const vendorProfile = vendor?.vendorProfile ?? null;
 
   const currentStep = useSelector(
     (state: RootState) => state.onboarding.currentStep,
   );
 
-  const renderFormByStep = (step: number) => {
-    if (step === 1) return <BasicInformationForm vendor={vendorProfile} />;
-    if (step === 2) return <AdditionalInformationForm vendor={vendorProfile} />;
-    if (step === 3) return <VendorDetailsSummary vendorId={vendorId} />;
-  };
-  return <div>{renderFormByStep(currentStep)}</div>;
+  return (
+    <div key={currentStep} className="animate-fade-in">
+      {currentStep === 1 && <BasicInformationForm vendor={vendorProfile} />}
+
+      {currentStep === 2 && (
+        <AdditionalInformationForm vendor={vendorProfile} />
+      )}
+
+      {currentStep === 3 && <VendorDetailsSummary vendorId={vendorId} />}
+    </div>
+  );
 };
 
 export default StepForm;
