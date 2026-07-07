@@ -1,4 +1,11 @@
 import React from "react";
+import { Tag } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import EmptyCart from "./EmptyCart";
 import CartProduct from "./CartProduct";
 
@@ -10,50 +17,66 @@ interface ItemProps {
     qty: number;
     salePrice: number;
   }[];
+  itemCount: number;
 }
 
-function CartItems({ cartItems }: ItemProps) {
+function CartItems({ cartItems, itemCount }: ItemProps) {
   const hasItems = cartItems.length > 0;
 
   return (
-    <div className="col-span-full md:col-span-8">
+    <div className="lg:col-span-8">
       {hasItems ? (
-        <>
-          <h2 className="py-2 mb-6 text-2xl font-bold text-gray-900 dark:text-foreground">
-            Your Cart
-          </h2>
+        <div className="space-y-4">
+          <Card className="overflow-hidden border-border/80 shadow-none">
+            <CardHeader className="flex-row items-center justify-between space-y-0 border-b border-border bg-muted/30 px-4 py-3 sm:px-5">
+              <CardTitle className="text-sm font-semibold text-foreground sm:text-base">
+                Your items
+              </CardTitle>
+              <Badge variant="primary" className="text-[11px] font-medium">
+                {itemCount} {itemCount === 1 ? "item" : "items"}
+              </Badge>
+            </CardHeader>
 
-          {/* Table Headers - Hidden on Mobile */}
-          <div className="hidden sm:flex items-center justify-between border-b border-gray-200 text-gray-400 pb-3 font-semibold text-xs uppercase tracking-wider mb-4">
-            <h2 className="w-1/2">Product</h2>
-            <h2 className="w-1/5 text-center sm:text-start lg:text-center">
-              Price
-            </h2>
-          </div>
+            <CardContent className="divide-y divide-border p-0">
+              {cartItems.map((item) => (
+                <CartProduct cartItem={item} key={item.id} />
+              ))}
+            </CardContent>
+          </Card>
 
-          <div className="space-y-2">
-            {cartItems.map((item) => (
-              <CartProduct cartItem={item} key={item.id} />
-            ))}
-          </div>
-
-          {/* COUPON SECTION */}
-          <div className="mt-10 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-            <h3 className="text-sm font-bold text-gray-900 mb-4">
-              Have a promo code?
-            </h3>
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              <input
-                type="text"
-                className="w-full sm:flex-1 bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-lime-500 focus:border-lime-500 block p-2 sm:p-3 md:p-2 lg:p-3 outline-none transition-all"
-                placeholder="Enter Coupon Code"
-              />
-              <button className="w-full sm:w-auto shrink-0  p-2 sm:py-4 sm:px-6 md:p-2.5 lg:py-4 lg:px-6 rounded-xl bg-lime-600 hover:bg-lime-700 text-white font-bold text-sm transition-colors">
-                Apply
-              </button>
-            </div>
-          </div>
-        </>
+          <Card className="border-border/80 shadow-none">
+            <CardContent className="p-4 sm:p-5">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="flex size-7 items-center justify-center rounded-md bg-secondary text-primary">
+                  <Tag className="size-3.5" />
+                </span>
+                <div>
+                  <h3 className="text-sm font-medium text-foreground">
+                    Promo code
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Enter a code to apply a discount at checkout
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Input
+                  type="text"
+                  placeholder="e.g. SAVE10"
+                  className="h-9 bg-background sm:flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full shrink-0 sm:w-auto"
+                >
+                  Apply
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       ) : (
         <EmptyCart />
       )}
