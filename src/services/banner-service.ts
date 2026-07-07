@@ -1,71 +1,79 @@
 import { db } from "@/lib/db";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/api/cache";
 import { unstable_cache } from "next/cache";
 import { BannerFormProps } from "@/types/banner";
+import { sanitizeBannerInput } from "@/lib/sanitize-payloads";
+
+const getCachedAllBanners = unstable_cache(
+  async () => {
+    return await db.banner.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  },
+  ["banners-list-data"],
+  {
+    tags: [CACHE_TAGS.bannersList],
+    revalidate: CACHE_TTL.catalog,
+  },
+);
 
 export async function getAllBanners() {
-  const getCachedBanners = unstable_cache(
-    async () => {
-      return await db.banner.findMany({
-        orderBy: { createdAt: "desc" },
-      });
-    },
-    ["banners-list-data"],
-    {
-      tags: ["banners-list"],
-      revalidate: 3600,
-    },
-  );
-
-  return await getCachedBanners();
+  return getCachedAllBanners();
 }
 
-export async function getBannerById(bannerId: string) {
-  const getCachedBanner = unstable_cache(
-    async (bannerId: string) => {
-      return await db.banner.findUnique({
-        where: { id: bannerId },
-      });
-    },
-    [`banner-detail-${bannerId}`],
-    { tags: [`banner-${bannerId}`], revalidate: 3600 },
-  );
+const getCachedBannerById = unstable_cache(
+  async (bannerId: string) => {
+    return await db.banner.findUnique({
+      where: { id: bannerId },
+    });
+  },
+  ["banner-by-id"],
+  { tags: [CACHE_TAGS.bannersList], revalidate: CACHE_TTL.catalog },
+);
 
-  return await getCachedBanner(bannerId);
+export async function getBannerById(bannerId: string) {
+  return getCachedBannerById(bannerId);
 }
 
 export async function createBanner(data: BannerFormProps) {
   try {
+    const safeData = sanitizeBannerInput(data);
     const newBanner = await db.banner.create({
       data: {
-        title: data.title,
-        link: data.link,
-        imageUrl: data.imageUrl,
-        isActive: data.isActive,
+        title: safeData.title,
+        link: safeData.link,
+        imageUrl: safeData.imageUrl,
+        isActive: safeData.isActive,
       },
     });
 
     return newBanner;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Failed to create banner";
     console.error("[SERVICE_CREATE_BANNER_ERROR]:", error);
-    throw new Error(error.message || "Failed to create banner");
+    throw new Error(message);
   }
 }
 
 export async function updateBanner(bannerId: string, data: BannerFormProps) {
   try {
+    const safeData = sanitizeBannerInput(data);
     const newBanner = await db.banner.update({
       where: { id: bannerId },
       data: {
-        title: data.title,
-        link: data.link,
-        imageUrl: data.imageUrl,
-        isActive: data.isActive,
+        title: safeData.title,
+        link: safeData.link,
+        imageUrl: safeData.imageUrl,
+        isActive: safeData.isActive,
       },
     });
 
     return newBanner;
-  } catch (error: any) {
-    console.error("[SERVICE_CREATE_BANNER_ERROR]:", error);
-    throw new Error(error.message || "Failed to create banner");
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Failed to update banner";
+    console.error("[SERVICE_UPDATE_BANNER_ERROR]:", error);
+    throw new Error(message);
   }
 }

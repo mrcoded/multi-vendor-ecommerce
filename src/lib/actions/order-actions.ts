@@ -1,34 +1,62 @@
 "use server";
 
 import { OrderStatus } from "@prisma/client";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { CACHE_TAGS, invalidateCacheTag } from "@/lib/api/cache";
+import { revalidatePath } from "next/cache";
 import {
   createOrderService,
   deleteOrder,
-  getAllOrders,
-  getAllSales,
   getOrderById,
-  getSalesByVendor,
+  getOrderForUser,
+  getOrdersForUser,
+  getSalesForUser,
   updateOrderStatus,
 } from "@/services/order-service.";
 import { authenticatedAction } from "../auth-wrapper";
 
 import { CheckoutProps, OrderItemProps } from "@/types/order";
 
+export async function getAllOrdersAction() {
+  return authenticatedAction("Fetch Orders", null, async (user) =>
+    getOrdersForUser(user),
+  );
+}
+
+export async function getOrderByIdAction(id: string) {
+  return authenticatedAction("Fetch Order", null, async (user) =>
+    getOrderForUser(id, user),
+  );
+}
+
+export async function getSalesAction(vendorId?: string) {
+  return authenticatedAction("Fetch Sales", ["ADMIN", "VENDOR"], async (user) =>
+    getSalesForUser(user, vendorId),
+  );
+}
+
 export async function createOrderAction(data: {
   checkoutFormData: CheckoutProps;
   orderItems: OrderItemProps[];
 }) {
-  return authenticatedAction("Create Order", null, async () => {
+  return authenticatedAction("Create Order", null, async (user) => {
     try {
-      const order = await createOrderService(
+      if (data.checkoutFormData.userId !== user.id) {
+        return { success: false, error: "Forbidden: invalid order user" };
+      }
+
+      const { order, productItems } = await createOrderService(
         data.checkoutFormData,
         data.orderItems,
       );
 
-      // 💥 Bust all relevant caches
-      revalidateTag("orders-list");
-      revalidateTag("sales-list");
+      invalidateCacheTag(CACHE_TAGS.ordersList);
+      invalidateCacheTag(CACHE_TAGS.salesList);
+      invalidateCacheTag(CACHE_TAGS.productsList);
+
+      for (const item of productItems) {
+        invalidateCacheTag(CACHE_TAGS.product(item.slug));
+      }
+
       revalidatePath("/dashboard/orders");
       revalidatePath("/user/orders");
 
@@ -37,9 +65,10 @@ export async function createOrderAction(data: {
         data: order,
         message: "Order placed successfully!",
       };
-    } catch (error: any) {
-      console.log(error);
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to place order";
+      return { success: false, error: message };
     }
   });
 }
@@ -56,9 +85,9 @@ export async function updateOrderStatusAction(id: string, status: OrderStatus) {
 
       const updated = await updateOrderStatus(id, status);
 
-      // 💥 Targeted Busting
-      revalidateTag(`order-${id}`);
-      revalidateTag("orders-list");
+      invalidateCacheTag(CACHE_TAGS.order(id));
+      invalidateCacheTag(CACHE_TAGS.ordersList);
+      invalidateCacheTag(CACHE_TAGS.salesList);
       revalidatePath("/dashboard/orders");
       revalidatePath(`/dashboard/orders/${id}`);
 
@@ -67,8 +96,10 @@ export async function updateOrderStatusAction(id: string, status: OrderStatus) {
         data: updated,
         message: "Order Status updated!",
       };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update order";
+      return { success: false, error: message };
     }
   });
 }
@@ -78,117 +109,16 @@ export async function deleteOrderAction(id: string) {
     try {
       await deleteOrder(id);
 
-      revalidateTag("orders-list");
+      invalidateCacheTag(CACHE_TAGS.order(id));
+      invalidateCacheTag(CACHE_TAGS.ordersList);
+      invalidateCacheTag(CACHE_TAGS.salesList);
       revalidatePath("/dashboard/orders");
 
       return { success: true, message: "Order deleted successfully" };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to delete order";
+      return { success: false, error: message };
     }
   });
-}
-
-export async function fetchAllSalesAction() {
-  return authenticatedAction(
-    "Fetch All Sales",
-    ["ADMIN", "VENDOR"],
-    async () => {
-      try {
-        const data = await getAllSales();
-
-        return {
-          success: true,
-          data,
-          message: "Sales fetched successfully",
-        };
-      } catch (error: any) {
-        console.error("[FETCH_SALES_ERROR]:", error);
-        return {
-          success: false,
-          error: error.message || "Failed to fetch sales",
-        };
-      }
-    },
-  );
-}
-
-export async function fetchAllOrdersAction() {
-  // Use the third argument of your wrapper to access the session/user
-  return authenticatedAction("Fetch All Orders", null, async (user) => {
-    try {
-      // 🎯 Determine scope: Admins get all, others get their own
-      const scopeId = user.role === "ADMIN" ? undefined : user.id;
-
-      const data = await getAllOrders(scopeId);
-
-      return {
-        success: true,
-        message: "Orders fetched successfully",
-        data,
-      };
-    } catch (error: any) {
-      console.error("[FETCH_ORDERS_ERROR]:", error);
-      return {
-        success: false,
-        error: error.message || "Failed to fetch orders",
-      };
-    }
-  });
-}
-
-export async function fetchOrderByIdAction(id: string) {
-  try {
-    if (!id) return { success: false, error: "Order ID is required" };
-
-    // 🎯 Call the cached service
-    const data = await getOrderById(id);
-
-    if (!data) {
-      return { success: false, error: "Order not found!" };
-    }
-
-    return {
-      success: true,
-      data,
-      message: "Order details fetched",
-    };
-  } catch (error: any) {
-    console.error(`[FETCH_ORDER_ERROR]: ${id}`, error);
-    return {
-      success: false,
-      error: error.message || "Failed to fetch order details",
-    };
-  }
-}
-
-export async function fetchVendorSalesAction(vendorId?: string) {
-  return authenticatedAction(
-    "Fetch Vendor Sales",
-    ["VENDOR", "ADMIN"],
-    async (user) => {
-      try {
-        // 🛡️ SECURITY CHECK: Ensure a VENDOR can only see their own sales
-        // Admins can see any vendor's sales passed via vendorId
-        const targetId = user.role === "VENDOR" ? user.id : vendorId;
-
-        if (!targetId) {
-          return { success: false, error: "Vendor ID is required" };
-        }
-
-        const data = await getSalesByVendor(targetId);
-
-        return {
-          success: true,
-          data,
-          message: "Vendor sales fetched successfully",
-        };
-      } catch (error: any) {
-        console.error(`[FETCH_VENDOR_SALES_ERROR]: ${vendorId}`, error);
-        return {
-          success: false,
-          error: error.message || "Failed to fetch sales",
-        };
-      }
-    },
-  );
 }

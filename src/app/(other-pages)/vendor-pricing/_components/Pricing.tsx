@@ -5,81 +5,80 @@ import { CheckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { plans } from "@/constants/pricing-plan";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 function Pricing() {
   const router = useRouter();
 
   return (
-    <div className="sm:flex md:flex-col sm:align-middle p-2 m:p-10">
+    <div className="p-2 sm:p-10 sm:flex md:flex-col sm:items-center">
       <div className="flex flex-col items-center">
-        <div className="relative items-center self-center bg-slate-200 dark:slate-900 rounded-lg p-0.5 flex">
+        <div className="relative flex items-center self-center rounded-lg bg-secondary p-0.5">
           <button
             type="button"
-            className="relative rounded-md py-2 text-sm font-medium whitespace-nowrap focus:outline-none px-4 sm:w-auto sm:px-8 bg-slate-50 border-slate-50 text-slate-900 shadow-sm w-full"
+            className="relative w-full rounded-md border border-border bg-card px-4 py-2 text-sm font-medium whitespace-nowrap text-foreground shadow-sm focus:outline-none sm:w-auto sm:px-8"
           >
             Choose a plan which suits you!
           </button>
         </div>
-        <div className="max-w-3xl text-center mt-4 text-lg font-semibold text-slate-700 dark:text-slate-300">
-          Discover simplicity in pricing with us us. Our straightforward and
-          competitve rates ensure you get the best value. No hidden fees, juts
-          transaparent options to meet your needs. Choose clarity, choose MVE
+        <div className="mt-4 max-w-3xl text-center text-lg font-semibold text-muted-foreground">
+          Discover simplicity in pricing with us. Our straightforward and
+          competitive rates ensure you get the best value. No hidden fees, just
+          transparent options to meet your needs.
         </div>
-        <div className="mt-12 space-y-3 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-3 sm:gap-6 md:max-w-5xl md:mx-auto xl:grid-cols-3">
-          {/* starter package */}
+        <div className="mt-12 space-y-3 sm:mt-16 sm:grid sm:grid-cols-3 sm:gap-6 sm:space-y-0 md:mx-auto md:max-w-5xl xl:grid-cols-3">
           {plans.map((plan, index) => (
-            <div
-              key={index}
-              className="border border-slate-200 rounded-lg shadow-sm divide-y divide-slate-200"
-            >
-              <div className="p-6">
+            <Card key={index} className="divide-y divide-border">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl leading-6 font-bold text-slate-900 dark:text-white">
+                  <h2 className="text-xl font-bold leading-6 text-foreground">
                     {plan.title}
                   </h2>
                   {plan.isRecommended && (
-                    <span className="uppercase border dark:bg-transparent bg-lime-500 text-white border-lime-500 text-xs rounded-full px-3 py-1">
+                    <Badge className="border-0 bg-accent uppercase text-accent-foreground">
                       recommended
-                    </span>
+                    </Badge>
                   )}
                 </div>
 
-                <p className="mt-2 text-base text-slate-700 dark:text-slate-300 leading-tight">
+                <p className="mt-2 text-base leading-tight text-muted-foreground">
                   {plan.description}
                 </p>
                 <p className="mt-8">
-                  <span className="text-4xl font-bold text-slate-900 dark:text-lime-400 tracking-tighter">
+                  <span className="text-4xl font-bold tracking-tighter text-foreground">
                     {plan.price}
                   </span>
-
-                  <span className="text-base font-medium text-slate-500">
+                  <span className="text-base font-medium text-muted-foreground">
                     /mo
                   </span>
                 </p>
-              </div>
-              <div className="pt-6 pb-8 px-6">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-wide uppercase">
+              </CardContent>
+              <CardContent className="px-6 pb-8 pt-6">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
                   What&apos;s Included
                 </h3>
-                {plan.features.map((feature, index) => (
+                {plan.features.map((feature, featureIndex) => (
                   <p
-                    key={index}
-                    className="flex mt-3 text-sm text-slate-500 dark:text-slate-400"
+                    key={featureIndex}
+                    className="mt-3 flex text-sm text-muted-foreground"
                   >
-                    <CheckIcon className="mr-2 text-slate-400 dark:text-lime-400" />
+                    <CheckIcon className="mr-2 text-primary" />
                     {feature}
                   </p>
                 ))}
-                <button
+                <Button
+                  variant="accent"
+                  className="mt-4 w-full rounded-full"
                   onClick={() =>
                     router.push(`/register/vendor?plan=${plan.planType}`)
                   }
-                  className="mt-4 bg-lime-500 hover:bg-lime-600 text-white font-semibold py-2 px-4 rounded-full w-full"
                 >
                   {plan.planType === "free" ? "Start for free" : "Get Started"}
-                </button>
-              </div>
-            </div>
+                </Button>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

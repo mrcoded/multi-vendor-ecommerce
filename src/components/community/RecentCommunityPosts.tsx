@@ -35,8 +35,8 @@ function RecentCommunityPosts({
                     src={post?.imageUrl}
                     width={64}
                     height={56}
-                    priority
-                    unoptimized
+                    sizes="48px"
+                    loading="lazy"
                     className="w-10 h-10 xl:h-12 xl:w-12 object-cover rounded-full"
                   />
 

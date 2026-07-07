@@ -1,10 +1,11 @@
-"use client";
+// "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
+import MultiCarousel from "./MultiCarousel";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface CommunityPostsProps {
   communityPosts: {
@@ -20,78 +21,77 @@ function CommunityPostCarousel({ communityPosts }: CommunityPostsProps) {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
       items: 3,
-      slidesToSlide: 1, // optional, default to 1.
+      slidesToSlide: 1,
     },
     tablet: {
       breakpoint: { max: 1024, min: 464 },
       items: 2,
-      slidesToSlide: 1, // optional, default to 1.
+      slidesToSlide: 1,
     },
     mobile: {
       breakpoint: { max: 464, min: 0 },
       items: 1,
-      slidesToSlide: 1, // optional, default to 1.
+      slidesToSlide: 1,
     },
   };
 
   return (
-    <Carousel
+    <MultiCarousel
       swipeable={false}
       draggable={false}
-      showDots={true}
+      showDots
       responsive={responsive}
-      ssr={true} // means to render carousel on server-side.
-      infinite={true}
-      autoPlay={true}
+      ssr
+      infinite
+      autoPlay
       autoPlaySpeed={1000}
-      keyBoardControl={true}
+      keyBoardControl
       customTransition="all .5"
       transitionDuration={500}
       containerClass="carousel-container"
       removeArrowOnDeviceType={["tablet", "mobile"]}
-      // deviceType={this.props.deviceType}
       dotListClass="custom-dot-list-style"
       itemClass="px-4"
+      // customLeftArrow={<CarouselLeftArrow />}
+      // customRightArrow={<CarouselRightArrow />}
     >
-      {communityPosts?.map((post, i) => {
-        return (
-          <div
-            key={i}
-            className="rounded-lg mr-3 bg-slate-100 dark:bg-slate-900 overflow-hidden"
-          >
-            <Link href="#">
-              <Image
-                src={post.imageUrl}
-                alt={post.title}
-                width={556}
-                height={556}
-                unoptimized
-                className="w-full h-48 object-cover"
-              />
-            </Link>
+      {communityPosts.map((post, i) => (
+        <Card key={i} className="mr-3 overflow-hidden hover-lift">
+          <Link href="#">
+            <Image
+              src={post.imageUrl}
+              alt={post.title}
+              width={556}
+              height={312}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              loading="lazy"
+              className="h-48 w-full object-cover"
+            />
+          </Link>
 
-            <h2 className="text-center dark:text-slate-200 text-slate-800 my-2 text-xl">
+          <CardContent className="space-y-2 p-4">
+            <h2 className="text-center text-xl font-semibold text-foreground">
               {post.title}
             </h2>
 
-            <p className="px-4 line-clamp-3 text-slate-800 dark:text-slate-300 mb-2">
+            <p className="line-clamp-3 text-muted-foreground">
               {post.description}
             </p>
-            <div className="flex justify-between items-center px-4 py-2">
+            <div className="flex items-center justify-between pt-2">
+              <Button variant="accent" size="sm" asChild>
+                <Link href="#">Read More</Link>
+              </Button>
               <Link
                 href="#"
-                className="bg-lime-600 hover:bg-lime-700 duration-300 transition-all text-slate-50 rounded-md px-4 py-2"
+                className="text-sm text-muted-foreground transition-colors hover:text-primary"
               >
-                Read More
-              </Link>
-              <Link href="#" className="text-slate-800 dark:text-slate-100">
                 Talk to the Consultant
               </Link>
             </div>
-          </div>
-        );
-      })}
-    </Carousel>
+          </CardContent>
+        </Card>
+      ))}
+    </MultiCarousel>
   );
 }
 

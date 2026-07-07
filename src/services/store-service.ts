@@ -1,82 +1,86 @@
 import { db } from "@/lib/db";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/api/cache";
 import { StoreProps } from "@/types/store";
+import { sanitizeStoreInput } from "@/lib/sanitize-payloads";
 import { unstable_cache } from "next/cache";
 
+const getCachedAllStores = unstable_cache(
+  async () => {
+    return await db.store.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { products: true } } },
+    });
+  },
+  ["all-stores-list"],
+  { tags: [CACHE_TAGS.storesList], revalidate: CACHE_TTL.catalog },
+);
+
 export async function getAllStores() {
-  return unstable_cache(
-    async () => {
-      return await db.store.findMany({
-        orderBy: { createdAt: "desc" },
-        include: { _count: { select: { products: true } } },
-      });
-    },
-    ["all-stores-list"],
-    { tags: ["stores-list"] },
-  )();
+  return getCachedAllStores();
 }
 
 export async function createStore(data: StoreProps) {
-  //Check if slug is unique
+  const safeData = sanitizeStoreInput(data);
   const existingStore = await db.store.findUnique({
-    where: { slug: data.slug },
+    where: { slug: safeData.slug },
   });
 
   if (existingStore) {
     throw new Error("Store already exists.");
   }
 
-  //Create the store
   return await db.store.create({
     data: {
-      title: data.title,
-      slug: data.slug,
-      imageUrl: data.imageUrl,
-      description: data.description,
-      isActive: data.isActive,
-      categoryIds: data.categoryIds,
-      vendorId: data.vendorId,
-      storeEmail: data.storeEmail,
-      storePhone: data.storePhone,
-      streetAddress: data.streetAddress,
-      city: data.city,
-      country: data.country,
+      title: safeData.title,
+      slug: safeData.slug,
+      imageUrl: safeData.imageUrl,
+      description: safeData.description,
+      isActive: safeData.isActive,
+      categoryIds: safeData.categoryIds,
+      vendorId: safeData.vendorId,
+      storeEmail: safeData.storeEmail,
+      storePhone: safeData.storePhone,
+      streetAddress: safeData.streetAddress,
+      city: safeData.city,
+      country: safeData.country,
     },
   });
 }
 
+const getCachedStoreById = unstable_cache(
+  async (id: string) => {
+    return await db.store.findUnique({
+      where: { id },
+      include: { products: true },
+    });
+  },
+  ["store-by-id"],
+  {
+    tags: [CACHE_TAGS.storesList],
+    revalidate: CACHE_TTL.catalog,
+  },
+);
+
 export async function getStoreById(id: string) {
-  return await unstable_cache(
-    async () => {
-      return await db.store.findUnique({
-        where: { id },
-        include: { products: true },
-      });
-    },
-    [`store-${id}`],
-    {
-      revalidate: 3600,
-      tags: ["stores", `store-${id}`],
-    },
-  )();
+  return getCachedStoreById(id);
 }
 
 export async function updateStore(id: string, data: StoreProps) {
-  //  Check for Slug Collision
-  // We look for a product with this slug that IS NOT the current product
+  const safeData = sanitizeStoreInput(data);
   const existingSlug = await db.product.findFirst({
     where: {
-      slug: data.slug,
+      slug: safeData.slug,
       NOT: { id: id },
     },
   });
 
   if (existingSlug) {
-    throw new Error(`"${data.slug}" is already in use by another product.`);
+    throw new Error(`"${safeData.slug}" is already in use by another product.`);
   }
 
   return await db.store.update({
     where: { id },
-    data,
+    data: safeData,
   });
 }
 
@@ -95,6 +99,9 @@ export async function getStoreBySlug(slug: string) {
       });
     },
     [`store-detail-${slug}`],
-    { tags: [`store-${slug}`] }, // This matches your product action's revalidateTag!
+    {
+      tags: [CACHE_TAGS.storesList, CACHE_TAGS.store(slug)],
+      revalidate: CACHE_TTL.catalog,
+    },
   )();
 }

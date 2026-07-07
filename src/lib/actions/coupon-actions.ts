@@ -1,26 +1,44 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { revalidateTag } from "next/cache";
+import { CACHE_TAGS, invalidateCacheTag } from "@/lib/api/cache";
 import { authenticatedAction } from "../auth-wrapper";
 import { getAllCoupons, getCouponById } from "@/services/coupon-service";
 import { CouponFormProps } from "@/components/forms/CouponForm";
+import { sanitizeCouponInput } from "@/lib/sanitize-payloads";
 
-export async function createCouponAction(data: any) {
+export async function getAllCouponsAction() {
+  return authenticatedAction("Fetch Coupons", ["ADMIN", "VENDOR"], async () =>
+    getAllCoupons(),
+  );
+}
+
+export async function getCouponByIdAction(id: string) {
+  return authenticatedAction("Fetch Coupon", ["ADMIN", "VENDOR"], async () =>
+    getCouponById(id),
+  );
+}
+
+export async function createCouponAction(data: CouponFormProps) {
   return authenticatedAction("Create Coupon", ["ADMIN", "VENDOR"], async () => {
     try {
+      const safeData = sanitizeCouponInput(data);
+
+      if (!safeData.vendorId) {
+        return { success: false, error: "Vendor ID is required" };
+      }
+
       const newCoupon = await db.coupon.create({
         data: {
-          title: data.title,
-          couponCode: data.couponCode,
-          expiryDate: new Date(data.expiryDate), // Ensure proper Date object
-          isActive: data.isActive,
-          vendorId: data.vendorId,
+          title: safeData.title,
+          couponCode: safeData.couponCode,
+          expiryDate: new Date(safeData.expiryDate),
+          isActive: safeData.isActive,
+          vendorId: safeData.vendorId,
         },
       });
 
-      // 🚀 CACHE INVALIDATION
-      revalidateTag("coupons-list");
+      invalidateCacheTag(CACHE_TAGS.couponsList);
 
       return { success: true, data: newCoupon };
     } catch (error) {
@@ -33,17 +51,19 @@ export async function createCouponAction(data: any) {
 export async function updateCouponAction(id: string, data: CouponFormProps) {
   return authenticatedAction("Update Coupon", ["ADMIN", "VENDOR"], async () => {
     try {
+      const safeData = sanitizeCouponInput(data);
       const updated = await db.coupon.update({
         where: { id },
         data: {
-          ...data,
-          expiryDate: data.expiryDate ? new Date(data.expiryDate) : undefined,
+          ...safeData,
+          expiryDate: safeData.expiryDate
+            ? new Date(safeData.expiryDate)
+            : undefined,
         },
       });
 
-      // 🚀 CACHE INVALIDATION
-      revalidateTag("coupons-list");
-      revalidateTag(`coupon-${id}`);
+      invalidateCacheTag(CACHE_TAGS.couponsList);
+      invalidateCacheTag(CACHE_TAGS.coupon(id));
 
       return { success: true, data: updated };
     } catch (error) {
@@ -58,8 +78,8 @@ export async function deleteCouponAction(id: string) {
     try {
       await db.coupon.delete({ where: { id } });
 
-      revalidateTag("coupons-list");
-      revalidateTag(`coupon-${id}`);
+      invalidateCacheTag(CACHE_TAGS.couponsList);
+      invalidateCacheTag(CACHE_TAGS.coupon(id));
 
       return { success: true, message: "Coupon deleted" };
     } catch (error) {
@@ -67,22 +87,4 @@ export async function deleteCouponAction(id: string) {
       return { success: false, error: "Failed to delete coupon" };
     }
   });
-}
-
-export async function getAllCouponsAction() {
-  try {
-    const data = await getAllCoupons();
-    return { success: true, data };
-  } catch (error) {
-    return { success: false, error: "Failed to fetch coupons" };
-  }
-}
-
-export async function getCouponByIdAction(id: string) {
-  try {
-    const data = await getCouponById(id);
-    return { success: true, data };
-  } catch (error) {
-    return { success: false, error: "Coupon not found" };
-  }
 }

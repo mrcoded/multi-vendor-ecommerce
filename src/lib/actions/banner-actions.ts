@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { revalidateTag } from "next/cache";
-import { authenticatedAction } from "../auth-wrapper";
+import { CACHE_TAGS, invalidateCacheTag } from "@/lib/api/cache";
+import { authenticatedAction, publicQueryAction } from "../auth-wrapper";
 import {
   createBanner,
   getAllBanners,
@@ -11,63 +11,34 @@ import {
 } from "@/services/banner-service";
 import { BannerFormProps } from "@/types/banner";
 
+export async function getAllBannersAction() {
+  return publicQueryAction(() => getAllBanners());
+}
+
+export async function getBannerByIdAction(id: string) {
+  return authenticatedAction("Fetch Banner", ["ADMIN"], async () =>
+    getBannerById(id),
+  );
+}
+
 export async function createBannerAction(data: BannerFormProps) {
   return authenticatedAction("Create Banner", ["ADMIN"], async () => {
     try {
       const result = await createBanner(data);
 
-      revalidateTag("banners-list");
+      invalidateCacheTag(CACHE_TAGS.bannersList);
 
       return {
         success: true,
         data: result,
         message: "Banner created successfully!",
       };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || "Something went wrong",
-      };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Something went wrong";
+      return { success: false, error: message };
     }
   });
-}
-
-export async function fetchAllBannersAction() {
-  try {
-    // 🎯 Call the cached service directly
-    const data = await getAllBanners();
-
-    return {
-      success: true,
-      data,
-      message: "Banners fetched successfully",
-    };
-  } catch (error: any) {
-    console.error("[FETCH_ALL_BANNERS_ERROR]:", error);
-    return {
-      success: false,
-      error: "Unable to fetch Banners",
-    };
-  }
-}
-
-export async function fetchBannerByIdAction(bannerId: string) {
-  try {
-    // 🎯 Call the cached service directly
-    const data = await getBannerById(bannerId);
-
-    return {
-      success: true,
-      data,
-      message: "Banner fetched successfully",
-    };
-  } catch (error: any) {
-    console.error("[FETCH_BANNERS_BY_ID_ERROR]:", error);
-    return {
-      success: false,
-      error: "Unable to fetch Banner",
-    };
-  }
 }
 
 export async function updateBannerAction(id: string, data: BannerFormProps) {
@@ -75,26 +46,26 @@ export async function updateBannerAction(id: string, data: BannerFormProps) {
     try {
       const updated = await updateBanner(id, data);
 
-      revalidateTag("banners-list");
-      revalidateTag(`banner-${id}`);
+      invalidateCacheTag(CACHE_TAGS.bannersList);
+      invalidateCacheTag(CACHE_TAGS.banner(id));
 
       return { success: true, data: updated };
-    } catch (error) {
+    } catch {
       return { success: false, error: "Update failed" };
     }
   });
 }
 
 export async function deleteBannerAction(id: string) {
-  return authenticatedAction("Update Banner", ["ADMIN"], async () => {
+  return authenticatedAction("Delete Banner", ["ADMIN"], async () => {
     try {
       await db.banner.delete({ where: { id } });
 
-      revalidateTag("banners-list");
-      revalidateTag(`banner-${id}`);
+      invalidateCacheTag(CACHE_TAGS.bannersList);
+      invalidateCacheTag(CACHE_TAGS.banner(id));
 
       return { success: true, message: "Banner deleted" };
-    } catch (error) {
+    } catch {
       return { success: false, error: "Deletion failed" };
     }
   });

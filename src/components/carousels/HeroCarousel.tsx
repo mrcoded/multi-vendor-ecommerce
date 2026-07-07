@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -22,27 +21,28 @@ function HeroCarousel({ banners }: BannerProps) {
   return (
     <Carousel
       leftControl={
-        <ChevronLeft className="m-1 border border-gray-400 p-1.5 rounded-full bg-gray-400 w-10 h-10 text-white" />
+        <ChevronLeft className="m-1 h-10 w-10 rounded-full border border-border bg-card/90 p-1.5 text-foreground shadow-sm" />
       }
       rightControl={
-        <ChevronRight className="border border-gray-400 p-1.5 rounded-full bg-gray-400 w-10 h-10 text-white" />
+        <ChevronRight className="h-10 w-10 rounded-full border border-border bg-card/90 p-1.5 text-foreground shadow-sm" />
       }
-      className="rounded-md overflow-hidden"
+      className="overflow-hidden rounded-md"
     >
-      {banners?.map((banner) => {
-        return (
-          <Link key={banner.id} href={banner.link}>
-            <Image
-              width={712}
-              height={384}
-              className="w-full"
-              unoptimized
-              src={banner.imageUrl}
-              alt={banner.title}
-            />
-          </Link>
-        );
-      })}
+      {banners?.map((banner, index) => (
+        <Link key={banner.id} href={banner.link}>
+          <Image
+            width={1200}
+            height={480}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 66vw, 58vw"
+            className="aspect-[5/2] w-full object-cover"
+            src={banner.imageUrl}
+            alt={banner.title}
+            priority={index === 0}
+            fetchPriority={index === 0 ? "high" : "auto"}
+            unoptimized={banner.imageUrl.endsWith(".gif")}
+          />
+        </Link>
+      ))}
     </Carousel>
   );
 }

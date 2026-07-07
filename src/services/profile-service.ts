@@ -1,12 +1,14 @@
 import { db } from "@/lib/db";
 import { UserProfileProps } from "@/types/user";
+import { sanitizeUserProfileInput } from "@/lib/sanitize-payloads";
 
 export async function updateUserProfile(
   userId: string,
   profileData: UserProfileProps["profile"],
 ) {
+  const sanitizedProfile = sanitizeUserProfileInput(profileData);
   // 🎯 Destructure to ensure only valid DB fields hit the update
-  const { userId: _u, ...validData } = profileData;
+  const { userId: _u, ...validData } = sanitizedProfile;
 
   return await db.userProfile.update({
     where: { userId },

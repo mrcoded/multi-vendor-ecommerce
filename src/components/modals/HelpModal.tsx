@@ -19,16 +19,18 @@ import {
 } from "flowbite-react";
 
 export function HelpModal() {
-  const [openModal, setOpenModal] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
 
   return (
     <>
       <button
+        type="button"
         onClick={() => setOpenModal(true)}
-        className="md:flex items-center space-x-1 hidden text-green-950 dark:text-slate-100"
+        className="hidden items-center space-x-1 text-foreground transition-colors hover:text-primary md:flex"
+        aria-label="Help"
       >
-        <HelpCircle />
-        <span>Help</span>
+        <HelpCircle className="size-5" />
+        <span className="text-sm">Help</span>
       </button>
 
       <Modal show={openModal} onClose={() => setOpenModal(false)}>
@@ -36,53 +38,50 @@ export function HelpModal() {
           Need Help with Shopping? Talk to our Help Desk
         </ModalHeader>
         <ModalBody>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
             <Link
-              href="tel:0802344****"
-              className="flex items-center space-x-1 text-green-950 dark:text-slate-100"
+              href="tel:08023440000"
+              className="flex items-center space-x-3 text-foreground"
             >
-              <div className="flex items-center w-10 h-10 bg-lime-100 justify-center rounded-full">
-                <Headphones className="w-6 h-6 text-lime-800" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <Headphones className="h-5 w-5 text-primary" />
               </div>
-              <span>Call: 0802344****</span>
+              <span>Call: 08023440000</span>
             </Link>
 
             <Link
-              href="/track-order"
-              className="flex items-center space-x-1 text-green-950 dark:text-slate-100"
+              href="/dashboard/orders"
+              className="flex items-center space-x-3 text-foreground"
             >
-              <div className="flex items-center w-10 h-10 bg-lime-100 justify-center rounded-full">
-                <Truck className="w-6 h-6 text-lime-800" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <Truck className="h-5 w-5 text-primary" />
               </div>
               <span>Track your Order</span>
             </Link>
 
             <Link
-              href="tel:0802344****"
-              className="flex items-center space-x-1 text-green-950 dark:text-slate-100"
+              href="#"
+              className="flex items-center space-x-3 text-foreground"
             >
-              <div className="flex items-center w-10 h-10 bg-lime-100 justify-center rounded-full">
-                <CornerDownLeft className="w-6 h-6 text-lime-800" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <CornerDownLeft className="h-5 w-5 text-primary" />
               </div>
               <span>Returns and Refunds</span>
             </Link>
 
             <Link
-              href="tel:0802344****"
-              className="flex items-center space-x-1 text-green-950 dark:text-slate-100"
+              href="#"
+              className="flex items-center space-x-3 text-foreground"
             >
-              <div className="flex items-center w-10 h-10 bg-lime-100 justify-center rounded-full">
-                <MessageSquare className="w-6 h-6 text-lime-800" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <MessageSquare className="h-5 w-5 text-primary" />
               </div>
               <span>Chat with Us</span>
             </Link>
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={() => setOpenModal(false)}>I accept</Button>
-          <Button color="gray" onClick={() => setOpenModal(false)}>
-            Decline
-          </Button>
+          <Button onClick={() => setOpenModal(false)}>Close</Button>
         </ModalFooter>
       </Modal>
     </>

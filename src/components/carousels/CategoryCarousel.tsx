@@ -1,62 +1,76 @@
-"use client";
+// "use client";
 
 import Product from "../Product";
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
+import MultiCarousel from "./MultiCarousel";
+import { cn } from "@/lib/utils";
 import { ProductsProp } from "@/types/products";
 
 function CategoryCarousel({
   products,
-  isStorePage = false,
+  clipOverflow = false,
+  autoPlay = true,
+  infinite = true,
 }: {
   isStorePage?: boolean;
   products: ProductsProp["products"] | undefined;
+  clipOverflow?: boolean;
+  autoPlay?: boolean;
+  infinite?: boolean;
 }) {
   const responsive = {
     desktop: {
-      breakpoint: { max: 3000, min: 1024 },
+      breakpoint: { max: 3000, min: 1280 },
+      items: 5,
+      slidesToSlide: 1,
+      partialVisibilityGutter: 16,
+    },
+    laptop: {
+      breakpoint: { max: 1280, min: 1024 },
       items: 4,
-      slidesToSlide: 1, // Changed to 1 for smoother individual transitions
-      partialVisibilityGutter: 40, // Peeking amount in pixels
+      slidesToSlide: 1,
+      partialVisibilityGutter: 12,
     },
     tablet: {
-      breakpoint: { max: 1024, min: 464 },
+      breakpoint: { max: 1024, min: 640 },
       items: 3,
       slidesToSlide: 1,
-      partialVisibilityGutter: 30,
+      partialVisibilityGutter: 8,
     },
     mobile: {
-      breakpoint: { max: 464, min: 0 },
-      items: 2, // Show 1 fully and a bit of the next one
+      breakpoint: { max: 640, min: 0 },
+      items: 2,
       slidesToSlide: 1,
       partialVisibilityGutter: 0,
     },
   };
 
   return (
-    <Carousel
-      partialVisible={true} // CRITICAL: Enables the "partly visible" feature
-      swipeable={true}
-      draggable={true}
-      showDots={false} // Dots often look messy with partial visibility
+    <MultiCarousel
+      partialVisible={!clipOverflow}
+      swipeable
+      draggable
+      showDots={false}
       responsive={responsive}
-      ssr={true}
-      infinite={true}
-      autoPlay={true}
-      autoPlaySpeed={3000} // Slightly slower for better UX
-      keyBoardControl={true}
-      customTransition="transform 500ms ease-in-out" // Smoother cubic-bezier style transition
-      transitionDuration={500}
-      containerClass="carousel-container"
+      ssr
+      infinite={infinite}
+      autoPlay={autoPlay}
+      autoPlaySpeed={4000}
+      keyBoardControl
+      customTransition="transform 400ms ease-out"
+      transitionDuration={400}
+      containerClass={cn(
+        "carousel-container carousel-container--compact",
+        clipOverflow && "carousel-container--clip",
+      )}
       removeArrowOnDeviceType={["mobile"]}
-      dotListClass="custom-dot-list-style"
-      itemClass="px-1.5 lg:px-4" // Padding between items
-      centerMode={false}
+      itemClass="px-2 sm:px-2.5 h-full"
+      // customLeftArrow={<CarouselLeftArrow />}
+      // customRightArrow={<CarouselRightArrow />}
     >
-      {products?.map((product, i) => {
-        return <Product key={i} product={product} />;
-      })}
-    </Carousel>
+      {products?.map((product) => (
+        <Product key={product.id} product={product} compact />
+      ))}
+    </MultiCarousel>
   );
 }
 

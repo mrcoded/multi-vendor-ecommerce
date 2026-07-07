@@ -1,26 +1,28 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { CACHE_TAGS, invalidateCacheTag } from "@/lib/api/cache";
+import { revalidatePath } from "next/cache";
 import {
-  getVendorById as getVendorService,
-  updateVendorProfile,
-  deleteVendorUser,
   createVendorProfile,
+  deleteVendorUser,
   getAllVendors,
+  getVendorById,
+  updateVendorProfile,
   updateVendorStatusById,
 } from "@/services/vendor-service";
 import { authenticatedAction } from "../auth-wrapper";
 import { VendorProps } from "@/types/vendors";
 
-export async function fetchVendorByIdAction(id?: string) {
-  return authenticatedAction("Fetch Vendor", ["ADMIN", "VENDOR"], async () => {
-    try {
-      const data = await getVendorService(id);
-      return { success: true, data };
-    } catch (error: any) {
-      return { success: false, error: error.message };
-    }
-  });
+export async function getAllVendorsAction() {
+  return authenticatedAction("Fetch Vendors", ["ADMIN"], async () =>
+    getAllVendors(),
+  );
+}
+
+export async function getVendorByIdAction(id: string) {
+  return authenticatedAction("Fetch Vendor", ["ADMIN", "VENDOR"], async () =>
+    getVendorById(id),
+  );
 }
 
 export async function updateVendorAction(
@@ -31,8 +33,8 @@ export async function updateVendorAction(
     try {
       const updated = await updateVendorProfile(id, formData);
 
-      revalidateTag("vendors-list");
-      revalidateTag(`vendor-${id}`);
+      invalidateCacheTag(CACHE_TAGS.vendorsList);
+      invalidateCacheTag(CACHE_TAGS.vendor(id));
       revalidatePath(`/dashboard/vendors/${id}`);
 
       return {
@@ -51,10 +53,8 @@ export async function updateVendorStatusAction(id: string, status: boolean) {
     try {
       const updatedUser = await updateVendorStatusById(id, status);
 
-      // 🎯 THE CACHE BUSTERS
-      // This forces 'getAllVendors' to fetch fresh data on the next request
-      revalidateTag("vendors-list");
-      revalidateTag(`vendor-${id}`);
+      invalidateCacheTag(CACHE_TAGS.vendorsList);
+      invalidateCacheTag(CACHE_TAGS.vendor(id));
 
       return {
         success: true,
@@ -76,7 +76,7 @@ export async function deleteVendorAction(id: string) {
     try {
       await deleteVendorUser(id);
 
-      revalidateTag("vendors-list");
+      invalidateCacheTag(CACHE_TAGS.vendorsList);
       revalidatePath("/dashboard/vendors");
 
       return { success: true, message: "Vendor deleted successfully" };
@@ -93,7 +93,7 @@ export async function createVendorAction(
     try {
       const vendor = await createVendorProfile(formData);
 
-      revalidateTag("vendors-list");
+      invalidateCacheTag(CACHE_TAGS.vendorsList);
       revalidatePath("/dashboard/vendors");
 
       return {
@@ -103,26 +103,6 @@ export async function createVendorAction(
       };
     } catch (error: any) {
       return { success: false, error: error.message };
-    }
-  });
-}
-
-export async function fetchAllVendorsAction() {
-  return authenticatedAction("Fetch Vendors", ["ADMIN", "VENDOR"], async () => {
-    try {
-      // 🎯 Call the cached service directly
-      const data = await getAllVendors();
-      return {
-        success: true,
-        data,
-        message: "Vendors retrieved successfully",
-      };
-    } catch (error: any) {
-      console.error("[FETCH_ALL_VENDORS_ERROR]:", error);
-      return {
-        success: false,
-        error: error.message || "Unable to fetch vendors",
-      };
     }
   });
 }

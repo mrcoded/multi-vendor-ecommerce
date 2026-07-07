@@ -1,8 +1,10 @@
 import { db } from "@/lib/db";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/api/cache";
 import { OrderStatus } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 
 import { CheckoutProps, OrderItemProps } from "@/types/order";
+import { sanitizeCheckoutInput } from "@/lib/sanitize-payloads";
 
 function generateOrderNumber(length: number) {
   const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -19,7 +21,7 @@ export async function createOrderService(
   checkoutData: CheckoutProps,
   orderItems: OrderItemProps[],
 ) {
-  // Profile Upsert
+  const safeCheckout = sanitizeCheckoutInput(checkoutData);
   const {
     userId,
     emailAddress,
@@ -27,29 +29,25 @@ export async function createOrderService(
     paymentMethod,
     paymentToken,
     ...orderData
-  } = checkoutData;
+  } = safeCheckout;
 
   await db.userProfile.upsert({
     where: { userId },
-    update: orderData, // Scalars like firstName, phone, etc.
+    update: orderData,
     create: {
       ...orderData,
       email: emailAddress,
-
       user: { connect: { id: userId } },
     },
   });
 
-  // Atomic Transaction for Order + Inventory
   return await db.$transaction(
     async (tx) => {
-      // Create a container to store the "Real" data from the DB
       const productItems = [];
 
       for (const item of orderItems) {
         const quantity = parseInt(item.qty);
 
-        // Inventory Check & Update
         const product = await tx.product.update({
           where: { id: item.id, qty: { gte: quantity } },
           data: { qty: { decrement: quantity } },
@@ -60,19 +58,18 @@ export async function createOrderService(
             title: true,
             imageUrl: true,
             salePrice: true,
+            slug: true,
           },
         });
 
         if (!product) throw new Error(`Insufficient stock for ${item.title}`);
 
-        //Store this product info in our array to use later
         productItems.push({
           ...product,
           requestedQty: quantity,
         });
       }
 
-      // Create Order (Using your cleaned orderData)
       const newOrder = await tx.order.create({
         data: {
           ...orderData,
@@ -84,7 +81,6 @@ export async function createOrderService(
         },
       });
 
-      // Create Order Items using 'productItems'
       await tx.orderItem.createMany({
         data: productItems.map((item) => ({
           productId: item.id,
@@ -100,7 +96,6 @@ export async function createOrderService(
         })),
       });
 
-      // Create Sales records using 'productItems'
       await tx.sale.createMany({
         data: productItems.map((item) => ({
           orderId: newOrder.id,
@@ -115,14 +110,16 @@ export async function createOrderService(
         })),
       });
 
-      return newOrder;
+      return { order: newOrder, productItems };
     },
     { timeout: 30000 },
   );
 }
 
+/** Orders are user-scoped and mutate often — no Data Cache. */
 export async function getAllOrders(userId?: string) {
   return await db.order.findMany({
+    where: userId ? { userId } : undefined,
     orderBy: { createdAt: "desc" },
     include: {
       orderItems: true,
@@ -131,21 +128,12 @@ export async function getAllOrders(userId?: string) {
 }
 
 export async function getOrderById(id: string) {
-  // 🎯 THE SERVICE WRAPPER: Handles Data + Specific Order Caching
-  const getCachedOrder = unstable_cache(
-    async (orderId: string) => {
-      return await db.order.findUnique({
-        where: { id: orderId },
-        include: {
-          orderItems: true,
-        },
-      });
+  return await db.order.findUnique({
+    where: { id },
+    include: {
+      orderItems: true,
     },
-    [`order-${id}`],
-    { tags: [`order-${id}`], revalidate: 3600 },
-  );
-
-  return await getCachedOrder(id);
+  });
 }
 
 export async function deleteOrder(id: string) {
@@ -161,35 +149,36 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
   });
 }
 
-export async function getAllSales() {
-  // 🎯 THE SERVICE WRAPPER: Handles Data + Scoped Caching
-  const getCachedSales = unstable_cache(
-    async () => {
-      return await db.sale.findMany({
-        orderBy: { createdAt: "desc" },
-        include: {
-          product: {
-            select: {
-              title: true,
-              category: { select: { title: true } },
-            },
+const getCachedAllSales = unstable_cache(
+  async () => {
+    return await db.sale.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        product: {
+          select: {
+            title: true,
+            category: { select: { title: true } },
           },
         },
-      });
-    },
-    ["sales-list"],
-    { tags: ["sales-list"], revalidate: 3600 },
-  );
+      },
+    });
+  },
+  ["sales-list"],
+  {
+    tags: [CACHE_TAGS.salesList],
+    revalidate: CACHE_TTL.dashboard,
+  },
+);
 
-  return await getCachedSales();
+export async function getAllSales() {
+  return getCachedAllSales();
 }
 
 export async function getSalesByVendor(vendorId?: string) {
   if (!vendorId) return [];
 
-  // 🎯 THE SERVICE WRAPPER: Handles Vendor-Scoped Caching
-  const getCachedVendorSales = unstable_cache(
-    async (vId: string) => {
+  return unstable_cache(
+    async () => {
       return await db.sale.findMany({
         where: { vendorId },
         orderBy: { createdAt: "desc" },
@@ -197,10 +186,43 @@ export async function getSalesByVendor(vendorId?: string) {
     },
     [`sales-vendor-${vendorId}`],
     {
-      tags: [`sales-vendor-${vendorId}`, "sales-list"],
-      revalidate: 3600,
+      tags: [CACHE_TAGS.salesList, CACHE_TAGS.salesVendor(vendorId)],
+      revalidate: CACHE_TTL.dashboard,
     },
-  );
+  )();
+}
 
-  return await getCachedVendorSales(vendorId);
+type AuthUser = { id: string; role: string };
+
+export async function getOrdersForUser(user: AuthUser) {
+  const scopeId = user.role === "ADMIN" ? undefined : user.id;
+  return getAllOrders(scopeId);
+}
+
+export async function getOrderForUser(id: string, user: AuthUser) {
+  const data = await getOrderById(id);
+  if (!data) return null;
+
+  const isOwner = data.userId === user.id;
+  const isVendorOnOrder = data.orderItems.some(
+    (item) => item.vendorId === user.id,
+  );
+  const isAdmin = user.role === "ADMIN";
+
+  if (!isOwner && !isVendorOnOrder && !isAdmin) return null;
+
+  return data;
+}
+
+export async function getSalesForUser(user: AuthUser, vendorId?: string) {
+  if (user.role === "VENDOR") {
+    return getSalesByVendor(user.id);
+  }
+
+  if (user.role === "ADMIN") {
+    if (vendorId) return getSalesByVendor(vendorId);
+    return getAllSales();
+  }
+
+  return [];
 }

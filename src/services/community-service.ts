@@ -1,75 +1,80 @@
 import { db } from "@/lib/db";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/api/cache";
 import { unstable_cache } from "next/cache";
 import { CommunityPostFormProps } from "@/types/communityPost";
+import { sanitizeCommunityPostInput } from "@/lib/sanitize-payloads";
 
-// FETCH ALL (Cached)
+const getCachedAllCommunityPosts = unstable_cache(
+  async () => {
+    return await db.communityPost.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { category: true },
+    });
+  },
+  ["community-posts-list"],
+  {
+    tags: [CACHE_TAGS.communityPosts],
+    revalidate: CACHE_TTL.catalog,
+  },
+);
+
 export async function getAllCommunityPosts() {
-  const getCachedPosts = unstable_cache(
-    async () => {
-      return await db.communityPost.findMany({
-        orderBy: { createdAt: "desc" },
-        include: { category: true }, // Optional: Include category details
-      });
-    },
-    ["community-posts-list"],
-    { tags: ["community-posts"], revalidate: 3600 },
-  );
-  return await getCachedPosts();
+  return getCachedAllCommunityPosts();
 }
 
-// CREATE SERVICE
 export async function createCommunityPost(data: CommunityPostFormProps) {
   try {
+    const safeData = sanitizeCommunityPostInput(data);
     const existingCommunityPost = await db.communityPost.findUnique({
-      where: { slug: data.slug },
+      where: { slug: safeData.slug },
     });
 
     if (existingCommunityPost)
       throw new Error("A post with this slug already exists.");
 
-    const newBanner = await db.communityPost.create({ data });
+    const newPost = await db.communityPost.create({ data: safeData });
 
-    return newBanner;
-  } catch (error: any) {
+    return newPost;
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Failed to create post";
     console.error("[SERVICE_CREATE_COMMUNITY_POST_ERROR]:", error);
-    throw new Error(error.message || "Failed to create banner");
+    throw new Error(message);
   }
 }
 
 export async function getCommunityPostBySlug(slug: string) {
   try {
-    const getCachedPost = unstable_cache(
-      async (postSlug: string) => {
+    return await unstable_cache(
+      async () => {
         return await db.communityPost.findUnique({
-          where: { slug: postSlug },
-          // Pragmatic: Include the category for better UI/SEO
+          where: { slug },
           include: { category: { select: { title: true } } },
         });
       },
-      [`community-post-${slug}`], // Cache Key
+      [`community-post-${slug}`],
       {
-        tags: [`post-${slug}`], // Cache Tag for revalidation
-        revalidate: 3600, // 1 hour fallback
+        tags: [CACHE_TAGS.communityPosts, CACHE_TAGS.postBySlug(slug)],
+        revalidate: CACHE_TTL.catalog,
       },
-    );
-
-    return await getCachedPost(slug);
+    )();
   } catch (error) {
-    console.error("🕵️ DB_FETCH_ERROR:", error);
+    console.error("DB_FETCH_ERROR:", error);
     return null;
   }
 }
 
 export async function getCommunityPostById(postId: string) {
-  const getCachedPost = unstable_cache(
-    async (postId: string) => {
+  return unstable_cache(
+    async () => {
       return await db.communityPost.findUnique({
         where: { id: postId },
       });
     },
     [`community-post-id-${postId}`],
-    { tags: [`post-${postId}`], revalidate: 3600 },
-  );
-
-  return await getCachedPost(postId);
+    {
+      tags: [CACHE_TAGS.communityPosts, CACHE_TAGS.postById(postId)],
+      revalidate: CACHE_TTL.catalog,
+    },
+  )();
 }
