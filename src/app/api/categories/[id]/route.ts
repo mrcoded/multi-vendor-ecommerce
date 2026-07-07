@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 
 import { db } from "@/lib/db";
-import { authOptions } from "@/lib/authOptions";
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user;
 
     if (!user || user.role !== "ADMIN") {
@@ -45,7 +44,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newCategory);
   } catch (error) {
-    console.log(error);
     return NextResponse.json(
       {
         message: "Unable to create Category",
@@ -80,7 +78,6 @@ export async function GET(
 
     return NextResponse.json(category);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -104,7 +101,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user;
 
     if (!user || user.role === "USER") {
@@ -145,7 +142,6 @@ export async function DELETE(
 
     return NextResponse.json(deletedCategory);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -169,7 +165,7 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const user = session?.user;
 
     if (!user || user.role === "USER") {
@@ -213,7 +209,6 @@ export async function PUT(
 
     return NextResponse.json(updatedCategory);
   } catch (error) {
-    console.log(error);
 
     return NextResponse.json(
       {
@@ -226,3 +221,4 @@ export async function PUT(
     );
   }
 }
+
