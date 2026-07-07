@@ -34,6 +34,14 @@ const nextConfig = {
       "react-redux",
     ],
   },
+  serverExternalPackages: [
+    "uploadthing",
+    "@uploadthing/react",
+    "@uploadthing/mime-types",
+    "@uploadthing/shared",
+    "isomorphic-dompurify",
+    "jsdom"
+  ],
   output: "standalone",
 };
 
