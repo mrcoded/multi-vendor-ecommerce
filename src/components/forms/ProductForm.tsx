@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import toast from "react-hot-toast";
+
 import { User } from "next-auth";
 import { FieldValues, useForm } from "react-hook-form";
 
@@ -34,77 +35,119 @@ const ProductForm = ({
   stores: StoreProps[] | undefined;
 }) => {
   const userId = user?.id;
-  const vendor = useVendor(userId);
+  const { data: vendor } = useVendor(userId);
   const { data: users } = useUsers();
   const { data: categories } = useCategories();
-  const productData = useProductById(productId ?? "");
+  const { data: product } = useProductById(productId ?? "");
 
   const role = user?.role;
+
   const allStores = stores ?? [];
+
   const allUsers = users ?? [];
+
   const categoriesData = categories ?? [];
-  const vendorId = vendor?.data?.id;
-  const product = productData?.data;
 
-  const initialTags = product?.tags ?? [];
+  const vendorId = vendor?.id;
+
+  const prefilledProductIdRef = useRef<string | null>(null);
+
   const isWholeSale = product?.isWholesale ?? false;
-  const initialProductImages = product?.productImages ?? [];
 
-  const [tags, setTags] = useState<string[]>(initialTags);
+  const [tags, setTags] = useState<string[]>([]);
+
   const [isWholesaleCheck, setIsWholesaleCheck] = useState(false);
-  const [productImages, setProductImages] = useState(initialProductImages);
-  //mutations
+
+  const [productImages, setProductImages] = useState<string[]>([]);
+
   const { mutate: createProduct, isPending: isCreating } = useCreateProduct();
+
   const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
   const {
     register,
     reset,
     watch,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm<ProductServicesProps>({
     defaultValues: {
-      sku: product?.sku,
-      qty: product?.qty,
-      title: product?.title,
-      barcode: product?.barcode,
-      userId: product?.userId ?? "",
-      salePrice: product?.salePrice,
-      categoryId: product?.categoryId,
-      description: product?.description,
-      productPrice: product?.productPrice,
-      wholesalePrice: product?.wholesalePrice,
-      wholesaleQuantity: product?.wholesaleQuantity,
+      sku: "",
+      qty: 0,
+      title: "",
+      barcode: "",
+      userId: "",
+      salePrice: 0,
+      categoryId: "",
+      description: "",
+      productPrice: 0,
+      wholesalePrice: 0,
+      wholesaleQuantity: 0,
+      isWholesale: false,
+      isActive: false,
     },
     mode: "onChange",
   });
 
+  useEffect(() => {
+    if (!product?.id || prefilledProductIdRef.current === product.id) return;
+    prefilledProductIdRef.current = product.id;
+    const storeVendorId = product.store?.vendorId;
+    reset({
+      sku: product.sku ?? "",
+      qty: product.qty ?? 0,
+      title: product.title ?? "",
+      barcode: product.barcode ?? "",
+      userId: product.userId ?? storeVendorId ?? "",
+      salePrice: product.salePrice ?? 0,
+      categoryId: product.categoryId ?? "",
+      description: product.description ?? "",
+      productPrice: product.productPrice ?? 0,
+      wholesalePrice: product.wholesalePrice ?? 0,
+      wholesaleQuantity: product.wholesaleQuantity ?? 0,
+      isWholesale: product.isWholesale ?? false,
+      isActive: product.isActive ?? false,
+    });
+    setTags(product.tags ?? []);
+    setProductImages(product.productImages ?? []);
+    setIsWholesaleCheck(product.isWholesale ?? false);
+  }, [product, reset]);
+
+  useEffect(() => {
+    if (productId || role === "ADMIN" || !vendorId) return;
+
+    setValue("userId", vendorId);
+  }, [productId, role, vendorId, setValue]);
+
   const onSubmit = async (data: FieldValues) => {
     const formData = data as ProductServicesProps;
 
-    //Validation Guard
     if (!productImages || productImages.length === 0) {
       toast.error("Please upload at least one product image.");
+
       return;
     }
 
     const slug = generateSlug(formData.title);
+
     const productCode = generateUserCode("MVEP", formData.title);
+
     formData.slug = slug;
+
     formData.productImages = productImages ?? productImages[0];
+
     formData.tags = tags;
+
     formData.productCode = productCode;
 
     if (productId) {
-      // UPDATE MUTATION
-      // Call your server action with the cleaned data
       updateProduct({
         productId,
+
         formData,
       });
     } else {
-      //CREATE MUTATION
       createProduct(formData);
     }
   };
@@ -113,12 +156,11 @@ const ProductForm = ({
     <div>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full max-w-4xl py-2 px-4 sm:p-6 md:p-8 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mx-auto my-3"
+        className="mx-auto my-3 w-full max-w-4xl rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6 md:p-8"
       >
         <ProductInputForm
           register={register}
           errors={errors}
-          reset={reset}
           watch={watch}
           product={product}
           isWholeSale={isWholeSale}
