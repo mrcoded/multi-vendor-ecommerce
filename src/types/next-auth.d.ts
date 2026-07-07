@@ -1,8 +1,8 @@
-import { DefaultUser } from "next-auth";
+import { DefaultSession, DefaultUser } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
-    user: {
+    user: Omit<DefaultSession["user"], "emailVerified"> & {
       id: string;
       name: string;
       email: string;

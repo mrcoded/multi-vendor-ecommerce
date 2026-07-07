@@ -15,6 +15,7 @@ export interface ProductsProp {
     title: string;
     imageUrl: string | null;
     salePrice: number;
+    productPrice?: number;
   }[];
 }
 
@@ -24,6 +25,7 @@ export interface ProductProp {
   title: string;
   imageUrl: string | null;
   salePrice: number;
+  productPrice?: number;
 }
 
 export interface ProductFormProps {
@@ -61,7 +63,7 @@ export interface ProductServicesProps {
   wholesaleQuantity: number | null;
   wholesalePrice: number | null;
   userId: string;
-  store?: { id: string; title: string } | null;
+  store?: { id: string; title: string; vendorId?: string } | null;
   createdAt: Date | string;
 }
 
@@ -86,14 +88,13 @@ export interface ProductFormData {
   wholesaleQuantity: number | null;
   wholesalePrice: number | null;
   userId: string;
-  store?: { id: string; title: string } | null;
+  store?: { id: string; title: string; vendorId?: string } | null;
   createdAt: Date | string;
 }
 
 export interface ProductInputFormProps {
   register: UseFormRegister<T>;
   errors: FieldErrors<T>;
-  reset: <T extends object>(values?: T | undefined) => void;
   watch: any;
   categoriesData: CategoryProps[];
   vendorId: string | undefined;

@@ -1,5 +1,25 @@
 import { OrderStatus } from "@prisma/client";
 
+export type OrderWithItems = {
+  id: string;
+  orderNumber: string;
+  firstName: string;
+  lastName: string;
+  streetAddress: string;
+  city: string;
+  country: string;
+  paymentMethod: string;
+  shippingCost: number;
+  createdAt: Date;
+  orderItems: {
+    id: string;
+    title: string;
+    quantity: number;
+    price: number;
+    imageUrl: string;
+  }[];
+};
+
 export interface OrderCardProps {
   id: string;
   orderItems: {
