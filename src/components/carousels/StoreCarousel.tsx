@@ -1,10 +1,11 @@
-"use client";
+// "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
+import MultiCarousel from "./MultiCarousel";
+
+// import { CarouselLeftArrow, CarouselRightArrow } from "./CarouselArrows";
 
 interface StoreProps {
   stores: {
@@ -19,64 +20,63 @@ function StoreCarousel({ stores }: StoreProps) {
   const responsive = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
-      items: 6,
-      slidesToSlide: 3, // optional, default to 1.
+      items: 8,
+      slidesToSlide: 2,
     },
     tablet: {
-      breakpoint: { max: 1024, min: 464 },
-      items: 3,
-      slidesToSlide: 2, // optional, default to 1.
+      breakpoint: { max: 1024, min: 640 },
+      items: 5,
+      slidesToSlide: 2,
     },
     mobile: {
-      breakpoint: { max: 464, min: 0 },
-      items: 2,
-      slidesToSlide: 1, // optional, default to 1.
+      breakpoint: { max: 640, min: 0 },
+      items: 4,
+      slidesToSlide: 1,
     },
   };
 
   return (
-    <Carousel
-      swipeable={false}
-      draggable={false}
-      showDots={true}
+    <MultiCarousel
+      swipeable
+      draggable
+      showDots={false}
       responsive={responsive}
-      ssr={true} // means to render carousel on server-side.
-      infinite={true}
-      autoPlay={true}
+      ssr
+      infinite
+      autoPlay
       autoPlaySpeed={5000}
-      keyBoardControl={true}
-      customTransition="all .5"
-      transitionDuration={1000}
-      containerClass="carousel-container"
-      removeArrowOnDeviceType={["tablet", "mobile"]}
-      // deviceType={this.props.deviceType}
-      dotListClass="custom-dot-list-style"
-      itemClass="px-4"
+      keyBoardControl
+      customTransition="transform 400ms ease-out"
+      transitionDuration={400}
+      containerClass="carousel-container carousel-container--compact"
+      removeArrowOnDeviceType={["mobile", "tablet"]}
+      itemClass="px-1 sm:px-1.5"
+      // customLeftArrow={<CarouselLeftArrow />}
+      // customRightArrow={<CarouselRightArrow />}
     >
-      {stores &&
-        stores?.map((store, i) => {
-          return (
-            <Link
-              key={i}
-              href={`/store/${store.slug}`}
-              className="rounded-lg mr-2 sm:mr-3 bg-red-400"
-            >
-              <Image
-                id={store.id}
-                src={store?.imageUrl ?? "/assets/icon.png"}
-                alt="store name"
-                width={556}
-                height={556}
-                unoptimized
-                className="w-full rounded-2xl"
-              />
-              <h2 className="text-center dark:text-slate-200 text-slate-800 mt-2">
-                {store.title}
-              </h2>
-            </Link>
-          );
-        })}
-    </Carousel>
+      {stores.map((store) => (
+        <Link
+          key={store.id}
+          href={`/store/${store.slug}`}
+          className="group flex flex-col items-center gap-1.5 py-1"
+        >
+          <div className="size-12 overflow-hidden rounded-full border border-border bg-card group-hover:border-primary/40 sm:size-14">
+            <Image
+              src={store?.imageUrl ?? "/assets/icon.png"}
+              alt={store.title}
+              width={80}
+              height={80}
+              sizes="56px"
+              loading="lazy"
+              className="size-full object-cover"
+            />
+          </div>
+          <span className="line-clamp-2 w-full text-center text-[10px] leading-tight text-muted-foreground group-hover:text-foreground sm:text-xs">
+            {store.title}
+          </span>
+        </Link>
+      ))}
+    </MultiCarousel>
   );
 }
 
