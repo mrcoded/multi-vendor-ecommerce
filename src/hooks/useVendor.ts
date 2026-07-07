@@ -1,28 +1,48 @@
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 
 import {
   createVendorAction,
   deleteVendorAction,
-  fetchAllVendorsAction,
-  fetchVendorByIdAction,
+  getAllVendorsAction,
+  getVendorByIdAction,
   updateVendorAction,
   updateVendorStatusAction,
 } from "@/lib/actions/vendor-actions";
+import {
+  invokeServerAction,
+  runQueryAction,
+  type SuccessfulActionResult,
+} from "@/lib/api/apiRequest";
 import { VendorProps } from "@/types/vendors";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useVendors() {
+  // #region agent log
+  fetch("http://127.0.0.1:7704/ingest/beb5adb7-ea2f-4f2d-9f5d-fd3483b578e0", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Debug-Session-Id": "c1eccc",
+    },
+    body: JSON.stringify({
+      sessionId: "c1eccc",
+      runId: "post-fix",
+      hypothesisId: "B",
+      location: "useVendor.ts:useVendors",
+      message: "useVendors hook invoked",
+      data: { isServer: typeof window === "undefined" },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
+
   return useQuery({
     queryKey: ["vendors"],
-    queryFn: async () => {
-      const res = await fetchAllVendorsAction();
-      if (!res.success) throw new Error(res.error);
-      return res.data;
-    },
-    // Prevent calling the Server Action during the very first SSR render
+    queryFn: () => runQueryAction<VendorProps[]>(() => getAllVendorsAction()),
     enabled: typeof window !== "undefined",
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 1000 * 60 * 10,
   });
 }
 
@@ -31,14 +51,8 @@ export function useCreateVendor() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (formData: VendorProps["vendorProfile"]) => {
-      const res = await createVendorAction(formData);
-      console.log(res);
-      if (!res.success || !res.data?.success)
-        throw new Error("Vendor creation failed.");
-      return res.data;
-    },
-
+    mutationFn: (formData: VendorProps["vendorProfile"]) =>
+      invokeServerAction(() => createVendorAction(formData), "service"),
     onMutate: () => {
       queryClient.cancelQueries({ queryKey: ["vendors"] });
       router.prefetch("/dashboard/vendors");
@@ -47,43 +61,38 @@ export function useCreateVendor() {
       toast.success("Vendor created successfully!");
       router.push("/dashboard/vendors");
     },
-    onError: (error: any) => {
-      console.log(error);
-      toast.error(error.message || "Something went wrong");
-    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["vendors"] });
     },
   });
 }
 
-export function useUpdateVendor(id: string) {
+export function useUpdateVendor(
+  id: string,
+  options?: { redirectTo?: string; refreshSession?: boolean },
+) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { update: updateSession } = useSession();
 
   return useMutation({
-    mutationFn: async (formData: VendorProps["vendorProfile"]) => {
-      const res = await updateVendorAction(id, formData);
-      if (!res.success || !res.data?.success)
-        throw new Error("Vendor update failed.");
-      return res.data;
-    },
+    mutationFn: (formData: VendorProps["vendorProfile"]) =>
+      invokeServerAction<SuccessfulActionResult>(
+        () => updateVendorAction(id, formData),
+        "service",
+      ),
     onMutate: () => {
-      // 🎯 SYNC: Tell the "vendors" list it's time to refetch
       queryClient.cancelQueries({ queryKey: ["vendors"] });
-      router.prefetch("/dashboard/vendors");
+      router.prefetch(options?.redirectTo ?? "/dashboard/vendors");
     },
-    onSuccess: (res) => {
-      if (res.success) {
-        toast.success(res.message || "Store successfully updated!");
-        router.push("/dashboard/vendors");
+    onSuccess: async (res) => {
+      toast.success(res.message || "Store successfully updated!");
+      if (options?.refreshSession) {
+        await updateSession();
       }
+      router.push(options?.redirectTo ?? "/dashboard/vendors");
     },
-    onError: (err: any) => {
-      toast.error(err.message || "Vendor update failed.");
-      console.error(err);
-    },
-    onSettled: (res, err, variables) => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["vendors"] });
       queryClient.invalidateQueries({ queryKey: ["vendor", id] });
     },
@@ -94,29 +103,21 @@ export function useDeleteVendor() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteVendorAction(id),
+    mutationFn: (id: string) =>
+      invokeServerAction(() => deleteVendorAction(id), "action"),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendors"] });
       toast.success("Vendor deleted successfully");
-    },
-    onError: (err: any) => {
-      console.log("Something went wrong", err);
-      toast.error(err.message);
     },
   });
 }
 
 export function useVendor(id?: string) {
-  if (!id) return null;
   return useQuery({
     queryKey: ["vendor", id],
-    queryFn: async () => {
-      const res = await fetchVendorByIdAction(id);
-      if (!res.success || !res.data?.success)
-        throw new Error("Vendor fetch failed!");
-      return res.data.data;
-    },
-    // enabled: typeof window !== "undefined" && !!id,
+    queryFn: () =>
+      runQueryAction<VendorProps | null>(() => getVendorByIdAction(id!)),
+    enabled: !!id,
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -125,19 +126,11 @@ export function useUpdateVendorStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: boolean }) => {
-      const result = await updateVendorStatusAction(id, status);
-      if (!result.success || !result?.data?.success)
-        throw new Error("Vendor status update failed");
-      return result.data;
-    },
-    onSuccess: (data, variables) => {
-      toast.success(`Vendor updated successfully`);
-      // 🎯 Sync the client-side cache with the server-side revalidation
+    mutationFn: ({ id, status }: { id: string; status: boolean }) =>
+      invokeServerAction(() => updateVendorStatusAction(id, status), "service"),
+    onSuccess: () => {
+      toast.success("Vendor updated successfully");
       queryClient.invalidateQueries({ queryKey: ["vendors"] });
-    },
-    onError: (error: any) => {
-      toast.error(error.message);
     },
   });
 }

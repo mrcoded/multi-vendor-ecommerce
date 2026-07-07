@@ -12,54 +12,44 @@ import {
 import {
   createStoreAction,
   deleteStoreAction,
-  fetchAllStoresAction,
-  fetchStoreByIdAction,
-  fetchStoreBySlugAction,
+  getAllStoresAction,
+  getStoreByIdAction,
+  getStoreBySlugAction,
   updateStoreAction,
 } from "@/lib/actions/store-actions";
+import {
+  invokeServerAction,
+  runQueryAction,
+  type SuccessfulActionResult,
+} from "@/lib/api/apiRequest";
 import { StoreProps } from "@/types/store";
-import { getStoreById } from "@/services/store-service";
 
 export function useAllStores() {
   return useSuspenseQuery({
     queryKey: ["stores"],
-    queryFn: async () => {
-      const res = await fetchAllStoresAction();
-      if (!res.success) throw new Error(res.error);
-      return res.data;
-    },
+    queryFn: () => runQueryAction<StoreProps[]>(() => getAllStoresAction()),
   });
 }
 
-// GET By ID Hook
 export function useStoreById(id?: string) {
   return useQuery({
     queryKey: ["store", "id", id],
-    queryFn: async () => {
-      if (!id) return null;
-      const res = await fetchStoreByIdAction(id);
-      console.log(res);
-      if (!res) throw new Error("Failed to fetch store details");
-      return res;
-    },
+    queryFn: () =>
+      runQueryAction<StoreProps | null>(() => getStoreByIdAction(id!)),
     enabled: !!id,
   });
 }
 
-//  * CREATE STORE HOOK
-//  */
 export function useCreateStore() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (formData: StoreProps) => {
-      const res = await createStoreAction(formData);
-      console.log(res);
-      if (!res.data?.success || !res.success)
-        throw new Error("Failed to create store");
-      return res;
-    },
+    mutationFn: (formData: StoreProps) =>
+      invokeServerAction<SuccessfulActionResult>(
+        () => createStoreAction(formData),
+        "action",
+      ),
     onMutate: async () => {
       router.prefetch("/dashboard/stores");
       await queryClient.cancelQueries({ queryKey: ["stores"] });
@@ -68,36 +58,22 @@ export function useCreateStore() {
       toast.success(res.message || "Store created successfully!");
       router.push("/dashboard/stores");
     },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to create store.");
-      console.error(err);
-    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
     },
   });
 }
 
-/**
- * UPDATE STORE HOOK
- */
 export function useUpdateStore() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      formData,
-    }: {
-      id: string;
-      formData: StoreProps;
-    }) => {
-      const res = await updateStoreAction(id, formData);
-      if (!res.data?.success || !res.success)
-        throw new Error("Failed to update store");
-      return res;
-    },
+    mutationFn: ({ id, formData }: { id: string; formData: StoreProps }) =>
+      invokeServerAction<SuccessfulActionResult>(
+        () => updateStoreAction(id, formData),
+        "action",
+      ),
     onMutate: async ({ id }) => {
       router.prefetch("/dashboard/stores");
       await queryClient.cancelQueries({ queryKey: ["store", id] });
@@ -107,43 +83,30 @@ export function useUpdateStore() {
       toast.success(res.message || "Store successfully updated!");
       router.push("/dashboard/stores");
     },
-    onError: (err: any) => {
-      toast.error(err.message || "Store update failed.");
-      console.error(err);
-    },
-    onSettled: (res, err, variables) => {
+    onSettled: (_res, _err, variables) => {
       queryClient.invalidateQueries({ queryKey: ["store", variables.id] });
       queryClient.invalidateQueries({ queryKey: ["stores"] });
     },
   });
 }
 
-/**
- * DELETE STORE HOOK
- */
 export function useDeleteStore() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const res = await deleteStoreAction(id);
-      if (!res.data?.success || !res.success)
-        throw new Error("Failed to delete store");
-      return res;
-    },
+    mutationFn: (id: string) =>
+      invokeServerAction<SuccessfulActionResult>(
+        () => deleteStoreAction(id),
+        "action",
+      ),
     onMutate: async () => {
       router.prefetch("/dashboard/stores");
       await queryClient.cancelQueries({ queryKey: ["stores"] });
     },
     onSuccess: (res) => {
       toast.success(res.message || "Store successfully deleted!");
-      // Only redirects if not already on the stores page
       router.push("/dashboard/stores");
-    },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to delete store.");
-      console.error(err);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
@@ -154,11 +117,8 @@ export function useDeleteStore() {
 export function useStoreBySlug(slug: string) {
   return useQuery({
     queryKey: ["store", "slug", slug],
-    queryFn: async () => {
-      const res = await fetchStoreBySlugAction(slug);
-      if (!res.success) throw new Error("Failed to fetch store details");
-      return res.data;
-    },
+    queryFn: () =>
+      runQueryAction<StoreProps | null>(() => getStoreBySlugAction(slug)),
     enabled: !!slug,
   });
 }
