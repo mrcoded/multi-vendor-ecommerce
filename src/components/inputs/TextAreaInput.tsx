@@ -7,6 +7,7 @@ import {
   FieldErrors,
   Path,
 } from "react-hook-form";
+import { cn } from "@/lib/utils";
 
 interface TextAreaInputProps<T extends FieldValues> {
   label: string;
@@ -31,7 +32,7 @@ function TextAreaInput<T extends FieldValues>({
     <div className={className}>
       <label
         htmlFor={name}
-        className="block mb-2 text-sm font-medium text-gray-900 dark:text-slate-50 leading-6"
+        className="mb-2 block text-sm font-medium leading-6 text-foreground"
       >
         {label}
       </label>
@@ -41,11 +42,14 @@ function TextAreaInput<T extends FieldValues>({
           name={name}
           id={name}
           rows={3}
-          className="block w-full rounded-md border-0 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-lime-700 dark:focus:ring-slate-500 sm:text-sm sm:leading-6 dark:bg-transparent dark:text-slate-100"
+          className={cn(
+            "block w-full rounded-md border border-input bg-transparent px-3 py-3 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+            errors[name] && "border-destructive",
+          )}
           placeholder={`Type the ${label.toLowerCase()}`}
-        ></textarea>
-        {errors[`${name}`] && (
-          <span className="text-sm text-red-600">{label} is required</span>
+        />
+        {errors[name] && (
+          <span className="text-sm text-destructive">{label} is required</span>
         )}
       </div>
     </div>

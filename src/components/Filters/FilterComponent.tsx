@@ -18,14 +18,14 @@ const FilterComponent = ({
   const productCount = category?.products?.length ?? 0;
 
   return (
-    <div className="flex-1 space-y-6 text-slate-900">
+    <div className="flex-1 space-y-6 text-foreground">
       <BreadCrumb title={title} resultCount={productCount} />
       <SortingFilter isSearch={category?.isSearch} title={title} slug={slug} />
 
-      <div className="grid grid-cols-12 py-8 gap-4">
-        <div className="col-span-full lg:col-span-3">
+      <div className="grid grid-cols-12 gap-6 py-4 lg:py-8">
+        <aside className="col-span-full lg:col-span-3">
           <Filters slug={slug} isSearch={category?.isSearch} />
-        </div>
+        </aside>
 
         <div className="col-span-full lg:col-span-9">
           <FilteredProducts products={products} productCount={productCount} />
