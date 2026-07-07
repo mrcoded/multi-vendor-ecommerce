@@ -1,7 +1,14 @@
 import { db } from "@/lib/db";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/api/cache";
 import { ProductServicesProps } from "@/types/products";
+import {
+  sanitizeProductInput,
+  sanitizeProductSearchParams,
+} from "@/lib/sanitize-payloads";
 
+import { CATALOG_PAGE_SIZE } from "@/constants/catalog";
 import { Prisma } from "@prisma/client";
+import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
 export interface ProductQueryParams {
@@ -13,56 +20,55 @@ export interface ProductQueryParams {
   sort?: "asc" | "desc";
 }
 
-// GET Filtered Products (Cached for Public)
+const getCachedFilteredProducts = unstable_cache(
+  async (paramsJson: string) => {
+    const params = sanitizeProductSearchParams(
+      JSON.parse(paramsJson) as ProductQueryParams,
+    );
+    const pageSize = CATALOG_PAGE_SIZE;
+    const { page = "1", catId, search, min, max, sort } = params;
+
+    const where: Prisma.ProductWhereInput = {};
+    if (catId) where.categoryId = catId;
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
+    if (min || max) {
+      where.salePrice = {
+        gte: min ? parseFloat(min) : undefined,
+        lte: max ? parseFloat(max) : undefined,
+      };
+    }
+
+    const orderBy: Prisma.ProductOrderByWithRelationInput =
+      sort === "asc" || sort === "desc"
+        ? { salePrice: sort }
+        : { createdAt: "desc" };
+
+    return await db.product.findMany({
+      where,
+      orderBy,
+      skip: (parseInt(page) - 1) * pageSize,
+      take: pageSize,
+      include: { category: true },
+    });
+  },
+  ["products-filtered"],
+  {
+    tags: [CACHE_TAGS.productsList],
+    revalidate: CACHE_TTL.products,
+  },
+);
+
 export async function getFilteredProducts(params: ProductQueryParams) {
-  // 🎯 THE WRAPPER: define the cached logic
-  const getCachedData = unstable_cache(
-    async (p: ProductQueryParams) => {
-      const pageSize = 10;
-      const { page = "1", catId, search, min, max, sort } = p;
-
-      const where: Prisma.ProductWhereInput = {};
-      if (catId) where.categoryId = catId;
-
-      if (search) {
-        where.OR = [
-          { title: { contains: search, mode: "insensitive" } },
-          { description: { contains: search, mode: "insensitive" } },
-        ];
-      }
-
-      if (min || max) {
-        where.salePrice = {
-          gte: min ? parseFloat(min) : undefined,
-          lte: max ? parseFloat(max) : undefined,
-        };
-      }
-
-      const orderBy: Prisma.ProductOrderByWithRelationInput =
-        sort === "asc" || sort === "desc"
-          ? { salePrice: sort }
-          : { createdAt: "desc" };
-
-      return await db.product.findMany({
-        where,
-        orderBy,
-        skip: (parseInt(page) - 1) * pageSize,
-        take: pageSize,
-        include: { category: true },
-      });
-    },
-    [`products-list-${JSON.stringify(params)}`], // 🎯 Cache Key
-    {
-      tags: ["products-list"], // 🎯 Tag for revalidation
-      revalidate: 600,
-    },
-  );
-
-  // 🎯 THE INVOCATION: Call the cached function with the params
-  return await getCachedData(params);
+  return getCachedFilteredProducts(JSON.stringify(params));
 }
 
-// GET Single Product
 export async function getProductById(id: string) {
   return await db.product.findUnique({
     where: { id },
@@ -70,34 +76,32 @@ export async function getProductById(id: string) {
   });
 }
 
-// CREATE Bulk Products (Multi-Store)
 export async function createStoreProducts(data: ProductServicesProps) {
+  const safeData = sanitizeProductInput(data);
   const {
     productImages,
     storeIds,
     storeId,
     categoryId,
-    imageUrl,
     userId,
     slug,
+    store,
     ...rest
-  } = data;
+  } = safeData;
 
-  const operations = storeIds.map((storeId: string, id: React.Key) =>
+  const operations = storeIds.map((storeId: string, index: number) =>
     db.product.create({
       data: {
         ...rest,
-        slug: `${slug}+${id}`,
+        slug: `${slug}+${index}`,
         imageUrl:
           productImages && productImages.length > 0 ? productImages[0] : "",
-        // Parse numbers from your POST request
-        qty: Number(data.qty),
-        productPrice: Number(data.productPrice),
-        salePrice: Number(data.salePrice),
-        wholesaleQuantity: Number(data.wholesaleQuantity),
-        wholesalePrice: Number(data.wholesalePrice),
-        // Relations
-        category: { connect: { id: data.categoryId } },
+        qty: Number(safeData.qty),
+        productPrice: Number(safeData.productPrice),
+        salePrice: Number(safeData.salePrice),
+        wholesaleQuantity: Number(safeData.wholesaleQuantity),
+        wholesalePrice: Number(safeData.wholesalePrice),
+        category: { connect: { id: safeData.categoryId } },
         user: { connect: { id: userId } },
         store: { connect: { id: storeId } },
       },
@@ -107,19 +111,51 @@ export async function createStoreProducts(data: ProductServicesProps) {
   return await db.$transaction(operations);
 }
 
-export async function getProductBySlug(slug: string) {
+export const getProductBySlug = cache(async (slug: string) => {
   return unstable_cache(
     async () => {
       return await db.product.findUnique({
-        where: {
-          // Use the new composite key name generated by Prisma
-          slug: slug,
-        },
+        where: { slug },
         include: { store: true, category: true },
       });
     },
     [`product-slug-${slug}`],
-    { tags: [`product-${slug}`] },
+    {
+      tags: [CACHE_TAGS.productsList, CACHE_TAGS.product(slug)],
+      revalidate: CACHE_TTL.products,
+    },
+  )();
+});
+
+export async function getSimilarProducts(
+  categoryId: string,
+  excludeProductId: string,
+  limit = 8,
+) {
+  return unstable_cache(
+    async () => {
+      return await db.product.findMany({
+        where: {
+          categoryId,
+          isActive: true,
+          id: { not: excludeProductId },
+        },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          imageUrl: true,
+          salePrice: true,
+        },
+      });
+    },
+    [`similar-products-${categoryId}-${excludeProductId}-${limit}`],
+    {
+      tags: [CACHE_TAGS.productsList, CACHE_TAGS.categoryById(categoryId)],
+      revalidate: CACHE_TTL.products,
+    },
   )();
 }
 
@@ -127,7 +163,7 @@ export async function updateProduct(
   productId: string,
   data: ProductServicesProps,
 ) {
-  // 1. 🛡️ Fetch the product to verify existence and get context
+  const safeData = sanitizeProductInput(data);
   const originalProduct = await db.product.findUnique({
     where: { id: productId },
   });
@@ -136,45 +172,40 @@ export async function updateProduct(
     throw new Error("Product not found.");
   }
 
-  // Unique Name Check (Simplified)
-  // Check if the NEW name is taken by a DIFFERENT product in THIS store
   const existingConflict = await db.product.findFirst({
     where: {
-      slug: data.slug,
-      storeId: originalProduct.storeId, // Only check the current store
-      NOT: { id: productId }, // Exclude current record
+      slug: safeData.slug,
+      storeId: originalProduct.storeId,
+      NOT: { id: productId },
     },
   });
 
   if (existingConflict) {
-    throw new Error(`The name "${data.title}" is already taken in this store.`);
+    throw new Error(
+      `The name "${safeData.title}" is already taken in this store.`,
+    );
   }
 
-  const mainImage = data.productImages?.[0] || "";
+  const mainImage = safeData.productImages?.[0] || "";
 
-  const { categoryId, storeId, userId, store, ...rest } = data;
+  const { categoryId, storeId, userId, store, ...rest } = safeData;
 
-  // 3. 🎯 Direct Update
-  // We no longer loop or deleteMany. We just update the record you are looking at.
   try {
     return await db.product.update({
       where: { id: productId },
       data: {
         ...rest,
-        title: data.title,
-        slug: data.slug,
-        qty: Number(data.qty),
-        productPrice: Number(data.productPrice),
-        salePrice: Number(data.salePrice),
-        description: data.description,
+        title: safeData.title,
+        slug: safeData.slug,
+        qty: Number(safeData.qty),
+        productPrice: Number(safeData.productPrice),
+        salePrice: Number(safeData.salePrice),
+        description: safeData.description,
         imageUrl: mainImage,
-        productImages: data.productImages,
-        wholesaleQuantity: Number(data.wholesaleQuantity),
-        wholesalePrice: Number(data.wholesalePrice),
-        category: { connect: { id: data.categoryId } },
-        // We keep storeIds as a reference array if you need it,
-        // but we don't use it to trigger syncs anymore.
-        // storeIds: data.storeIds,
+        productImages: safeData.productImages,
+        wholesaleQuantity: Number(safeData.wholesaleQuantity),
+        wholesalePrice: Number(safeData.wholesalePrice),
+        category: { connect: { id: safeData.categoryId } },
       },
     });
   } catch (error) {
@@ -183,16 +214,18 @@ export async function updateProduct(
   }
 }
 
+const getCachedAllProducts = unstable_cache(
+  async () => {
+    return await db.product.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  },
+  ["all-products-list"],
+  { tags: [CACHE_TAGS.productsList], revalidate: CACHE_TTL.products },
+);
+
 export async function getAllProducts() {
-  return unstable_cache(
-    async () => {
-      return await db.product.findMany({
-        orderBy: { createdAt: "desc" },
-      });
-    },
-    ["all-products-list"],
-    { tags: ["products-list"] },
-  )();
+  return getCachedAllProducts();
 }
 
 export async function deleteProduct(productId: string) {

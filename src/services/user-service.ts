@@ -1,53 +1,54 @@
 import { db } from "@/lib/db";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/api/cache";
+import { CreateUserProps, UserProps } from "@/types/user";
+import { sanitizeRegistrationRole } from "@/lib/api/api-auth";
+import { sanitizeUserRegistrationInput } from "@/lib/sanitize-payloads";
+import { unstable_cache } from "next/cache";
 import bcrypt from "bcryptjs";
 import base64url from "base64url";
 import { v4 as uuidv4 } from "uuid";
-import { CreateUserProps, UserProps } from "@/types/user";
-import { unstable_cache } from "next/cache";
 
-/**
- * Get all users - Cached for performance on the Admin Dashboard
- */
+const getCachedAllUsers = unstable_cache(
+  async () => {
+    return await db.user.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        plan: true,
+        createdAt: true,
+      },
+    });
+  },
+  ["all-users-list"],
+  { tags: [CACHE_TAGS.usersList], revalidate: CACHE_TTL.dashboard },
+);
+
 export async function getAllUsers() {
-  return unstable_cache(
-    async () => {
-      return await db.user.findMany({
-        orderBy: { createdAt: "desc" },
-        // Add a select here so you don't accidentally send passwords to the table
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          status: true,
-          plan: true,
-          createdAt: true,
-        },
-      });
-    },
-    ["all-users-list"],
-    { tags: ["users-list"] },
-  )();
+  return getCachedAllUsers();
 }
 
-/**
- * Get user by email - Used mostly for Auth/Login
- */
 export async function getUserByEmail(email: string) {
   if (!email) return null;
   return await db.user.findUnique({ where: { email } });
 }
 
-/**
- * Create new user
- */
 export async function createNewUser(userData: CreateUserProps) {
-  const { name, password, email, role, plan, status } = userData;
+  const { name, password, email, role, plan, status } =
+    sanitizeUserRegistrationInput(userData);
 
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
     throw new Error("User already exists");
   }
+
+  const safeRole = sanitizeRegistrationRole(
+    role,
+    role === "VENDOR" ? "VENDOR" : "USER",
+  );
 
   const hashedPassword = await bcrypt.hash(password, 12);
   const rawToken = uuidv4();
@@ -58,7 +59,7 @@ export async function createNewUser(userData: CreateUserProps) {
       name,
       email,
       password: hashedPassword,
-      role,
+      role: safeRole,
       plan,
       status,
       verificationToken: encodedToken,
@@ -68,9 +69,6 @@ export async function createNewUser(userData: CreateUserProps) {
   return newUser;
 }
 
-/**
- * Get user by ID - Safe version for profile/UI display
- */
 export async function getUserById(id?: string) {
   if (!id) return null;
 
@@ -91,7 +89,16 @@ export async function getUserById(id?: string) {
     return user;
   } catch (error) {
     console.error(`[SERVICE_ERROR] getUserById:`, error);
-    // Don't throw a generic error here, return null so the UI can handle "Not Found"
     return null;
   }
+}
+
+export async function getUserForRequester(
+  id: string,
+  requester: { id: string; role: string },
+) {
+  if (requester.role !== "ADMIN" && requester.id !== id) {
+    return null;
+  }
+  return getUserById(id);
 }

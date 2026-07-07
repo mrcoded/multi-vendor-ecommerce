@@ -1,50 +1,46 @@
 import { db } from "@/lib/db";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/api/cache";
 import { CategoryFormProps } from "@/types/category";
+import { sanitizeCategoryInput } from "@/lib/sanitize-payloads";
 import { unstable_cache } from "next/cache";
 
-export async function getAllCategories() {
-  // 🎯 THE SERVICE WRAPPER: Handles Data + Global Caching
-  const getCachedCategories = unstable_cache(
-    async () => {
-      return await db.category.findMany({
-        orderBy: { createdAt: "desc" },
-        include: {
-          products: true, // 🚀 Pragmatic: Only get the count for lists
-        },
-      });
-    },
-    ["all-categories-data"], // Static key for the full list
-    {
-      tags: ["categories-list"],
-      revalidate: 3600, // 1 hour TTL
-    },
-  );
+const getCachedAllCategories = unstable_cache(
+  async () => {
+    return await db.category.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { products: true },
+    });
+  },
+  ["all-categories-data"],
+  {
+    tags: [CACHE_TAGS.categoriesList],
+    revalidate: CACHE_TTL.catalog,
+  },
+);
 
-  return await getCachedCategories();
+export async function getAllCategories() {
+  return getCachedAllCategories();
 }
 
 export async function getCategoryBySlug(slug: string) {
-  // 🎯 THE SERVICE WRAPPER: Handles Data + Caching
-  const getCachedCategory = unstable_cache(
-    async (s: string) => {
+  return unstable_cache(
+    async () => {
       return await db.category.findUnique({
-        where: { slug: s },
+        where: { slug },
         include: {
           products: {
-            where: { isActive: true }, // Pragmatic: only fetch active products for the public
+            where: { isActive: true },
             orderBy: { createdAt: "desc" },
           },
         },
       });
     },
-    [`category-detail-${slug}`], // Unique Key
+    [`category-detail-${slug}`],
     {
-      tags: [`category-${slug}`, "categories-list"],
-      revalidate: 3600,
+      tags: [CACHE_TAGS.categoriesList, CACHE_TAGS.category(slug)],
+      revalidate: CACHE_TTL.catalog,
     },
-  );
-
-  return await getCachedCategory(slug);
+  )();
 }
 
 export async function getCategoryById(id: string) {
@@ -55,8 +51,9 @@ export async function getCategoryById(id: string) {
 }
 
 export async function createCategory(data: CategoryFormProps) {
+  const safeData = sanitizeCategoryInput(data);
   const existing = await db.category.findUnique({
-    where: { slug: data.slug },
+    where: { slug: safeData.slug },
   });
 
   if (existing) {
@@ -65,24 +62,25 @@ export async function createCategory(data: CategoryFormProps) {
 
   return await db.category.create({
     data: {
-      title: data.title,
-      slug: data.slug,
-      imageUrl: data.imageUrl,
-      description: data.description,
-      isActive: data.isActive,
+      title: safeData.title,
+      slug: safeData.slug,
+      imageUrl: safeData.imageUrl,
+      description: safeData.description,
+      isActive: safeData.isActive,
     },
   });
 }
 
 export async function updateCategory(id: string, data: CategoryFormProps) {
+  const safeData = sanitizeCategoryInput(data);
   return await db.category.update({
     where: { id },
     data: {
-      title: data.title,
-      slug: data.slug,
-      imageUrl: data.imageUrl,
-      description: data.description,
-      isActive: data.isActive,
+      title: safeData.title,
+      slug: safeData.slug,
+      imageUrl: safeData.imageUrl,
+      description: safeData.description,
+      isActive: safeData.isActive,
     },
   });
 }

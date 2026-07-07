@@ -1,19 +1,20 @@
 import { db } from "@/lib/db";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/api/cache";
 import { VendorProps } from "@/types/vendors";
+import { sanitizeVendorProfileInput } from "@/lib/sanitize-payloads";
 import { unstable_cache } from "next/cache";
 
 export async function createVendorProfile(data: VendorProps["vendorProfile"]) {
+  const safeData = sanitizeVendorProfileInput(data);
   return await db.$transaction(async (tx) => {
-    //Check if user exists
     const existingUser = await tx.user.findUnique({
-      where: { id: data.userId },
+      where: { id: safeData.userId },
     });
 
     if (!existingUser) throw new Error("No User Found");
 
-    // Update User Verification
     const updatedUser = await tx.user.update({
-      where: { id: data.userId },
+      where: { id: safeData.userId },
       data: { emailVerified: true },
       select: {
         id: true,
@@ -27,21 +28,20 @@ export async function createVendorProfile(data: VendorProps["vendorProfile"]) {
       },
     });
 
-    //  Create Vendor Profile
     await tx.vendorProfile.create({
       data: {
-        code: data.code,
-        contactPerson: data.contactPerson,
-        contactPersonPhone: data.contactPersonPhone,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        notes: data.notes,
-        phone: data.phone,
-        physicalAddress: data.physicalAddress,
-        terms: data.terms,
-        imageUrl: data.imageUrl ?? "",
-        userId: data.userId,
+        code: safeData.code,
+        contactPerson: safeData.contactPerson,
+        contactPersonPhone: safeData.contactPersonPhone,
+        email: safeData.email,
+        firstName: safeData.firstName,
+        lastName: safeData.lastName,
+        notes: safeData.notes,
+        phone: safeData.phone,
+        physicalAddress: safeData.physicalAddress,
+        terms: safeData.terms,
+        imageUrl: safeData.imageUrl ?? "",
+        userId: safeData.userId,
       },
     });
 
@@ -49,31 +49,30 @@ export async function createVendorProfile(data: VendorProps["vendorProfile"]) {
   });
 }
 
-export async function getAllVendors() {
-  // 🎯 THE SERVICE WRAPPER: Centralized Data + Cache logic
-  const getCachedVendors = unstable_cache(
-    async () => {
-      return await db.user.findMany({
-        where: { role: "VENDOR" },
-        select: {
-          vendorProfile: true,
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          status: true,
-          createdAt: true,
-          emailVerified: true,
-          imageUrl: true,
-        },
-        orderBy: { createdAt: "desc" },
-      });
-    },
-    ["vendors-list"],
-    { tags: ["vendors-list"], revalidate: 3600 },
-  );
+const getCachedAllVendors = unstable_cache(
+  async () => {
+    return await db.user.findMany({
+      where: { role: "VENDOR" },
+      select: {
+        vendorProfile: true,
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        emailVerified: true,
+        imageUrl: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  },
+  ["vendors-list"],
+  { tags: [CACHE_TAGS.vendorsList], revalidate: CACHE_TTL.catalog },
+);
 
-  return await getCachedVendors();
+export async function getAllVendors() {
+  return getCachedAllVendors();
 }
 
 export async function getVendorById(id?: string) {
@@ -94,13 +93,17 @@ export async function getVendorById(id?: string) {
 }
 
 export async function updateVendorProfile(id: string, data: any) {
+  const safeData = sanitizeVendorProfileInput({
+    ...data,
+    userId: data.userId ?? id,
+  });
+
   return await db.$transaction(async (tx) => {
-    // Update User Table
     await tx.user.update({
       where: { id },
       data: {
         emailVerified: true,
-        status: data.isActive,
+        status: true,
       },
       select: {
         id: true,
@@ -113,20 +116,35 @@ export async function updateVendorProfile(id: string, data: any) {
       },
     });
 
-    // Update Vendor Profile Table
-    return await tx.vendorProfile.update({
+    const existingProfile = await tx.vendorProfile.findUnique({
       where: { userId: id },
+    });
+
+    const profileData = {
+      contactPerson: safeData.contactPerson,
+      contactPersonPhone: safeData.contactPersonPhone,
+      email: safeData.email,
+      firstName: safeData.firstName,
+      lastName: safeData.lastName,
+      notes: safeData.notes,
+      phone: safeData.phone,
+      physicalAddress: safeData.physicalAddress,
+      terms: safeData.terms,
+      imageUrl: safeData.imageUrl,
+    };
+
+    if (existingProfile) {
+      return await tx.vendorProfile.update({
+        where: { userId: id },
+        data: profileData,
+      });
+    }
+
+    return await tx.vendorProfile.create({
       data: {
-        contactPerson: data.contactPerson,
-        contactPersonPhone: data.contactPersonPhone,
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        notes: data.notes,
-        phone: data.phone,
-        physicalAddress: data.physicalAddress,
-        terms: data.terms,
-        imageUrl: data.imageUrl,
+        ...profileData,
+        code: safeData.code,
+        userId: id,
       },
     });
   });
@@ -143,7 +161,6 @@ export async function updateVendorStatusById(id: string, newStatus: boolean) {
     where: { id },
     data: {
       status: newStatus,
-      // Pragmatic: If approving, we usually want to verify the email too
       emailVerified: true,
     },
   });
