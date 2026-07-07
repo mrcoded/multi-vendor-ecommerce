@@ -1,11 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { cartInitialStateProps } from "../../types/redux";
 
-//Get InitialState from locastorage if available
-const initialState: cartInitialStateProps[] =
-  (typeof window !== "undefined" &&
-    JSON.parse(localStorage.getItem("cart") || "[]")) ||
-  [];
+const initialState: cartInitialStateProps[] = [];
 
 //Create a slice for the cart
 export const cartSlice = createSlice({
@@ -13,6 +9,9 @@ export const cartSlice = createSlice({
   initialState,
   //Create reducers for the cart
   reducers: {
+    hydrateCart: (_state, action) => {
+      return action.payload;
+    },
     addToCart: (state, action) => {
       const {
         id,
@@ -20,6 +19,7 @@ export const cartSlice = createSlice({
         salePrice,
         imageUrl,
         userId: vendorId,
+        storeId,
       } = action.payload;
       //Check if item already exists in the cart
       const existingItem = state.find((item) => item.id === id);
@@ -36,6 +36,7 @@ export const cartSlice = createSlice({
           imageUrl,
           qty: 1,
           vendorId,
+          storeId,
         };
         state.push(newItem);
 

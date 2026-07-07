@@ -38,3 +38,13 @@ export interface UserProfileProps {
     profileImage: string;
   };
 }
+
+export type UserDetail = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  profile: UserProfileProps["profile"] | null;
+  createdAt: Date;
+  emailVerified: Date | null;
+};

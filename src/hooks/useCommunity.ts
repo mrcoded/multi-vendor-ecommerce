@@ -10,53 +10,40 @@ import {
   createCommunityPostAction,
   deleteCommunityPostAction,
   getAllCommunityPostsAction,
-  getCommunityPostAction,
+  getCommunityPostByIdAction,
+  getCommunityPostBySlugAction,
   updateCommunityPostAction,
 } from "@/lib/actions/community-actions";
-import {
-  getAllCommunityPosts,
-  getCommunityPostById,
-  getCommunityPostBySlug,
-} from "@/services/community-service";
+import { invokeServerAction, runQueryAction } from "@/lib/api/apiRequest";
 import { CommunityPostFormProps } from "@/types/communityPost";
 import { useRouter } from "next/navigation";
 
-// GET HOOK
 export function useCommunityPosts() {
   return useSuspenseQuery({
     queryKey: ["community-posts"],
-    queryFn: () => getAllCommunityPostsAction(),
+    queryFn: () =>
+      runQueryAction<CommunityPostFormProps[]>(() =>
+        getAllCommunityPostsAction(),
+      ),
   });
 }
 
-// CREATE HOOK (Optimistic)
 export function useCreateCommunityPost() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: CommunityPostFormProps) => {
-      const res = await createCommunityPostAction(data);
-      if (!res.success || !res.data?.success)
-        throw new Error("Failed to create Post.");
-      return res;
-    },
-
-    onMutate: async (newPost) => {
+    mutationFn: (data: CommunityPostFormProps) =>
+      invokeServerAction(() => createCommunityPostAction(data), "action"),
+    onMutate: async () => {
       router.prefetch("/dashboard/community");
       await queryClient.cancelQueries({ queryKey: ["community-posts"] });
     },
-
-    onError: (err, newPost, context) => {
-      console.log(err);
-      toast.error("Failed to create post!");
-    },
-
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["community-posts"] });
     },
     onSuccess: () => {
-      toast.success("Post sucessfully published!");
+      toast.success("Post successfully published!");
       router.push("/dashboard/community");
     },
   });
@@ -65,46 +52,30 @@ export function useCreateCommunityPost() {
 export function useCommunityPostBySlug(slug: string) {
   return useQuery({
     queryKey: ["community-post", slug],
-    queryFn: async () => {
-      const post = await getCommunityPostBySlug(slug);
-      if (!post) throw new Error("Post not found");
-      return post;
-    },
+    queryFn: () =>
+      runQueryAction<CommunityPostFormProps | null>(() =>
+        getCommunityPostBySlugAction(slug),
+      ),
     enabled: !!slug,
-    staleTime: 1000 * 60 * 15, // 15 minutes
+    staleTime: 1000 * 60 * 15,
   });
 }
 
-// 🎯 UPDATE HOOK (Optimistic)
 export function useUpdateCommunityPost() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: CommunityPostFormProps;
-    }) => {
-      const res = await updateCommunityPostAction(id, data);
-      if (!res.success || !res.data?.success)
-        throw new Error("Failed to update post.");
-      return res.data;
-    },
-    onMutate: async ({ id, data }) => {
+    mutationFn: ({ id, data }: { id: string; data: CommunityPostFormProps }) =>
+      invokeServerAction(() => updateCommunityPostAction(id, data)),
+    onMutate: async () => {
       router.prefetch("/dashboard/community");
       await queryClient.cancelQueries({ queryKey: ["community-posts"] });
     },
-    onError: (err) => {
-      toast.error("Update community post failed.");
-      console.log(err);
-    },
-    onSettled: (variables) => {
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: ["community-posts"] });
       queryClient.invalidateQueries({
-        queryKey: ["community-posts", variables?.data?.id],
+        queryKey: ["community-post", variables.id],
       });
     },
     onSuccess: () => {
@@ -114,29 +85,20 @@ export function useUpdateCommunityPost() {
   });
 }
 
-// 🎯 DELETE HOOK (Optimistic)
 export function useDeleteCommunityPost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const res = await deleteCommunityPostAction(id);
-      if (!res.success || !res.data?.success)
-        throw new Error("Failed to delete post.");
-      return res;
-    },
-    onMutate: async (id) => {
+    mutationFn: (id: string) =>
+      invokeServerAction(() => deleteCommunityPostAction(id), "action"),
+    onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["community-posts"] });
-    },
-    onError: (err) => {
-      toast.error("Could not delete post.");
-      console.log(err);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["community-posts"] });
     },
     onSuccess: () => {
-      toast.success("Community Post removed.");
+      toast.success("Community post removed.");
     },
   });
 }
@@ -144,13 +106,10 @@ export function useDeleteCommunityPost() {
 export function useCommunityPostById(id: string | undefined) {
   return useQuery({
     queryKey: ["community-post", id],
-    queryFn: async () => {
-      if (!id) return null;
-      const post = await getCommunityPostAction(id);
-      console.log(post);
-      if (!post || !post.data) throw new Error("Post not found");
-      return post.data;
-    },
+    queryFn: () =>
+      runQueryAction<CommunityPostFormProps | null>(() =>
+        getCommunityPostByIdAction(id!),
+      ),
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
   });

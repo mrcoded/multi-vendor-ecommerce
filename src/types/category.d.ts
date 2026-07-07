@@ -11,6 +11,7 @@ export interface CategoryProps {
     slug: string;
     imageUrl: string | null;
     salePrice: number;
+    productPrice?: number;
   }[];
 }
 

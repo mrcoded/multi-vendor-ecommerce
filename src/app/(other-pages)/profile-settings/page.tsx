@@ -1,58 +1,60 @@
-import React, { Suspense } from "react";
+import React from "react";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
+import type { Metadata } from "next";
 import { Trash2, Key } from "lucide-react";
 
-import Loading from "@/app/loading";
-import { authOptions } from "@/lib/authOptions";
-
+import { auth } from "@/auth";
 import UserUpdateForm from "@/components/forms/UserUpdateForm";
 import VendorProfileUpdate from "./_components/VendorProfileUpdate";
+import { Button } from "@/components/ui/button";
+import { noIndexMetadata } from "@/lib/seo";
 
+export const metadata: Metadata = noIndexMetadata(
+  "Account Settings",
+  "Manage your BelStore account profile and preferences.",
+  "/profile-settings",
+);
 export default async function EditProfilePage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user;
 
   return (
-    <div className="max-w-4xl mx-auto px-2 sm:p-4 space-y-6">
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-        {/* Header */}
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-          <h1 className="text-xl font-bold">Account Settings</h1>
-          <p className="text-sm text-slate-500">
+    <div className="mx-auto max-w-4xl space-y-6 px-2 py-4 sm:p-4">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="border-b border-border p-4 sm:p-6">
+          <h1 className="text-lg font-semibold text-foreground sm:text-xl">
+            Account Settings
+          </h1>
+          <p className="text-sm text-muted-foreground">
             Update your personal and residence information.
           </p>
         </div>
 
-        <Suspense fallback={<Loading />}>
-          <div className="min-h-screen">
-            {user?.role === "USER" ? (
-              <UserUpdateForm user={user} />
-            ) : (
-              <VendorProfileUpdate user={user} />
-            )}
-          </div>
-        </Suspense>
+        {user?.role === "USER" ? (
+          <UserUpdateForm user={user} />
+        ) : (
+          <VendorProfileUpdate user={user} />
+        )}
       </div>
 
-      {/* Danger Zone */}
-      <div className="bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-900/30 p-6 space-y-4">
-        <h2 className="text-lg font-bold text-red-700 dark:text-red-500">
+      <div className="space-y-4 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:p-6">
+        <h2 className="text-base font-semibold text-destructive">
           Danger Zone
         </h2>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Link
-            href="/reset-password"
-            className="flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
-          >
-            <Key className="size-4" /> Change Password
-          </Link>
-          <button
-            type="button"
-            className="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
-          >
-            <Trash2 className="size-4" /> Delete Account
-          </button>
+        <p className="text-sm text-muted-foreground">
+          Irreversible actions for your account.
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/reset-password">
+              <Key className="size-4" />
+              Change Password
+            </Link>
+          </Button>
+          <Button type="button" variant="destructive" size="sm">
+            <Trash2 className="size-4" />
+            Delete Account
+          </Button>
         </div>
       </div>
     </div>

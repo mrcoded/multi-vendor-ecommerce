@@ -90,6 +90,14 @@
     @apply border-border;
   }
 
+  html,
+  body,
+  header,
+  main,
+  footer {
+    transition: none;
+  }
+
   body {
     @apply bg-background text-foreground;
     min-height: 100vh;
@@ -106,7 +114,7 @@
   }
 
   .hover-lift {
-    @apply transition-all duration-300 ease-out;
+    @apply transition-[transform,box-shadow] duration-300 ease-out;
   }
 
   .hover-lift:hover {

@@ -9,6 +9,8 @@ export type cartInitialStateProps = {
   salePrice: number;
   imageUrl: string;
   qty: number;
+  vendorId?: string;
+  storeId?: string;
 };
 
 export type checkoutInitialStateProps = {
