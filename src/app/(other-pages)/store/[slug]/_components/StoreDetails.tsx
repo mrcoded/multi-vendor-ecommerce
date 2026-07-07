@@ -1,113 +1,208 @@
 import React from "react";
+
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone, MapPin, MessageSquare } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  MessageSquare,
+  Package,
+  LayoutGrid,
+  Store,
+} from "lucide-react";
 
 import { StoreProps } from "@/types/store";
 
-const StoreDetails = ({ store }: { store?: StoreProps }) => {
-  return (
-    <div className="bg-white border border-gray-200 rounded-2xl dark:bg-gray-800 dark:border-gray-700 overflow-hidden shadow-sm">
-      <div className="p-3 sm:p-5 xl:p-8 flex flex-col sm:flex-row gap-3 sm:gap-6 lg:gap-8 xl:gap-10">
-        {/* Store Logo/Image */}
-        <div className="flex-shrink-0 flex justify-center md:block">
-          <div className="">
-            <Image
-              src={store?.imageUrl || "/placeholder-store.png"}
-              width={128}
-              height={128}
-              unoptimized
-              alt={store?.title ?? "Store image"}
-              className="size-20 md:w-24 md:h-24 xl:w-32 xl:h-32 rounded-2xl object-cover ring-4 ring-slate-50 dark:ring-gray-700 shadow-md"
-            />
-          </div>
-        </div>
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-        {/* Store Info & Description */}
-        <div className="flex-grow">
-          <div className="flex flex-row sm:items-center justify-between gap-4 mb-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold lg:font-black text-slate-900 dark:text-white mb-1.5">
+interface StoreDetailsProps {
+  store?: StoreProps;
+  productCount?: number;
+  categoryCount?: number;
+}
+
+const StoreDetails = ({
+  store,
+  productCount = 0,
+  categoryCount = 0,
+}: StoreDetailsProps) => {
+  const whatsappNumber = store?.storePhone?.replace(/\D/g, "");
+  const hasWhatsApp = Boolean(whatsappNumber);
+
+  return (
+    <section className="overflow-hidden rounded-lg border border-border bg-card">
+      {/* Cover */}
+      <div className="relative h-20 overflow-hidden sm:h-24">
+        {store?.imageUrl ? (
+          <Image
+            src={store.imageUrl}
+            alt=""
+            fill
+            unoptimized
+            className="object-cover blur-sm brightness-75"
+            aria-hidden
+          />
+        ) : (
+          <div className="size-full bg-gradient-to-r from-primary/15 via-secondary to-accent/10" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/40 to-transparent" />
+      </div>
+
+      <div className="relative px-3 pb-4 sm:px-5 sm:pb-5">
+        {/* Identity row */}
+        <div className="-mt-10 flex flex-col gap-3 sm:-mt-11 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex min-w-0 items-end gap-3">
+            <div className="relative shrink-0">
+              <Image
+                src={store?.imageUrl || "/assets/icon.png"}
+                width={80}
+                height={80}
+                unoptimized
+                alt={store?.title ?? "Store"}
+                className="size-16 rounded-xl border-2 border-card object-cover shadow-md ring-1 ring-border sm:size-20"
+              />
+              <span className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+                <Store className="size-2.5" />
+              </span>
+            </div>
+
+            <div className="min-w-0 space-y-1 pb-0.5">
+              <h1 className="truncate text-lg font-bold text-foreground sm:text-xl lg:text-2xl">
                 {store?.title}
               </h1>
-              <div className="flex items-center text-lime-600 dark:text-lime-400 font-bold text-xs sm:text-sm uppercase tracking-tighter">
-                <MapPin className="mr-1 size-2.5 sm:size-3.5" />
-                {store?.city}, {store?.country}
+
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Badge
+                  variant="primary"
+                  className="gap-1 px-2 py-0 text-[10px] sm:text-xs"
+                >
+                  <MapPin className="size-2.5" />
+                  {store?.city}, {store?.country}
+                </Badge>
               </div>
             </div>
+          </div>
 
-            {/* Quick Contact Action */}
-            <Link
-              href={`https://wa.me/${store?.storePhone?.replace(/\D/g, "")}`}
-              className="sm:inline-flex items-center justify-center px-2 sm:px-5 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-all transform active:scale-95 shadow-lg shadow-green-200 dark:shadow-none"
+          {hasWhatsApp && (
+            <Button
+              variant="accent"
+              size="sm"
+              asChild
+              className="h-8 shrink-0 self-start px-3 text-xs sm:self-auto sm:h-9 sm:px-4 sm:text-sm"
             >
-              <MessageSquare className="sm:mr-2 size-4" />
-              <span className="hidden sm:flex">Chat on WhatsApp</span>
-            </Link>
-          </div>
+              <Link
+                href={`https://wa.me/${whatsappNumber}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageSquare className="size-3.5 sm:size-4" />
+                <span className="hidden sm:inline">Chat on WhatsApp</span>
+                <span className="sm:hidden">WhatsApp</span>
+              </Link>
+            </Button>
+          )}
+        </div>
 
-          <p className="text-slate-600 dark:text-slate-300 text-sm lg:text-base leading-relaxed mb-3 md:mb-6 max-w-3xl line-clamp-2">
-            {store?.description ||
-              "High-quality products curated for the best shopping experience in Lagos. We prioritize customer satisfaction and fast delivery."}
+        {/* Stats */}
+        {(productCount > 0 || categoryCount > 0) && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {productCount > 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+                <Package className="size-3.5 text-primary" />
+                <span>
+                  <strong className="font-semibold text-foreground">
+                    {productCount}
+                  </strong>{" "}
+                  {productCount === 1 ? "Product" : "Products"}
+                </span>
+              </span>
+            )}
+            {categoryCount > 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+                <LayoutGrid className="size-3.5 text-primary" />
+                <span>
+                  <strong className="font-semibold text-foreground">
+                    {categoryCount}
+                  </strong>{" "}
+                  {categoryCount === 1 ? "Category" : "Categories"}
+                </span>
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Description */}
+        {store?.description && (
+          <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:line-clamp-3 sm:text-sm">
+            {store.description}
           </p>
+        )}
 
-          {/* Detailed Contact Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-3 md:pt-6 border-t border-slate-100 dark:border-gray-700">
-            {/* Phone */}
-            <div className="flex items-center gap-2 md:gap-3 group">
-              <div className="p-2 bg-slate-100 dark:bg-gray-700 rounded-lg group-hover:bg-lime-100 dark:group-hover:bg-lime-900/30 transition-colors">
-                <Phone className="size-2.5 sm:size-4 text-slate-500 dark:text-slate-400 group-hover:text-lime-600" />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase font-bold text-slate-400">
-                  Call Us
-                </p>
-                <Link
-                  href={`tel:${store?.storePhone}`}
-                  className="text-sm font-semibold hover:text-lime-600 transition-colors"
-                >
-                  {store?.storePhone}
-                </Link>
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="flex items-center gap-2 md:gap-3 group">
-              <div className="p-2 bg-slate-100 dark:bg-gray-700 rounded-lg group-hover:bg-lime-100 dark:group-hover:bg-lime-900/30 transition-colors">
-                <Mail className="size-2.5 sm:size-4 text-slate-500 dark:text-slate-400 group-hover:text-lime-600" />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase font-bold text-slate-400">
-                  Email Address
-                </p>
-                <a
-                  href={`mailto:${store?.storeEmail}`}
-                  className="text-sm font-semibold hover:text-lime-600 transition-colors truncate block max-w-[180px]"
-                >
-                  {store?.storeEmail}
-                </a>
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className="flex items-center gap-2 md:gap-3 group">
-              <div className="p-2 bg-slate-100 dark:bg-gray-700 rounded-lg group-hover:bg-lime-100 dark:group-hover:bg-lime-900/30 transition-colors">
-                <MapPin className="size-2.5 sm:size-4 text-slate-500 dark:text-slate-400 group-hover:text-lime-600" />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase font-bold text-slate-400">
-                  Store Location
-                </p>
-                <p className="text-xs sm:text-sm font-semibold line-clamp-1">
-                  {store?.streetAddress}
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* Contact strip */}
+        <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
+          {store?.storePhone && (
+            <ContactChip
+              href={`tel:${store.storePhone}`}
+              icon={Phone}
+              label={store.storePhone}
+            />
+          )}
+          {store?.storeEmail && (
+            <ContactChip
+              href={`mailto:${store.storeEmail}`}
+              icon={Mail}
+              label={store.storeEmail}
+            />
+          )}
+          {store?.streetAddress && (
+            <ContactChip
+              icon={MapPin}
+              label={store.streetAddress}
+              className="max-w-full sm:max-w-xs"
+            />
+          )}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
+
+function ContactChip({
+  href,
+  icon: Icon,
+  label,
+  className,
+}: {
+  href?: string;
+  icon: React.ElementType;
+  label: string;
+  className?: string;
+}) {
+  const content = (
+    <>
+      <Icon className="size-3 shrink-0 text-primary" />
+      <span className="truncate">{label}</span>
+    </>
+  );
+
+  const baseClass = cn(
+    "inline-flex max-w-[calc(100vw-2rem)] items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2.5 py-1.5 text-[11px] font-medium text-foreground transition-colors sm:max-w-none sm:text-xs",
+    href && "hover:border-primary/30 hover:bg-muted/60",
+    className,
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={baseClass}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <span className={baseClass}>{content}</span>;
+}
 
 export default StoreDetails;

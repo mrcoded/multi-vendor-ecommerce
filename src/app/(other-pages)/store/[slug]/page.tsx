@@ -1,24 +1,25 @@
 import React, { Suspense } from "react";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
+
+import { getStoreBySlug } from "@/services/store-service";
+import { getAllCategories } from "@/services/category-service";
+
+import { buildPageMetadata } from "@/lib/seo";
 import Loading from "@/app/loading";
 
 import { CategoryProps } from "@/types/category";
 
-import BreadCrumb from "@/components/BreadCrumb";
-import StoreDetails from "./_components/StoreDetails";
-import CategoryList from "../../category/_components/CategoryList";
-
-import { fetchStoreBySlugAction } from "@/lib/actions/store-actions";
-import { fetchAllCategoriesAction } from "@/lib/actions/category-actions";
+import StorePageContent from "./_components/StorePageContent";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-//This function handles the SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const { data: store } = await fetchStoreBySlugAction(slug);
+
+  const store = await getStoreBySlug(slug);
 
   if (!store) {
     return {
@@ -26,69 +27,56 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  return {
-    title: `${store.title} | Belstore Market`,
+  return buildPageMetadata({
+    title: `${store.title} | BelStore Market`,
+
     description: store.description,
-    openGraph: {
-      title: store.title,
-      description: store.description || "Store description",
-      url: `${process.env.NEXT_PUBLIC_URL}/store/${store.slug}`,
-      siteName: " Belstore Market",
-      images: [
-        {
-          url: store.imageUrl || "/default-store-banner.jpg",
-          width: 1200,
-          height: 630,
-          alt: store.title,
-        },
-      ],
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: store.title,
-      description: store.description || "Store description",
-      images: [store.imageUrl || "/default-store-banner.jpg"],
-    },
-  };
+
+    path: `/store/${store.slug}`,
+    image: store.imageUrl,
+  });
 }
 
 async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  const { data: store } = await fetchStoreBySlugAction(slug);
-  const storeCategoriyIds = store?.categoryIds;
+  const [store, categoriesData] = await Promise.all([
+    getStoreBySlug(slug),
 
-  //Get Categories
-  const { data: categoriesData } = await fetchAllCategoriesAction();
+    getAllCategories(),
+  ]);
 
-  //get store categories
-  const storeCategories = categoriesData?.filter((category: CategoryProps) => {
-    return storeCategoriyIds?.includes(category.id);
-  });
+  if (!store) {
+    notFound();
+  }
+
+  const storeCategoryIds = store.categoryIds;
+
+  const storeCategories =
+    categoriesData?.filter((category: CategoryProps) => {
+      if (!storeCategoryIds?.includes(category.id)) return false;
+
+      return category.products.some((product) => product.storeId === store.id);
+    }) ?? [];
+
+  const productCount = storeCategories.reduce((total, category) => {
+    const storeProducts =
+      category.products?.filter((product) => product.storeId === store.id) ??
+      [];
+
+    return total + storeProducts.length;
+  }, 0);
 
   return (
-    <>
-      <BreadCrumb />
+    <div className="animate-fade-in space-y-5 pb-8 sm:space-y-6">
       <Suspense fallback={<Loading />}>
-        <StoreDetails store={store} />
-        <div className="grid grid-cols-12 gap-6 py-8 w-full">
-          <div className="space-y-5 md:space-y-8 col-span-full sm:col-span-12 rounded-md">
-            {storeCategories?.map((category: CategoryProps) => {
-              return (
-                <div key={category.id}>
-                  <CategoryList
-                    storeId={store?.id}
-                    isStorePage={true}
-                    category={category}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <StorePageContent
+          store={store}
+          storeCategories={storeCategories}
+          productCount={productCount}
+        />
       </Suspense>
-    </>
+    </div>
   );
 }
 
