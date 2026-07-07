@@ -35,10 +35,6 @@ const nextConfig = {
     ],
   },
   serverExternalPackages: [
-    "uploadthing",
-    "@uploadthing/react",
-    "@uploadthing/mime-types",
-    "@uploadthing/shared",
     "isomorphic-dompurify",
     "jsdom"
   ],
