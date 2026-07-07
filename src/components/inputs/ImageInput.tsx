@@ -1,5 +1,3 @@
-// @typescript-eslint/no-explicit-any
-
 "use client";
 
 import React from "react";
@@ -8,13 +6,15 @@ import Image from "next/image";
 import { Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { UploadDropzone } from "@/lib/uploadthing";
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
+import { Button } from "@/components/ui/button";
 
 interface ImageInputProps {
   label: string;
   imageUrl: string;
   className?: string;
   setImageUrl: React.Dispatch<React.SetStateAction<string>>;
-  endpoint: any;
+  endpoint: keyof OurFileRouter;
 }
 
 function ImageInput({
@@ -22,39 +22,40 @@ function ImageInput({
   imageUrl = "",
   setImageUrl,
   className = "col-span-full",
-  endpoint = "imageUploader",
+  endpoint,
 }: ImageInputProps) {
   return (
     <div className={className}>
-      <div className="flex justify-between items-center mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <label
           htmlFor="course-image"
-          className="block mb-2 text-xs sm:text-sm font-medium text-gray-900 dark:text-slate-50 leading-6"
+          className="block text-xs font-medium leading-6 text-foreground sm:text-sm"
         >
           {label}
         </label>
 
         {imageUrl && (
-          <button
-            onClick={() => {
-              setImageUrl("");
-            }}
+          <Button
             type="button"
-            className="flex space-x-1 sm:space-x-2 bg-slate-900 rounded-md shadow text-slate-50 py-1 sm:py-2 px-2 sm:px-4"
+            variant="outline"
+            size="sm"
+            onClick={() => setImageUrl("")}
+            className="gap-2"
           >
-            <Pencil className="w-3 h-3 sm:w-5 sm:h-5" />
-            <span className="text-xs sm:text-sm">Change Image</span>
-          </button>
+            <Pencil className="size-4" />
+            Change Image
+          </Button>
         )}
       </div>
       {imageUrl ? (
         <Image
-          src={imageUrl as string}
+          src={imageUrl}
           alt="Item image"
           width={1000}
           height={667}
           unoptimized
-          className="w-full h-64 object-contain"
+          priority
+          className="h-64 w-full rounded-lg border border-border object-contain"
         />
       ) : (
         <UploadDropzone
@@ -63,9 +64,16 @@ function ImageInput({
             setImageUrl(res[0].url);
             toast.success("Image uploaded successfully");
           }}
-          onUploadError={(error: Error) => {
-            console.log(error);
-            toast.error("Image Upload failed");
+          onUploadError={() => {
+            toast.error("Image upload failed");
+          }}
+          appearance={{
+            container:
+              "border-border bg-muted/30 ut-uploading:opacity-60 rounded-lg",
+            label: "text-foreground font-medium",
+            allowedContent: "text-muted-foreground text-xs",
+            button:
+              "bg-primary text-primary-foreground ut-ready:bg-primary ut-uploading:bg-primary/70 ut-readying:bg-primary/50 rounded-md px-4 py-2 text-sm font-medium transition-colors",
           }}
         />
       )}

@@ -80,7 +80,7 @@ function VendorForm({
 
     setImageUrl(vendorProfile?.imageUrl ?? "");
     setProducts(vendorProfile?.products ?? []);
-  }, [vendorProfile, reset]);
+  }, [vendor, vendorProfile, user, reset]);
 
   //onSubmit function
   const onSubmit = async (data: FieldValues) => {

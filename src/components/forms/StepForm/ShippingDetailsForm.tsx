@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Circle, Truck } from "lucide-react";
 
 import { RootState } from "@/types/redux";
@@ -13,8 +13,12 @@ import { CheckoutProps } from "@/types/order";
 import TextInput from "@/components/inputs/TextInput";
 import StepFormButton from "@/app/(other-pages)/checkout/_components/StepFormButton";
 
+const shippingOptionClass =
+  "inline-flex w-full cursor-pointer items-center justify-between rounded-lg border border-border bg-card p-3.5 text-sm text-muted-foreground transition-colors hover:bg-muted peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-foreground";
+
 const ShippingDetailsForm = ({ order }: { order: CheckoutProps | null }) => {
   const dispatch = useDispatch();
+  const prefilled = useRef(false);
 
   const currentStep = useSelector(
     (state: RootState) => state.checkout.currentStep,
@@ -30,122 +34,138 @@ const ShippingDetailsForm = ({ order }: { order: CheckoutProps | null }) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      streetAddress:
-        existingFormData.streetAddress || order?.streetAddress || "",
-      city: existingFormData.city || order?.city || "",
-      country: existingFormData.country || order?.country || "",
-      district: existingFormData.district || order?.district || "",
+      streetAddress: existingFormData.streetAddress || "",
+      city: existingFormData.city || "",
+      country: existingFormData.country || "",
+      district: existingFormData.district || "",
     },
   });
 
+  useEffect(() => {
+    if (!order || prefilled.current) return;
+    prefilled.current = true;
+
+    reset({
+      streetAddress:
+        existingFormData.streetAddress || order.streetAddress || "",
+      city: existingFormData.city || order.city || "",
+      country: existingFormData.country || order.country || "",
+      district: existingFormData.district || order.district || "",
+    });
+  }, [order, reset, existingFormData]);
+
   const processData = (data: FieldValues) => {
     data.shippingCost = shippingCost;
-    //Update the checkout Data
     dispatch(actions.updateCheckoutFormData(data));
-    //Update the Current step
     dispatch(actions.setCurrentStep(currentStep + 1));
   };
 
   return (
     <form onSubmit={handleSubmit(processData)}>
-      <h2 className="text-xl font-semibold mb-2 dark:text-lime-400">
-        Shipping Details
-      </h2>
-
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
-        <TextInput
-          label="Street Address"
-          name="streetAddress"
-          register={register}
-          errors={errors}
-          className="w-full"
-        />
-
-        <TextInput
-          label="City"
-          name="city"
-          register={register}
-          errors={errors}
-          className="w-full"
-        />
-
-        <TextInput
-          label="Country"
-          name="country"
-          register={register}
-          errors={errors}
-          className="w-full"
-        />
-
-        <TextInput
-          label="District"
-          name="district"
-          register={register}
-          errors={errors}
-          className="w-full"
-        />
-
-        {/* Shipping Cost */}
-        <div className="col-span-full">
-          <h3 className="mb-5 text-lg font-medium text-gray-900 dark:text-white">
-            Shippng Cost?
-          </h3>
-          <ul className="grid w-full gap-6 md:grid-cols-2">
-            <li>
-              <input
-                type="radio"
-                id="cheap"
-                name="shippingCost"
-                value="6"
-                className="sr-only peer"
-                onChange={(e) => setShippingCost(e.target.value)}
-                required
-              />
-              <label
-                htmlFor="cheap"
-                className="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
-              >
-                {/* Design */}
-                <div className="flex gap-2 items-center">
-                  <Truck className="w-5 h-5 ms-3 flex-shrink-0" />
-                  <div>
-                    <p>UPS</p>
-                    <p>Delivery Cost: $6</p>
-                  </div>
-                </div>
-                <Circle className="w-5 h-5 ms-3 flex-shrink-0 rtl:rotate-180" />
-              </label>
-            </li>
-            <li>
-              <input
-                type="radio"
-                id="expensive"
-                name="shippingCost"
-                value="36"
-                className="sr-only peer"
-                onChange={(e) => setShippingCost(e.target.value)}
-              />
-              <label
-                htmlFor="expensive"
-                className="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
-              >
-                <div className="flex gap-2 items-center">
-                  <Truck className="w-5 h-5 ms-3 flex-shrink-0" />
-                  <div>
-                    <p>UPS</p>
-                    <p>Delivery Cost: $36</p>
-                  </div>
-                </div>
-                <Circle className="w-5 h-5 ms-3 flex-shrink-0 rtl:rotate-180" />
-              </label>
-            </li>
-          </ul>
-        </div>
+      <div className="border-b border-border px-4 py-5 sm:px-6 sm:py-6">
+        <h2 className="text-lg font-semibold text-foreground sm:text-xl">
+          Shipping Details
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Where should we deliver your order?
+        </p>
       </div>
-      <StepFormButton />
+
+      <div className="space-y-4 p-4 sm:space-y-6 sm:p-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+          <TextInput
+            label="Street Address"
+            name="streetAddress"
+            register={register}
+            errors={errors}
+            className="w-full sm:col-span-2"
+          />
+
+          <TextInput
+            label="City"
+            name="city"
+            register={register}
+            errors={errors}
+            className="w-full"
+          />
+
+          <TextInput
+            label="Country"
+            name="country"
+            register={register}
+            errors={errors}
+            className="w-full"
+          />
+
+          <TextInput
+            label="District"
+            name="district"
+            register={register}
+            errors={errors}
+            className="w-full sm:col-span-2"
+          />
+
+          <div className="sm:col-span-2">
+            <h3 className="mb-1 text-sm font-medium text-foreground">
+              Delivery method
+            </h3>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Choose your preferred shipping option.
+            </p>
+            <ul className="grid w-full gap-3 sm:grid-cols-2">
+              <li>
+                <input
+                  type="radio"
+                  id="cheap"
+                  name="shippingCost"
+                  value="6"
+                  className="peer sr-only"
+                  onChange={(e) => setShippingCost(e.target.value)}
+                  defaultChecked={shippingCost === "6"}
+                  required
+                />
+                <label htmlFor="cheap" className={shippingOptionClass}>
+                  <div className="flex items-center gap-3">
+                    <Truck className="size-4 shrink-0 text-primary" />
+                    <div>
+                      <p className="font-medium text-foreground">UPS Standard</p>
+                      <p className="text-xs">Delivery in 5–7 days · $6.00</p>
+                    </div>
+                  </div>
+                  <Circle className="size-4 shrink-0 peer-checked:hidden" />
+                </label>
+              </li>
+              <li>
+                <input
+                  type="radio"
+                  id="expensive"
+                  name="shippingCost"
+                  value="36"
+                  className="peer sr-only"
+                  onChange={(e) => setShippingCost(e.target.value)}
+                  defaultChecked={shippingCost === "36"}
+                />
+                <label htmlFor="expensive" className={shippingOptionClass}>
+                  <div className="flex items-center gap-3">
+                    <Truck className="size-4 shrink-0 text-primary" />
+                    <div>
+                      <p className="font-medium text-foreground">UPS Express</p>
+                      <p className="text-xs">Delivery in 1–2 days · $36.00</p>
+                    </div>
+                  </div>
+                  <Circle className="size-4 shrink-0 peer-checked:hidden" />
+                </label>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <StepFormButton />
+      </div>
     </form>
   );
 };

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 
 import { FieldValues, useForm } from "react-hook-form";
-import { makePostRequest } from "@/lib/apiRequest";
+import { makePostRequest } from "@/lib/api/apiRequest";
 
 import TextInput from "../inputs/TextInput";
 import SubmitButton from "../buttons/SubmitButton";
@@ -38,13 +38,16 @@ function ForgotPasswordForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mx-6">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-3 sm:space-y-0 mx-6"
+    >
       <TextInput
         label="Enter Your email"
         name="email"
         register={register}
         errors={errors}
-        className="sm:col-span-2 mb-3"
+        className="sm:col-span-2"
         isRequired
       />
 
@@ -54,7 +57,7 @@ function ForgotPasswordForm() {
         loadingButtonTitle="Sending Password Reset Email..."
       />
 
-      <div className="flex">
+      <div className="flex gap-3">
         <p>Remember your password? </p>{" "}
         <Link
           href="/login"

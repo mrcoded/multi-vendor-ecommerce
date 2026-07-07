@@ -93,34 +93,34 @@ function RegisterForm({ role }: { role: string }) {
         loadingButtonTitle="Signing up..."
       />
 
-      <div className="space-y-3 pt-4 mt-2 border-t border-gray-100 dark:border-gray-700">
-        <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+      <div className="mt-2 space-y-3 border-t border-border pt-4">
+        <p className="text-center text-xs text-muted-foreground">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="font-semibold text-lime-600 hover:underline"
+            className="font-semibold text-primary hover:underline"
           >
             Login here
           </Link>
         </p>
 
-        <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg text-center">
+        <div className="rounded-lg bg-secondary p-3 text-center">
           {role === "USER" ? (
-            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+            <p className="text-[11px] text-muted-foreground">
               Want to sell on our platform?{" "}
               <Link
                 href="/vendor-pricing"
-                className="font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                className="font-bold text-accent hover:underline"
               >
                 Become a Vendor
               </Link>
             </p>
           ) : (
-            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+            <p className="text-[11px] text-muted-foreground">
               Looking to buy products?{" "}
               <Link
                 href="/register"
-                className="font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                className="font-bold text-primary hover:underline"
               >
                 Register as a Customer
               </Link>

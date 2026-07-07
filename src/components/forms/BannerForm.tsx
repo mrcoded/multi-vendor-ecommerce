@@ -12,9 +12,7 @@ import ToggleInput from "@/components/inputs/ToggleInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 
 const BannerForm = ({ bannerId }: { bannerId?: string }) => {
-  const { data: bannerData, error } = useBanner(bannerId ?? "");
-  console.log(bannerData, error);
-  const banner = bannerData?.data;
+  const { data: banner, error } = useBanner(bannerId ?? "");
   const id = banner?.id;
   const [imageUrl, setImageUrl] = useState("");
   //mutation
@@ -48,7 +46,6 @@ const BannerForm = ({ bannerId }: { bannerId?: string }) => {
     if (!formData.title || !formData.link) return;
 
     formData.imageUrl = imageUrl;
-    console.log(formData);
 
     if (id) {
       //PUT request (update)
@@ -111,3 +108,4 @@ const BannerForm = ({ bannerId }: { bannerId?: string }) => {
 };
 
 export default BannerForm;
+

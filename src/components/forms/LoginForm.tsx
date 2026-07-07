@@ -8,6 +8,10 @@ import toast from "react-hot-toast";
 import { signIn } from "next-auth/react";
 import { FieldValues, useForm } from "react-hook-form";
 
+import { ERROR_MESSAGES } from "@/constants/feedback";
+import { toastApiError } from "@/lib/api/api-errors";
+import { withClientRequest } from "@/lib/api/apiRequest";
+
 import TextInput from "@/components/inputs/TextInput";
 import SubmitButton from "@/components/buttons/SubmitButton";
 import PasswordVisibility from "@/components/PasswordVisibility";
@@ -31,32 +35,33 @@ function LoginForm() {
   const onSubmit = async (data: FieldValues) => {
     if (!data.email || !data.password) return;
 
-    setLoading(true);
-    const loginData = await signIn("credentials", {
-      ...data,
-      redirect: false,
-    });
+    try {
+      setLoading(true);
+      const loginData = await withClientRequest(() =>
+        signIn("credentials", {
+          ...data,
+          redirect: false,
+        }),
+      );
 
-    if (loginData?.error) {
-      // Handle login error
-      console.log("data", loginData?.error);
-      if (loginData?.status === 401) {
-        toast.error("Invalid email or password, Try again!");
+      if (loginData?.error) {
+        if (loginData?.status === 401) {
+          toast.error("Invalid email or password. Try again!");
+        } else {
+          toast.error(ERROR_MESSAGES.error);
+        }
+        return;
       }
 
-      if (loginData?.status === 500) {
-        toast.error("Something went wrong, Try again!");
+      if (loginData?.ok) {
+        toast.success("Login successful! Redirecting...");
+        router.push(decodeURIComponent(callbackUrl));
+        router.refresh();
       }
-
+    } catch (error) {
+      toastApiError(error);
+    } finally {
       setLoading(false);
-      return;
-    }
-
-    if (loginData?.ok) {
-      toast.success("Login successful! Redirecting...");
-      // If we have a callbackUrl path
-      router.push(decodeURIComponent(callbackUrl));
-      router.refresh();
     }
   };
 
@@ -91,7 +96,7 @@ function LoginForm() {
       <div className="flex items-center justify-between text-sm">
         <Link
           href="/forgot-password"
-          className="font-medium text-blue-600 hover:text-blue-500 hover:underline transition-colors"
+          className="font-medium text-primary transition-colors hover:underline"
         >
           Forgot password?
         </Link>
@@ -103,11 +108,11 @@ function LoginForm() {
         loadingButtonTitle="Authenticating..."
       />
 
-      <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+      <p className="mt-4 text-center text-sm text-muted-foreground">
         New to the platform?{" "}
         <Link
           href="/register"
-          className="font-semibold text-lime-600 hover:text-lime-500 transition-colors"
+          className="font-semibold text-primary transition-colors hover:underline"
         >
           Create an account
         </Link>
