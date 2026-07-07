@@ -1,80 +1,79 @@
 import React from "react";
-import LargeCard from "./LargeCard";
+import {
+  CalendarDays,
+  CalendarRange,
+  DollarSign,
+  TrendingUp,
+} from "lucide-react";
 
 import { SalesProps } from "@/types/dashboard";
 
+import LargeCard from "./LargeCard";
+
+type SaleRecord = { createdAt: Date; total: number };
+
+function sumSalesInRange(sales: SaleRecord[], start: Date, end: Date) {
+  return sales
+    .filter((sale) => {
+      const saleDate = new Date(sale.createdAt);
+      return saleDate >= start && saleDate <= end;
+    })
+    .reduce((acc, sale) => acc + sale.total, 0)
+    .toFixed(2);
+}
+
 function LargeCardGroups({ sales }: { sales: SalesProps["sales"] }) {
   const today = new Date();
-
+  const todayStart = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
   const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-
   const thisWeekStart = new Date(
     today.getFullYear(),
     today.getMonth(),
     today.getDate() - today.getDay(),
   );
 
-  //Get today's sales
-  const todaySales =
-    sales
-      .filter((sale: { createdAt: Date; total: number }) => {
-        const saleDate = new Date(sale.createdAt);
-        return saleDate.toDateString() === today.toDateString();
-      })
-      .reduce((acc, sale) => acc + sale.total, 0)
-      .toFixed(2) ?? "0";
-
-  //Get this week's sales
-  const thisWeekSales =
-    sales
-      .filter((sale: { createdAt: Date; total: number }) => {
-        const saleDate = new Date(sale.createdAt);
-        return saleDate >= thisWeekStart && saleDate <= today;
-      })
-      .reduce((acc, sale) => acc + sale.total, 0)
-      .toFixed(2) ?? "0";
-
-  //Get this month's sales
-  const thisMonthSales =
-    sales
-      .filter((sale: { createdAt: Date; total: number }) => {
-        const saleDate = new Date(sale.createdAt);
-        return saleDate >= thisMonthStart && saleDate <= today;
-      })
-      .reduce((acc, sale) => acc + sale.total, 0)
-      .toFixed(2) ?? "0";
-
-  //Get total sales
-  const totalSales =
-    sales.reduce((acc, sale) => acc + sale.total, 0).toFixed(2) ?? 0;
+  const todaySales = sumSalesInRange(sales, todayStart, today);
+  const thisWeekSales = sumSalesInRange(sales, thisWeekStart, today);
+  const thisMonthSales = sumSalesInRange(sales, thisMonthStart, today);
+  const totalSales = sales
+    .reduce((acc, sale) => acc + sale.total, 0)
+    .toFixed(2);
 
   const salesStats = [
     {
-      period: "Today Sales",
+      period: "Today's Sales",
       sales: todaySales,
-      color: "bg-green-600",
+      icon: DollarSign,
+      variant: "primary" as const,
     },
     {
-      period: "This week Sales",
+      period: "This Week",
       sales: thisWeekSales,
-      color: "bg-blue-600",
+      icon: CalendarDays,
+      variant: "secondary" as const,
     },
     {
-      period: "This Month Sales",
+      period: "This Month",
       sales: thisMonthSales,
-      color: "bg-orange-600",
+      icon: CalendarRange,
+      variant: "accent" as const,
     },
     {
-      period: "All-Time Sales",
+      period: "All-Time Revenue",
       sales: totalSales,
-      color: "bg-purple-600",
+      icon: TrendingUp,
+      variant: "muted" as const,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-3.5 lg:py-8">
-      {salesStats.map((item, i) => (
-        <LargeCard key={i} data={item} />
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {salesStats.map((item) => (
+        <LargeCard key={item.period} data={item} />
       ))}
     </div>
   );

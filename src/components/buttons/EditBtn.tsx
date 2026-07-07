@@ -13,9 +13,9 @@ function EditBtn({
   return (
     <Link
       href={`/dashboard/${editPageRoute}`}
-      className="flex items-center text-lime-600"
+      className="flex items-center text-primary transition-colors hover:text-primary/80"
     >
-      <Pencil className="mr-2 w-4 h-4" />
+      <Pencil className="mr-2 size-4" />
       <span>Edit {title}</span>
     </Link>
   );

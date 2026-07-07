@@ -1,23 +1,43 @@
 import React from "react";
-import { Layers } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
-interface LargeCardProps {
-  data: {
-    period: string;
-    sales: string;
-    color: string;
-  };
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
+import { StatVariant, statVariants } from "../../constants/stat-card-styles";
+
+export interface LargeCardData {
+  period: string;
+  sales: string;
+  icon: LucideIcon;
+  variant: StatVariant;
 }
 
-function LargeCard({ data }: LargeCardProps) {
+function LargeCard({ data }: { data: LargeCardData }) {
+  const { period, sales, icon: Icon, variant } = data;
+
   return (
-    <div
-      className={`rounded-lg text-white shadow-md p-4 xl:p-8 flex items-center flex-col gap-2 ${data.color}`}
-    >
-      <Layers />
-      <h4 className="font-semibold lg:font-bold text-nowrap">{data.period}</h4>
-      <h2 className="font-semibold text-2xl lg:text-3xl">{data.sales}</h2>
-    </div>
+    <Card className="hover-lift overflow-hidden">
+      <CardContent className="flex items-center gap-4 p-4 sm:p-5">
+        <div
+          className={cn(
+            "flex size-11 shrink-0 items-center justify-center rounded-xl",
+            statVariants[variant],
+          )}
+        >
+          <Icon className="size-5" aria-hidden />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {period}
+          </p>
+          <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground sm:text-3xl">
+            ${sales}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
